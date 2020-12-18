@@ -5,7 +5,7 @@ DEFAULT_GOAL: test doc/index.html
 all-test: DEFAULT_GOAL test
 
 # Add your formats to the following line:
-FORMATS = Standard Sleepmeter
+FORMATS = Standard Sleepmeter SleepAsAndroid
 
 DIARY_FILES = src/DiaryBase.js $(patsubst %,src/%/format.js,$(FORMATS))
 
