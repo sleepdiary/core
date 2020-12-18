@@ -80,4 +80,4 @@ Most formats do not detect this automatically, so this value is usually inferred
 You may find the following useful:
 
 * [JavaScript example code](format.js)
-* [Test cases](tests/)
+* [Test cases](test.js)

@@ -16,7 +16,7 @@ The documentation below adds details and discusses some undocumented features.  
 You may find the following useful:
 
 * [JavaScript example code](format.js)
-* [Test cases](tests/)
+* [Test cases](test.js)
 * [Examples](examples/)
 
 # Export process

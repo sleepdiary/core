@@ -14,7 +14,7 @@ This documentation was written by testing the app's behaviour in practice.  Alth
 This directory contains some examples you might want to use in your own code:
 
 * [JavaScript example code](format.js)
-* [Test cases](tests/)
+* [Test cases](test.js)
 * [Examples](examples/)
 
 # Export process
