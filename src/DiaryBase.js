@@ -156,8 +156,7 @@ class DiaryBase {
     static register( format ) {
         sleep_diary_formats.push(format);
         if ( format["url"][0] == '/' ) {
-            // TODO: add a permanent base URL:
-            format["url"] = "." + format["url"];
+            format["url"] = "https://andrew-sayers.github.io/sleep-diary-formats" + format["url"];
         }
         if ( format.name != "Standard" ) {
             sleep_diary_converters[format.name] = format.constructor;
