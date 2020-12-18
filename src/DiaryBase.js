@@ -43,6 +43,7 @@ let DiaryFormat;
 /**
  * List of known formats for sleep diaries
  * @type Array<DiaryFormat>
+ * @tutorial List supported formats
  * @public
  */
 const sleep_diary_formats = [];
