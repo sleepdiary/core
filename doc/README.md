@@ -24,6 +24,10 @@ var diary_loader = new DiaryLoader(
         // Define format-specific handlers for formats you recognise:
         switch ( diary.file_format() ) {
 
+        case "PleesTracker":
+            console.log( "Extras for PleesTracker", diary );
+            break;
+
         case "Sleepmeter":
             console.log( "Extras for Sleepmeter", diary );
             break;
