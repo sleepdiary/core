@@ -222,12 +222,32 @@ class DiarySleepAsAndroid extends DiaryBase {
         const line_3 = ",,,,,,,,,,,,((," + noise_value + ")*)";
 
         /*
+         * The complete document
+         */
+
+        const document =
+              "^(" +
+               line_1 + "\n" +
+               line_2 + "\n" +
+               "(" + line_3 + "\n)?" +
+              ")*" +
+              "(" +
+               line_1 + "\n" +
+               line_2 +
+               "(\n" + line_3 + ")?" +
+              ")" +
+              "\n?$"
+        ;
+
+        /*
          * Compiled regular expressions
          */
 
         const line_1_re = new RegExp("^" + line_1 + "$");
         const line_2_re = new RegExp("^" + line_2 + "$");
         const line_3_re = new RegExp("^" + line_3 + "$");
+
+        const document_re = new RegExp(document);
 
         const datetime_type_re = new RegExp(   datetime_type      );
         const     time_type_re = new RegExp(       time_type, "g" );
@@ -518,6 +538,7 @@ class DiarySleepAsAndroid extends DiaryBase {
             return this.initialise_from_url(file);
 
         case "string":
+            if ( !document_re.test(contents) ) return this.invalid(file);
             records = parse_sleep_export_csv.call(this,contents);
             break;
 
