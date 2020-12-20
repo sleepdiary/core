@@ -32,7 +32,7 @@ test.js: src/test-harness.js $(patsubst %,src/%/test.js,$(FORMATS))
 	cat $^ > $@
 
 doc/index.html: doc/README.md $(DIARY_FILES) doc/tutorials/*.md
-	jsdoc -d doc --readme $< $(DIARY_FILES) -u doc/tutorials
+	faketime "$(shell git log -1 --format="%ci" doc/README.md $(DIARY_FILES) doc/tutorials )" jsdoc -d doc --readme $< $(DIARY_FILES) -u doc/tutorials
 
 test: spec/support/jasmine.json test.js sleep-diary-formats.js
 	npx jasmine $<
