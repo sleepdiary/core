@@ -10,7 +10,7 @@ Third-party documentation for a variety of file formats.  These describe issues 
 * [Sleep as Android](src/SleepAsAndroid/)
 * [Sleepmeter](src/Sleepmeter/)
 
-The example code includes the ability to translate these all to and from [Standard format](src/Standard).
+The example code can translate these formats to and from [Standard format](src/Standard), which provides a standard interface for common functionality.
 
 ## JavaScript library
 
