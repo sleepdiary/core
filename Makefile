@@ -22,7 +22,8 @@ CLOSURE_OPTIONS= \
 		--js_output_file $@ \
 
 sleep-diary-formats.js: src/closure-externs.js src/closure.js $(DIARY_FILES)
-	$(CLOSURE) \
+	@echo "(closure)" $^ -\> $@
+	@$(CLOSURE) \
 		$(CLOSURE_OPTIONS) \
 		--language_out ECMASCRIPT3 \
 		--create_source_map $@.map \
