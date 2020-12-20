@@ -35,6 +35,7 @@ var diary_loader = new DiaryLoader(
         switch ( diary.file_format() ) {
         case "SleepAsAndroid":
         case "Sleepmeter":
+        case "PleesTracker":
             location = "src/" + diary.file_format() + "/demo.html#" + diary.to("url");
             break;
         default:
