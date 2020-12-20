@@ -9,6 +9,8 @@ Third-party documentation for a variety of file formats.  These describe issues 
 * [Sleep as Android](src/SleepAsAndroid/)
 * [Sleepmeter](src/Sleepmeter/)
 
+The example code includes the ability to translate these all to and from [Standard format](src/Standard).
+
 ## JavaScript library
 
 Each format includes example code for loading and saving documents in the relevant format.  They have been packaged into a JavaScript library you can use in your own projects.
