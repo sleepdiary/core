@@ -41,8 +41,8 @@ const DiaryStandardRecordStatus = {
  * @typedef {{
  *   start               : number,
  *   end                 : number,
- *   start_timezone      : string,
- *   end_timezone        : string,
+ *   start_timezone      : (string|undefined),
+ *   end_timezone        : (string|undefined),
  *   duration            : (number|null|undefined),
  *   status              : DiaryStandardRecordStatus,
  *   tags                : Array<string>,

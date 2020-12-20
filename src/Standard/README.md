@@ -27,7 +27,7 @@ Unix time in milliseconds when the record started.
 
 ### `start_timezone`
 
-User's timezone at the time referred to by the `start` record
+User's timezone at the time referred to by the `start` record (or `undefined` if unknown).  Should be a string from the [tz database](https://en.wikipedia.org/wiki/Tz_database).  The database includes several timezones of the form `Etc/GMT[+-]N` for use when converting from formats that store times as an offset from GMT.
 
 ### `end`
 
@@ -35,7 +35,7 @@ Unix time in milliseconds before which the record ended.  This should be a strin
 
 ### `end_timezone`
 
-User's timezone at the time referred to by the `end` record.  Should be a string from the [tz database](https://en.wikipedia.org/wiki/Tz_database).  The database includes several timezones of the form `Etc/GMT[+-]N` for use when converting from formats that store times as an offset from GMT.
+User's timezone at the time referred to by the `end` record (or `undefined` if unknown).  Should be a string from the [tz database](https://en.wikipedia.org/wiki/Tz_database).  The database includes several timezones of the form `Etc/GMT[+-]N` for use when converting from formats that store times as an offset from GMT.
 
 ### `duration`
 
