@@ -24,12 +24,12 @@ var diary_loader = new DiaryLoader(
         // Define format-specific handlers for formats you recognise:
         switch ( diary.file_format() ) {
 
-        case "SleepAsAndroid":
-            console.log( "Extras for Sleep as Android", diary );
-            break;
-
         case "Sleepmeter":
             console.log( "Extras for Sleepmeter", diary );
+            break;
+
+        case "SleepAsAndroid":
+            console.log( "Extras for Sleep as Android", diary );
             break;
 
         }

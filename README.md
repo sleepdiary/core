@@ -6,8 +6,8 @@ Documentation and code for file formats that record circadian rhythms.
 
 Third-party documentation for a variety of file formats.  These describe issues that implementors may face in practice, but which are not mentioned in the official documentation.
 
-* [Sleepmeter](src/Sleepmeter/)
 * [Sleep as Android](src/SleepAsAndroid/)
+* [Sleepmeter](src/Sleepmeter/)
 
 ## JavaScript library
 
