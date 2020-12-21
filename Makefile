@@ -1,4 +1,5 @@
-DEFAULT_GOAL: test doc/index.html
+DEFAULT_GOAL: test
+FULL: DEFAULT_GOAL doc/index.html
 
 .PHONY: DEFAULT_GOAL
 
