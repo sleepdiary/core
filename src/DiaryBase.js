@@ -123,6 +123,9 @@ class DiaryBase {
                 "contents"   : this,
             }));
 
+        case "json":
+            return JSON.stringify(this);
+
         default:
             if ( sleep_diary_converters.hasOwnProperty(to_format) ) {
                 return new sleep_diary_converters[to_format](
