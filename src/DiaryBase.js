@@ -101,6 +101,16 @@ class DiaryBase {
     /**
      * Convert a value to some other format
      *
+     * <p>Supported formats:</p>
+     *
+     * <ul>
+     *   <li><tt>output</tt> - contents serialised for output (e.g. to a file)</li>
+     *   <li><tt>url</tt> - contents serialised for inclusion in a URL</li>
+     *   <li><tt>json</tt> - contents serialised to JSON</li>
+     *   <li><tt>Standard</tt> - Standard format</li>
+     *   <li><em>(other formats)</em> - the name of any other diary format</li>
+     * </ul>
+     *
      * @nocollapse
      * @public
      *
