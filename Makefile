@@ -38,4 +38,5 @@ doc/index.html: doc/README.md $(DIARY_FILES) doc/tutorials/*.md
 	sed -i -e "s/Thu Jan 01 1970 ..:..:.. GMT+0000 (Coordinated Universal Time)/$(shell node -e "console.log(new Date('$(shell git log -1 --format="%ci" doc/README.md $(DIARY_FILES) doc/tutorials )').toString())" )/g" doc/*.html
 
 test: spec/support/jasmine.json test.js sleep-diary-formats.js
-	npx jasmine $<
+	jasmine $<
+	PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-no-sandbox node puppeteer-test.js
