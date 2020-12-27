@@ -10,8 +10,6 @@ FORMATS = Standard Sleepmeter SleepAsAndroid PleesTracker
 
 DIARY_FILES = src/DiaryBase.js $(patsubst %,src/%/format.js,$(FORMATS))
 
-CLOSURE=npx google-closure-compiler # run Closure via NPM
-#CLOSURE=java -jar compiler.jar # run Closure locally
 CLOSURE_OPTIONS= \
 		--generate_exports \
 		--export_local_property_definitions \
@@ -23,7 +21,7 @@ CLOSURE_OPTIONS= \
 
 sleep-diary-formats.js: src/closure-externs.js src/closure.js $(DIARY_FILES)
 	@echo "(closure)" $^ -\> $@
-	@$(CLOSURE) \
+	google-closure-compiler \
 		$(CLOSURE_OPTIONS) \
 		--language_out ECMASCRIPT3 \
 		--create_source_map $@.map \
