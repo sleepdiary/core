@@ -68,6 +68,10 @@ const sleep_diary_formats = require(".../sleep-diary-formats.js");
 let diary = sleep_diary_formats.new_sleep_diary( my_diary );
 ```
 
+## Browser support
+
+This library is actively tested in modern versions of Firefox and Chrome.  We try to support all modern Chromium-based browsers, plus Internet Explorer 10 and 11.  Please report any bugs you find in supported browsers.
+
 ## Compiling the project
 
 Most users can us the pre-compiled [sleep-diary-formats.js](../sleep-diary-formats.js).  If you want to compile the project yourself, install [Docker](https://www.docker.com/) then do:

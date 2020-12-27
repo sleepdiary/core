@@ -17,13 +17,13 @@ CLOSURE_OPTIONS= \
 		--isolation_mode=IIFE \
 		--compilation_level ADVANCED_OPTIMIZATIONS \
 		--language_in ECMASCRIPT_NEXT_IN \
+		--language_out ECMASCRIPT5 \
 		--js_output_file $@ \
 
 sleep-diary-formats.js: src/closure-externs.js src/closure.js $(DIARY_FILES)
 	@echo "(closure)" $^ -\> $@
 	google-closure-compiler \
 		$(CLOSURE_OPTIONS) \
-		--language_out ECMASCRIPT3 \
 		--create_source_map $@.map \
 		--externs $^
 	echo "//# sourceMappingURL="$@.map >> $@
