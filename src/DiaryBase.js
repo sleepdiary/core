@@ -546,7 +546,7 @@ class DiaryLoader {
                     ;
 
                 };
-                file_reader.readAsBinaryString(file);
+                file_reader.readAsArrayBuffer(file);
 
             });
 
