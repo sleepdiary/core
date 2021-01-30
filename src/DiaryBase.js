@@ -98,6 +98,13 @@ class DiaryBase {
      */
 
     /**
+     * Create a deep copy of the current object
+     */
+    ["clone"]() {
+        return new_sleep_diary(this["to"]("url"),this.serialiser);
+    }
+
+    /**
      * Convert a value to some other format
      *
      * <p>Supported formats:</p>
