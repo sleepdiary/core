@@ -601,18 +601,3 @@ class DiaryLoader {
     }
 
 };
-
-/*
- * Export the class
- */
-if ( typeof module !== "undefined" && module.exports ) {
-    module.exports = {
-        "new_sleep_diary": new_sleep_diary,
-        "sleep_diary_formats": sleep_diary_formats,
-        "DiaryLoader": DiaryLoader,
-    };
-} else {
-    window["new_sleep_diary"    ] = new_sleep_diary;
-    window["sleep_diary_formats"] = sleep_diary_formats;
-    window["DiaryLoader"        ] = DiaryLoader;
-}
