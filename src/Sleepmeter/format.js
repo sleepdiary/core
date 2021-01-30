@@ -223,7 +223,7 @@ class DiarySleepmeter extends DiaryBase {
               "|SENSORY_DEPRIVATION" +
               "|SOUND"
         ;
-        const sleep_hinderance_class =
+        const sleep_hindrance_class =
                "ENVIRONMENTAL" +
               "|MENTAL" +
               "|NOISE" +
@@ -299,7 +299,7 @@ class DiarySleepmeter extends DiaryBase {
 
         const custom_field = custom;
         const sleep_aid_class_field = sleep_aid_class;
-        const sleep_hindrance_class_field = sleep_hinderance_class;
+        const sleep_hindrance_class_field = sleep_hindrance_class;
         const name_field = free_text;
 
         const wake_field    = datetime_type;
