@@ -162,6 +162,10 @@ class DiaryBase {
         return this.serialiser ? this.serialiser(data) : data;
     }
 
+    /*
+     * Construction helpers
+     */
+
     /**
      * Register a new format
      *
@@ -182,7 +186,6 @@ class DiaryBase {
         }
 
     };
-
 
     /**
      * Indicates the file is not valid in our file format
@@ -219,6 +222,7 @@ class DiaryBase {
              return this.invalid(file);
          }
     }
+
 
     /*
      * Utility functions
