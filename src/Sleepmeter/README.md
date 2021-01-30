@@ -52,7 +52,7 @@ And here is a more complex example:
     wake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes
     "2099-12-31 23:57+1000","2099-12-31 23:58+1000","2099-12-31 23:59+1000",,NIGHT_SLEEP,NONE,CUSTOM_0001,CUSTOM_0001,CUSTOM_0001,5,""
     "1900-01-02 00:00+0000","1900-01-01 00:02+0000","1900-01-01 00:01+0000",1-57|1436-1437,NAP,NONE,NONE,NONE,NONE,5,"comment"
-    
+
 ## Custom values
 
 While using the app, here is how to add a custom value:
@@ -138,7 +138,7 @@ This field indicates the type of sleep.  There are only two possible values:
 
     NIGHT_SLEEP
     NAP
-    
+
 ### `dreams`
 
 This field indicates a list of dreams the user had.  This is a structured field with primary and secondary sub-fields.  Here are some examples:

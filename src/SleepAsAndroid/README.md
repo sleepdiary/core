@@ -88,7 +88,7 @@ Because of these issues, implementations are encouraged to calculate times like 
   2. if the duration is less than zero, add one hour
   3. add the duration to the record's end time
   4. round the result to the nearest minute
-  
+
 Implementations should store the user's timezone when creating new records, so that users can measure the effects of e.g. jet lag.  But the timezone `Etc/GMT` is available for implementations that do not know the user's timezone.
 
 ### `Hours`
