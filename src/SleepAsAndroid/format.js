@@ -480,9 +480,9 @@ class DiarySleepAsAndroid extends DiaryBase {
 
                 record["start"   ] = parseInt(record["Id"],10);
                 record["end"     ] = record["start"]+record["Hours"]*60*60*1000;
-                record["duration"] = (
+                record["duration"] = Math.round( (
                     record["Hours"]*60 + ( line2_data[37] == "-1.0" ? 0 : record["LenAdjust"] )
-                ) * 60 * 1000;
+                ) * 60 * 1000 );
                 record["alarm"] = Math.round(
                     (
                         record["end"]
