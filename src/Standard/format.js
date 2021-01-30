@@ -423,7 +423,6 @@ class DiaryStandard extends DiaryBase {
      *      are the raw values the other statistics were created from.
      * </ul>
      *
-     * @nocollapse
      * @public
      *
      * @param {function(*)=} filter - only examine records that match this filter
@@ -456,7 +455,6 @@ class DiaryStandard extends DiaryBase {
      * <p>Similar to {@link DiaryStandard#summarise_records}, but
      * groups records by day_number.</p>
      *
-     * @nocollapse
      * @public
      *
      * @see [summarise_records]{@link DiaryStandard#summarise_records}
@@ -507,7 +505,6 @@ class DiaryStandard extends DiaryBase {
     /**
      * Latest sleep/wake status
      *
-     * @nocollapse
      * @public
      * 
      * @return {string} "awake", "asleep" or "" (for an empty diary)

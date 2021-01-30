@@ -84,7 +84,6 @@ class DiaryBase {
     /**
      * Merge another diary into this one
      *
-     * @nocollapse
      * @public
      *
      * @param {DiaryBase} other - diary to merge in
@@ -111,7 +110,6 @@ class DiaryBase {
      *   <li><em>(other formats)</em> - the name of any other diary format</li>
      * </ul>
      *
-     * @nocollapse
      * @public
      *
      * @param {string} to_format - requested format
