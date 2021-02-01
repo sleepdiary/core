@@ -94,7 +94,7 @@ class DiaryBase {
     ["merge"](other) { return this; }
 
     /*
-     * Functions that do not need to be overridden in descendent classes
+     * Functions that may or may not need to be overridden in descendent classes
      */
 
     /**
@@ -117,13 +117,17 @@ class DiaryBase {
      *   <li><em>(other formats)</em> - the name of any other diary format</li>
      * </ul>
      *
+     * <p>[to_async()]{@link DiaryBase#to_async} supports more formats
+     * and should be used where possible.  You should only call this
+     * function directly if you want to guarantee synchronous execution.</p>
+     *
      * @public
      *
      * @param {string} to_format - requested format
      * @return {*} diary data in new format
      *
      * @example
-     *   let reformatted_diary = diary.to("NewFormat");
+     * console.log( diary.to("NewFormat") );
      */
     ["to"](to_format) {
 
@@ -133,13 +137,19 @@ class DiaryBase {
             return this;
 
         case "url":
-            return "sleep-diary=" + encodeURIComponent(JSON.stringify({
-                "file_format": this["file_format"](),
-                "contents"   : this,
-            }));
+            return "sleep-diary=" + encodeURIComponent(JSON.stringify(
+                {
+                    "file_format": this["file_format"](),
+                    "contents"   : this,
+                },
+                (key,value) => ( key == "spreadsheet" ) ? undefined : value
+            ));
 
         case "json":
-            return JSON.stringify(this);
+            return JSON.stringify(
+                this,
+                (key,value) => ( key == "spreadsheet" ) ? undefined : value
+            );
 
         default:
             if ( sleep_diary_converters.hasOwnProperty(to_format) ) {
@@ -150,6 +160,46 @@ class DiaryBase {
                 throw Error( this["file_format"]() + " cannot be converted to " + to_format);
             }
 
+        }
+
+    }
+
+    /**
+     * Convert a value to some other format
+     *
+     * <p>Supported formats:</p>
+     *
+     * <ul>
+     *   <li><tt>spreadsheet</tt> - binary data that can be loaded by a spreadsheet program</li>
+     *   <li><em>(formats supported by [to()]{@link DiaryBase#to})</em></li>
+     * </ul>
+     *
+     * <p>See also [to()]{@link DiaryBase#to}, a lower-level function
+     * that supports formats that can be generated synchronously.  You
+     * can use that function if a Promise interface would be
+     * cumbersome or unnecessary in a given piece of code.</p>
+     *
+     * @public
+     *
+     * @param {string} to_format - requested format
+     * @return {Promise|Object} Promise that returns the converted diary
+     *
+     * @example
+     *   diary.to_async("NewFormat").then( reformatted => console.log( reformatted_diary ) );
+     */
+    ["to_async"](to_format) {
+
+        switch ( to_format ) {
+
+        case "spreadsheet":
+            if ( !this["spreadsheet"]["synchronise"]() ) {
+                throw Error("Could not synchronise data");
+            }
+            return this["spreadsheet"]["serialise"]();
+
+        default:
+            const ret = this["to"](to_format);
+            return ret["then"] ? ret : { "then": callback => callback(ret) };
         }
 
     }
@@ -214,13 +264,23 @@ class DiaryBase {
      * Attempt to initialise an object from a URL string
      * @param {Object} file - file contents
      */
-     initialise_from_url(file) {
-         file = file["contents"];
-         if ( this["file_format"]() == file["file_format"] ) {
-             Object.keys(file["contents"]).forEach( key => this[key] = file["contents"][key] );
-         } else {
-             return this.invalid(file);
-         }
+    initialise_from_url(file) {
+        file = file["contents"];
+        if ( this["file_format"]() == file["file_format"] ) {
+            Object.keys(file["contents"]).forEach( key => this[key] = file["contents"][key] );
+        } else {
+            return this.invalid(file);
+        }
+    }
+
+    /*
+     * Attempt to initialise an object from a spreadsheet
+     * @param {Spreadsheet} file - file contents
+     */
+    initialise_from_spreadsheet(file) {
+        if ( !this["spreadsheet"]["load"](file) ) {
+            return this.invalid(file);
+        }
     }
 
 
@@ -357,9 +417,7 @@ function new_sleep_diary(file,serialiser) {
 
     } else if ( file_format ) {
 
-        file = Object.assign( {}, file );
-
-        if ( file_format && typeof(file_format) == "string" ) {
+        if ( typeof(file_format) == "string" ) {
             file["file_format"] = () => file_format;
         } else {
             file_format = file_format();
@@ -468,13 +526,17 @@ class DiaryLoader {
             [
                 [
                     window["JSZip"],
-                    "https://cdn.jsdelivr.net/npm/jszip-sync@3.2.1-sync/dist/jszip.min.js"
+                    "https://cdn.jsdelivr.net/npm/jszip@3.5.0/dist/jszip.min.js"
                 ],
                 [
                     window["tc"],
                     "https://cdn.jsdelivr.net/npm/tzdata@1.0.22/tzdata.js",
                     "https://cdn.jsdelivr.net/npm/timezonecomplete@5.11.2/dist/timezonecomplete.min.js"
                 ],
+                [
+                    window["ExcelJS"],
+                    "https://cdn.jsdelivr.net/npm/exceljs@4.2.0/dist/exceljs.min.js"
+                ]
             ].forEach( resource => {
                 if ( !resource[0] ) {
                     resource.slice(1).forEach( url => {
@@ -511,11 +573,13 @@ class DiaryLoader {
                 ;
 
                 // extract the file contents:
-                file_reader.onload = () => {
+                file_reader.onload =
+                    () => Spreadsheet["buffer_to_spreadsheet"](file_reader.result).then(
 
-                    // try to unzip the contents:
-                    zip["loadAsync"](file_reader.result)
-                        .then(
+                        spreadsheet => this["load"]( spreadsheet, source ),
+
+                        () => zip["loadAsync"](file_reader.result).then(
+
                             zip => {
                                 // convert the zip file to an object containing file names and contents:
                                 let files = {},
@@ -540,6 +604,7 @@ class DiaryLoader {
                                     };
                                 next_key();
                             },
+
                             () => {
                                 // not a zip file - try processing it as plain text:
                                 file_reader.onload = () => this["load"](
@@ -551,10 +616,10 @@ class DiaryLoader {
                                 );
                                 file_reader.readAsText(file);
                             }
-                        )
-                    ;
 
-                };
+                        )
+                    );
+
                 file_reader.readAsArrayBuffer(file);
 
             });
@@ -571,16 +636,10 @@ class DiaryLoader {
                             return btoa(data["contents"]);
                         case "archive":
                             let zip = new window["JSZip"]();
-                            return zip["sync"](() => {
-                                Object.keys(data["contents"]).forEach(
-                                    filename => zip["file"](filename,data["contents"][filename])
-                                )
-                                let ret;
-                                zip["generateAsync"]({"type": "base64", "compression": "DEFLATE"})
-                                    .then( data => ret = data )
-                                ;
-                                return ret;
-                            });
+                            Object.keys(data["contents"]).forEach(
+                                filename => zip["file"](filename,data["contents"][filename])
+                            )
+                            return zip["generateAsync"]({"type": "base64", "compression": "DEFLATE"});
                         default:
                             throw Error("Unsupported output format: " + data["file_format"]());
                         }
