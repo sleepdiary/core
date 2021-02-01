@@ -115,7 +115,7 @@
 class DiarySleepAsAndroid extends DiaryBase {
 
     /**
-     * @param {string|Object} file - file contents, or filename/contents pairs (for archive files)
+     * @param {Object} file - file contents, or filename/contents pairs (for archive files)
      * @param {Function=} serialiser - function to serialise output
      */
     constructor(file,serialiser) {
@@ -427,7 +427,6 @@ class DiarySleepAsAndroid extends DiaryBase {
                     events.push({
                         "label"    : null,
                         "timestamp": null,
-                        "value"    : null,
                     });
                 });
 
@@ -530,12 +529,204 @@ class DiarySleepAsAndroid extends DiaryBase {
             alarms = []
         ;
 
+        /**
+         * Spreadsheet manager
+         * @protected
+         * @type {Spreadsheet}
+         */
+        this["spreadsheet"] = new Spreadsheet(this,[]);
+
         const contents = file["contents"];
 
         switch ( file["file_format"]() ) {
 
         case "url":
             return this.initialise_from_url(file);
+
+        case "spreadsheet":
+
+            // Records
+            if (
+                 !file["sheets"].some( sheet => {
+
+                     const cells = sheet["cells"];
+
+                     if ( !cells.length ) return false;
+
+                     const line1_pattern = [
+                         "Id",
+                         "Tz",
+                         "From",
+                         "To",
+                         "Sched",
+                         "Hours",
+                         "Rating",
+                         "Comment",
+                         "Tags",
+                         "Framerate",
+                         "Snore",
+                         "Noise",
+                         "Cycles",
+                         "DeepSleep",
+                         "LenAdjust",
+                         "Geo",
+                     ].join();
+
+                     records = [];
+
+                     let line = 1, record, times, events;
+                     return cells.every( row => {
+                         if ( row.slice(0,16).map( cell => cell["value"] ).join() == line1_pattern ) {
+
+                             times  = [];
+                             events = [];
+                             record = {
+                                 "times" : times,
+                                 "events": events,
+                             };
+                             records.push(record);
+                             line = 2;
+                             row.slice(16).forEach( cell => {
+                                 if ( cell["value"] == "Event" ) {
+                                     events.push({
+                                         "label"    : null,
+                                         "timestamp": null,
+                                     });
+                                 } else if ( typeof(cell["value"]) == "number" ) {
+                                     const hour   = Math.floor( cell["value"] *     24  );
+                                     const minute = Math.floor( cell["value"] * (60*24) ) % 60;
+                                     times.push({
+                                         "header_string": `${hour}:${DiaryBase["zero_pad"](minute)}`,
+                                         "hours"        : hour,
+                                         "minutes"      : minute,
+                                         "actigraphy"   : null,
+                                         "noise"        : null,
+                                     });
+                                 } else {
+                                     return false;
+                                 }
+                             });
+
+                         } else if ( line == 2 ) {
+
+                             line = 3;
+                             [
+                                 "Id",
+                                 "Tz",
+                                 ,
+                                 ,
+                                 ,
+                                 "Hours",
+                                 "Rating",
+                                 "Comment",
+                                 "Tags",
+                                 "Framerate",
+                                 "Snore",
+                                 "Noise",
+                                 "Cycles",
+                                 "DeepSleep",
+                                 "LenAdjust",
+                                 "Geo",
+                             ].forEach( (key,n) => record[key] = row[n] ? row[n]["value"] : null );
+
+                             if ( record["Comment"] && record["Tags"] ) {
+                                 record["Comment"] = {
+                                     "string": record["Comment"] + " " + record["Tags"],
+                                     "tags"  : parse_tags(record["Tags"]),
+                                     "notags": record["Comment"],
+                                 };
+                             } else if ( record["Comment"] ) {
+                                 record["Comment"] = {
+                                     "string": record["Comment"],
+                                     "tags"  : [],
+                                     "notags": record["Comment"],
+                                 };
+                             } else if ( record["Tags"] ) {
+                                 record["Comment"] = {
+                                     "string": record["Tags"],
+                                     "tags"  : parse_tags(record["Tags"]),
+                                     "notags": "",
+                                 };
+                             } else {
+                                 record["Comment"] = {
+                                     "string": "",
+                                     "tags"  : [],
+                                     "notags": "",
+                                 };
+                             }
+                             delete record["Tags"];
+
+                             const timezone = row[1]["value"];
+
+                             record["start"] = row[2]["value"].getTime();
+                             record["From" ] = parse_timestamp( row[2]["value"].getTime(), timezone );
+                             record["end"  ] = row[3]["value"].getTime();
+                             record["To"   ] = parse_timestamp( row[3]["value"].getTime(), timezone );
+                             record["alarm"] = row[4]["value"].getTime();
+                             record["Sched"] = parse_timestamp( row[4]["value"].getTime(), timezone );
+                             record["duration"] = Math.round( (
+                                 record["Hours"]*60 + ( record["LenAdjust"] || 0 )
+                             ) * 60 * 1000 );
+
+                             times .forEach( (time ,n) => {
+                                 if ( row[16+n] ) time["actigraphy"] = row[16+n]["value"]
+                             });
+                             events.forEach( (event,n) => {
+                                 if ( row[16+times.length+n] ) {
+                                     const parts = row[16+times.length+n]["value"].split('-');
+                                     event["label"    ] = parts[0];
+                                     event["timestamp"] = parts[1];
+                                     if ( parts.length > 2 ) event["value"] = parts[2];
+                                 }
+                             });
+
+                         } else if ( line == 3 ) {
+
+                             line = 1;
+                             times.forEach( (time ,n) => {
+                                 if ( row[16+n] ) time["noise"] = row[16+n]["value"]
+                             });
+
+                         } else {
+
+                             return false;
+
+                         }
+
+                         return true;
+
+                     });
+
+                 })
+
+                 ||
+
+                 !file["sheets"].some( sheet => {
+                     const cells = sheet["cells"];
+                     if ( !cells.length || cells[0][0]["value"] != "Alarm" ) {
+                         return false;
+                     }
+                     alarms = cells.slice(1).map( row => JSON.parse(row[0]["value"]) );
+                     return true;
+                 })
+
+                 ||
+
+                 !file["sheets"].some( sheet => {
+                     const cells = sheet["cells"];
+                     if ( !cells.length || cells[0][0]["value"] != "Preferences" ) {
+                         return false;
+                     }
+                     prefs = JSON.parse(cells[1][0]["value"]);
+                     return true;
+                 })
+
+               ) {
+                return this.invalid(file);
+            }
+
+            this.raw = file["spreadsheet"];
+            break;
 
         case "string":
             if ( !document_re.test(contents) ) return this.invalid(file);
@@ -578,7 +769,7 @@ class DiarySleepAsAndroid extends DiaryBase {
                     "Hours"     : ( r["end"] - r["start"] ) / (60*60*1000),
                     "Rating"    : 2.5,
                     "Comment"   : {
-                        "string": r["comments"].join("\n") + r["tags"].map( tag => ` #${tag}` ),
+                        "string": r["comments"].join("\n") + r["tags"].map( tag => `#${tag}` ).join(' '),
                         "tags"  : r["tags"].map( tag => ({ "count": 1, "value": tag }) ),
                         "notags": r["comments"].join("\n")
                     },
@@ -613,13 +804,13 @@ class DiarySleepAsAndroid extends DiaryBase {
 
     ["to"](to_format) {
 
+        const headers_early = [ "Id", "Tz", "From", "To", "Sched" ];
+        const headers_before_comment = [ "Hours", "Rating" ];
+        const headers_after_comment  = [ "Framerate", "Snore", "Noise", "Cycles", "DeepSleep", "LenAdjust", "Geo" ];
+
         switch ( to_format ) {
 
         case "output":
-
-            const headers_early = [ "Id", "Tz", "From", "To", "Sched" ];
-            const headers_before_comment = [ "Hours", "Rating" ];
-            const headers_after_comment  = [ "Framerate", "Snore", "Noise", "Cycles", "DeepSleep", "LenAdjust", "Geo" ];
 
             function string_or_null( string, null_value ) {
                 return '"' + ( string === null ? null_value : string ) + '"';
@@ -647,52 +838,55 @@ class DiarySleepAsAndroid extends DiaryBase {
 
                         // Line 1:
                         []
-                            .concat(headers_early)
-                            .concat(headers_before_comment)
-                            .concat(["Comment"])
-                            .concat(headers_after_comment)
-                            .concat( record["times" ].map( time => `,"${time["header_string"]}"` ) )
-                            .concat( record["events"].map( event => ",\"Event\""                 ) )
+                            .concat(
+                                headers_early,
+                                headers_before_comment,
+                                ["Comment"],
+                                headers_after_comment,
+                                record["times" ].map( time => `,"${time["header_string"]}"` ),
+                                record["events"].map( event => ",\"Event\""                 ),
+                            )
                             .join(',')
                             + "\n" +
 
                         // line 2:
                         []
-                            .concat([
-                                `"${record["Id"]}"`,
-                                `"${record["Tz"]}"`,
-                            ])
-                            .concat( [ "start", "end", "alarm" ].map( h => {
-                                let date = DiaryBase["date"](record[h],record["Tz"]);
-                                return (
-                                    '"' +
-                                    DiaryBase["zero_pad"]( date["day"]() ) +
-                                    '. ' +
-                                    DiaryBase["zero_pad"]( date["month"]() ) +
-                                    '. ' +
-                                    date["year"]() +
-                                    ' ' +
-                                    date["hour"]() + // not padded
-                                    ':' +
-                                    DiaryBase["zero_pad"]( date["minute"]() ) +
-                                    '"'
-                                );
-                            }) )
-                            .concat( headers_before_comment.map( h => `"${record[h]}"` ) )
-                            .concat( [
+                            .concat(
+                                [
+                                    `"${record["Id"]}"`,
+                                    `"${record["Tz"]}"`,
+                                ],
+                                [ "start", "end", "alarm" ].map( h => {
+                                    let date = DiaryBase["date"](record[h],record["Tz"]);
+                                    return (
+                                        '"' +
+                                            DiaryBase["zero_pad"]( date["day"]() ) +
+                                            '. ' +
+                                            DiaryBase["zero_pad"]( date["month"]() ) +
+                                            '. ' +
+                                            date["year"]() +
+                                            ' ' +
+                                            date["hour"]() + // not padded
+                                            ':' +
+                                            DiaryBase["zero_pad"]( date["minute"]() ) +
+                                            '"'
+                                    );
+                                }),
+                                headers_before_comment.map( h => `"${record[h]}"` ),
+                                [
 
-                                '"' + record["Comment"]["string"].replace(/"/g,`""`).replace(/\n/g," \\n ") + '"',
-                                '"' + record["Framerate"] + '"',
-                                string_or_null( record["Snore"    ], "-1" ),
-                                string_or_null( record["Noise"    ], "-1.0" ),
-                                string_or_null( record["Cycles"   ], "-1" ),
-                                string_or_null( record["DeepSleep"], "-1.0" ),
-                                string_or_null( record["LenAdjust"], "-1.0" ),
-                                string_or_null( record["Geo"      ], "" ),
-                            ] )
-                            .concat( record["times" ].map( time => `"${time["actigraphy"]}"` ) )
-                            .concat( record["events"].map( event => `"${event["label"]}-${event["timestamp"]}${event.hasOwnProperty("value")?'-'+event["value"]:''}"` ) )
-                            .join(',')
+                                    '"' + record["Comment"]["string"].replace(/"/g,`""`).replace(/\n/g," \\n ") + '"',
+                                    '"' + record["Framerate"] + '"',
+                                    string_or_null( record["Snore"    ], "-1" ),
+                                    string_or_null( record["Noise"    ], "-1.0" ),
+                                    string_or_null( record["Cycles"   ], "-1" ),
+                                    string_or_null( record["DeepSleep"], "-1.0" ),
+                                    string_or_null( record["LenAdjust"], "-1.0" ),
+                                    string_or_null( record["Geo"      ], "" ),
+                                ],
+                                record["times" ].map( time => `"${time["actigraphy"]}"` ),
+                                record["events"].map( event => `"${event["label"]}-${event["timestamp"]}${event.hasOwnProperty("value")?'-'+event["value"]:''}"` ),
+                            ).join(',')
                             + "\n" +
 
                         // line 3:
@@ -738,6 +932,169 @@ class DiarySleepAsAndroid extends DiaryBase {
         default:
 
             return super["to"](to_format);
+
+        }
+
+    }
+
+    ["to_async"](to_format) {
+
+        const headers_early = [ "Id", "Tz", "From", "To", "Sched" ];
+        const headers_before_comment = [ "Hours", "Rating" ];
+        const headers_after_comment  = [ "Framerate", "Snore", "Noise", "Cycles", "DeepSleep", "LenAdjust", "Geo" ];
+
+        switch ( to_format ) {
+
+            case "spreadsheet":
+
+            const spreadsheet = this["spreadsheet"];
+
+            {
+
+                const max_times = (
+                    this["records"].length
+                    ? Math.max.apply( 0, this["records"].map( record => record["times"].length ) )
+                    : 0
+                );
+
+                const added_sheet = spreadsheet["get_sheet"](
+                    "Records",
+                    headers_early.concat(
+                        headers_before_comment,
+                        [ "Comment", "Tags", ],
+                        headers_after_comment,
+                    ),
+                    [
+                        null,
+                        null,
+                        "time",
+                        "time",
+                        "time",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+
+                    ].concat( Array(max_times).fill("duration") )
+                );
+                const added = added_sheet[0];
+                const sheet = added_sheet[1];
+                let cells = sheet["cells"];
+                cells.splice(0);
+
+                this["records"].forEach(
+                    record => {
+
+                        // this section is very similar to the equivalent loop in the "output" condition,
+                        // but the details are different enough that they can't be usefully combined
+
+                        // Line 1:
+                        cells.push(
+                            []
+                                .concat(
+                                    headers_early,
+                                    headers_before_comment,
+                                    [ "Comment", "Tags" ],
+                                    headers_after_comment,
+                                    record["times" ].map( time => ( time["hours"]*60 + time["minutes"] ) / (60*24) ),
+                                    record["events"].map( event => "Event"              ),
+                                )
+                                .map( c => Spreadsheet["create_cell"](c) )
+                        );
+
+                        // line 2:
+                        cells.push(
+                            []
+                                .concat(
+                                    [
+                                        record["Id"],
+                                        record["Tz"],
+                                    ],
+                                    [ "start", "end", "alarm" ].map( h => new Date(record[h]) ),
+                                    headers_before_comment.map( h => record[h] ),
+                                    [
+                                        record["Comment"]["notags"],
+                                        record["Comment"][  "tags"].map(
+                                            tag => `#${tag["value"]}${tag["count"]==1?"":'_'+tag["count"]+'x'}`
+                                        ).join(' '),
+                                        record["Framerate"],
+                                        record["Snore"    ],
+                                        record["Noise"    ],
+                                        record["Cycles"   ],
+                                        record["DeepSleep"],
+                                        record["LenAdjust"],
+                                        record["Geo"      ],
+                                    ],
+                                    record["times" ].map( time => time["actigraphy"] ),
+                                    record["events"].map( event => `${event["label"]}-${event["timestamp"]}${event.hasOwnProperty("value")?'-'+event["value"]:''}` ),
+                                )
+                                .map( c => Spreadsheet["create_cell"](c) )
+                        );
+
+                        // line 3:
+                        if ( record["times"].some( time => time["noise"] ) ) {
+                            cells.push(
+                                [].concat(
+                                    Array(13).fill(''),
+                                    record["times"].map( time => time["noise"] )
+                                )
+                                    .map( c => Spreadsheet["create_cell"](c) )
+                            );
+                        }
+
+                    }
+                );
+
+                sheet["cells"] = cells;
+
+                if ( added ) spreadsheet["sheets"].push(sheet);
+
+            }
+
+            {
+
+                const added_sheet = spreadsheet["get_sheet"](
+                    "Alarms",
+                    [ "Alarm" ],
+                    [ ""      ],
+                );
+                const added = added_sheet[0];
+                const sheet = added_sheet[1];
+                const cells = sheet["cells"];
+                cells.splice(1);
+
+                this["alarms"].forEach( alarm => cells.push([ Spreadsheet["create_cell"](JSON.stringify(alarm)) ]) );
+                if ( added ) spreadsheet["sheets"].push(sheet);
+
+            }
+
+            {
+
+                const added_sheet = spreadsheet["get_sheet"](
+                    "Preferences",
+                    [ "Preferences" ],
+                    [ ""            ],
+                );
+                const added = added_sheet[0];
+                const sheet = added_sheet[1];
+                const cells = sheet["cells"];
+                cells.splice(1);
+                cells.push([ Spreadsheet["create_cell"](JSON.stringify(this["prefs"])) ]);
+                if ( added ) spreadsheet["sheets"].push(sheet);
+
+            }
+
+            return spreadsheet["serialise"]();
+
+        default:
+
+            return super["to_async"](to_format);
 
         }
 

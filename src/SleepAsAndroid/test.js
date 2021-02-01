@@ -36,6 +36,7 @@ describe("SleepAsAndroid format", () => {
         file_format: "SleepAsAndroid",
         name: "empty diary",
         input: empty_diary,
+        spreadsheetify: 'disable',
         expected: {
             prefs: {},
             alarms: [],
@@ -48,7 +49,7 @@ describe("SleepAsAndroid format", () => {
         name: "string example",
         input:
             "Id,Tz,From,To,Sched,Hours,Rating,Comment,Framerate,Snore,Noise,Cycles,DeepSleep,LenAdjust,Geo\n" +
-            '"123456789","Europe/London","01. 02. 2003 04:05","01. 02. 2003 4:05","01. 02. 2003 05:06","1.000","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
+            '"1044072300000","Europe/London","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
         ,
         expected: {
             alarms: [],
@@ -56,22 +57,14 @@ describe("SleepAsAndroid format", () => {
             records: [
                 {
 
-                    start: 123456789,
-                    end: 127056789,
-                    alarm: 130740000,
-                    duration: 3600000,
+                    start: 1044072300000,
+                    end: 1044075961200,
+                    alarm: 1044079620000,
+                    duration: 3661200,
 
-                    Id: '123456789',
+                    Id: '1044072300000',
                     Tz: 'Europe/London',
                     From: {
-                        string: '"01. 02. 2003 04:05"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 4,
-                        minute: 5
-                    },
-                    To: {
                         string: '"01. 02. 2003 4:05"',
                         year: 2003,
                         month: 2,
@@ -79,16 +72,24 @@ describe("SleepAsAndroid format", () => {
                         hour: 4,
                         minute: 5
                     },
-                    Sched: {
-                        string: '"01. 02. 2003 05:06"',
+                    To: {
+                        string: '"01. 02. 2003 5:06"',
                         year: 2003,
                         month: 2,
                         day: 1,
                         hour: 5,
                         minute: 6
                     },
+                    Sched: {
+                        string: '"01. 02. 2003 6:07"',
+                        year: 2003,
+                        month: 2,
+                        day: 1,
+                        hour: 6,
+                        minute: 7
+                    },
 
-                    Hours: 1,
+                    Hours: 1.017,
                     Rating: 0,
                     Comment: { string: 'Comment text', tags: [], notags: 'Comment text' },
                     Framerate: '10000',
@@ -114,7 +115,7 @@ describe("SleepAsAndroid format", () => {
             "prefs.xml": prefs_xml_input,
             "sleep-export.csv":
             "Id,Tz,From,To,Sched,Hours,Rating,Comment,Framerate,Snore,Noise,Cycles,DeepSleep,LenAdjust,Geo\n" +
-            '"123456789","Europe/London","01. 02. 2003 04:05","01. 02. 2003 4:05","01. 02. 2003 05:06","1.000","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
+            '"1044072300000","Europe/London","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
             ,
         }),
         expected: {
@@ -123,22 +124,14 @@ describe("SleepAsAndroid format", () => {
             records: [
                 {
 
-                    start: 123456789,
-                    end: 127056789,
-                    alarm: 130740000,
-                    duration: 3600000,
+                    start: 1044072300000,
+                    end: 1044075961200,
+                    alarm: 1044079620000,
+                    duration: 3661200,
 
-                    Id: '123456789',
+                    Id: '1044072300000',
                     Tz: 'Europe/London',
                     From: {
-                        string: '"01. 02. 2003 04:05"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 4,
-                        minute: 5
-                    },
-                    To: {
                         string: '"01. 02. 2003 4:05"',
                         year: 2003,
                         month: 2,
@@ -146,16 +139,24 @@ describe("SleepAsAndroid format", () => {
                         hour: 4,
                         minute: 5
                     },
-                    Sched: {
-                        string: '"01. 02. 2003 05:06"',
+                    To: {
+                        string: '"01. 02. 2003 5:06"',
                         year: 2003,
                         month: 2,
                         day: 1,
                         hour: 5,
                         minute: 6
                     },
+                    Sched: {
+                        string: '"01. 02. 2003 6:07"',
+                        year: 2003,
+                        month: 2,
+                        day: 1,
+                        hour: 6,
+                        minute: 7
+                    },
 
-                    Hours: 1,
+                    Hours: 1.017,
                     Rating: 0,
                     Comment: { string: 'Comment text', tags: [], notags: 'Comment text' },
                     Framerate: '10000',
@@ -178,7 +179,7 @@ describe("SleepAsAndroid format", () => {
         name: "string escapes",
         input:
             "Id,Tz,From,To,Sched,Hours,Rating,Comment,Framerate,Snore,Noise,Cycles,DeepSleep,LenAdjust,Geo\n" +
-            '"123456789","Europe/London","01. 02. 2003 04:05","01. 02. 2003 4:05","01. 02. 2003 05:06","1.000","0.0","""Comment \\n ""text","10000","-1","-1.0","-1","-1.0","0",""\n'
+            '"1044072300000","Europe/London","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0.0","""Comment \\n ""text","10000","-1","-1.0","-1","-1.0","0",""\n'
         ,
         expected: {
             alarms: [],
@@ -186,22 +187,14 @@ describe("SleepAsAndroid format", () => {
             records: [
                 {
 
-                    start: 123456789,
-                    end: 127056789,
-                    alarm: 130740000,
-                    duration: 3600000,
+                    start: 1044072300000,
+                    end: 1044075961200,
+                    alarm: 1044079620000,
+                    duration: 3661200,
 
-                    Id: '123456789',
+                    Id: '1044072300000',
                     Tz: 'Europe/London',
                     From: {
-                        string: '"01. 02. 2003 04:05"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 4,
-                        minute: 5
-                    },
-                    To: {
                         string: '"01. 02. 2003 4:05"',
                         year: 2003,
                         month: 2,
@@ -209,16 +202,24 @@ describe("SleepAsAndroid format", () => {
                         hour: 4,
                         minute: 5
                     },
-                    Sched: {
-                        string: '"01. 02. 2003 05:06"',
+                    To: {
+                        string: '"01. 02. 2003 5:06"',
                         year: 2003,
                         month: 2,
                         day: 1,
                         hour: 5,
                         minute: 6
                     },
+                    Sched: {
+                        string: '"01. 02. 2003 6:07"',
+                        year: 2003,
+                        month: 2,
+                        day: 1,
+                        hour: 6,
+                        minute: 7
+                    },
 
-                    Hours: 1,
+                    Hours: 1.017,
                     Rating: 0,
                     Comment: { string: "\"Comment\n\"text", tags: [], notags: "\"Comment\n\"text" },
                     Framerate: '10000',
@@ -248,51 +249,51 @@ describe("SleepAsAndroid format", () => {
         format: "output",
         input:
             "Id,Tz,From,To,Sched,Hours,Rating,Comment,Framerate,Snore,Noise,Cycles,DeepSleep,LenAdjust,Geo\n" +
-            '"123456789","Etc/GMT","01. 02. 2003 04:05","01. 02. 2003 4:05","01. 02. 2003 05:06","1.000","0.0","""Comment \\n ""text","10000","-1","-1.0","-1","-1.0","0",""\n'
+            '"1044072300000","Etc/GMT","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0.0","""Comment \\n ""text","10000","-1","-1.0","-1","-1.0","0",""\n'
         ,
         expected: {
             "prefs.xml": "<?xml version='1.0' encoding='utf-8' standalone='yes' ?>\n<map>\n</map>\n",
             "alarms.json": "[]",
             "sleep-export.csv": "Id,Tz,From,To,Sched,Hours,Rating,Comment,Framerate,Snore,Noise,Cycles,DeepSleep,LenAdjust,Geo\n" +
-            '"123456789","Etc/GMT","02. 01. 1970 10:17","02. 01. 1970 11:17","02. 01. 1970 12:19","1","0","""Comment \\n ""text","10000","-1","-1.0","-1","-1.0","0",""\n'
+            '"1044072300000","Etc/GMT","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0","""Comment \\n ""text","10000","-1","-1.0","-1","-1.0","0",""\n',
         },
     });
 
     test_to({
-        name: "standard format test",
+        name: "standard format test 1",
         format: "Standard",
         input:
         "Id,Tz,From,To,Sched,Hours,Rating,Comment,Framerate,Snore,Noise,Cycles,DeepSleep,LenAdjust,Geo\n" +
-       '"123456789","Europe/London","01. 02. 2003 04:05","01. 02. 2003 4:05","01. 02. 2003 05:06","1.000","0.0","""Comment \\n ""text","10000","-1","-1.0","-1","-1.0","0",""\n'
+       '"1044072300000","Europe/London","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0.0","""Comment \\n ""text","10000","-1","-1.0","-1","-1.0","0",""\n'
         ,
         expected: [
             {
                 status: 'asleep',
-                start: 123456789,
-                  end: 127056789,
+                start: 1044072300000,
+                  end: 1044075961200,
                 start_timezone: "Europe/London",
                   end_timezone: "Europe/London",
                 tags: [],
                 comments: [ '"Comment\n"text' ],
-                duration: 3600000,
+                duration: 3661200,
                 start_of_new_day: true,
-                day_number: 1,
+                day_number: 2,
                 is_primary_sleep: true
             }
         ],
     });
 
     test_from_standard({
-        name: "standard format test",
+        name: "standard format test 2",
         format: "SleepAsAndroid",
         input: [
             {
                 status: 'asleep',
-                start: 123456789,
-                end: 127056789,
+                start: 1044072300000,
+                end: 1044075961200,
                 tags: [],
                 comments: [ '"Comment\n"text' ],
-                duration: 3600000,
+                duration: 3661200,
                 start_of_new_day: true,
                 day_number: 1,
                 is_primary_sleep: true
@@ -300,7 +301,7 @@ describe("SleepAsAndroid format", () => {
         ],
         expected:
         "Id,Tz,From,To,Sched,Hours,Rating,Comment,Framerate,Snore,Noise,Cycles,DeepSleep,LenAdjust,Geo\n" +
-       '"123456789","Etc/GMT","02. 01. 1970 10:17","02. 01. 1970 11:17","02. 01. 1970 11:17","1.000","2.5","""Comment \\n ""text","10000","-1","-1.0","-1","-1.0","-1.0",""\n'
+       '"1044072300000","Etc/GMT","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 5:06","1.017","2.5","""Comment \\n ""text","10000","-1","-1.0","-1","-1.0","-1.0",""\n'
         ,
     });
 
@@ -319,24 +320,16 @@ describe("SleepAsAndroid format", () => {
         left: empty_diary,
         right:
         "Id,Tz,From,To,Sched,Hours,Rating,Comment,Framerate,Snore,Noise,Cycles,DeepSleep,LenAdjust,Geo\n" +
-        '"123456789","Europe/London","01. 02. 2003 04:05","01. 02. 2003 4:05","01. 02. 2003 05:06","1.000","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
+        '"1044072300000","Europe/London","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
         ,
         expected: {
             prefs: {},
             alarms: [],
             records: [
                 {
-                    Id: '123456789',
+                    Id: '1044072300000',
                     Tz: 'Europe/London',
                     From: {
-                        string: '"01. 02. 2003 04:05"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 4,
-                        minute: 5
-                    },
-                    To: {
                         string: '"01. 02. 2003 4:05"',
                         year: 2003,
                         month: 2,
@@ -344,15 +337,23 @@ describe("SleepAsAndroid format", () => {
                         hour: 4,
                         minute: 5
                     },
-                    Sched: {
-                        string: '"01. 02. 2003 05:06"',
+                    To: {
+                        string: '"01. 02. 2003 5:06"',
                         year: 2003,
                         month: 2,
                         day: 1,
                         hour: 5,
                         minute: 6
                     },
-                    Hours: 1,
+                    Sched: {
+                        string: '"01. 02. 2003 6:07"',
+                        year: 2003,
+                        month: 2,
+                        day: 1,
+                        hour: 6,
+                        minute: 7
+                    },
+                    Hours: 1.017,
                     Rating: 0,
                     Comment: {
                         string: 'Comment text',
@@ -368,10 +369,10 @@ describe("SleepAsAndroid format", () => {
                     Geo: '',
                     times: [],
                     events: [],
-                    start: 123456789,
-                    end: 127056789,
-                    duration: 3600000,
-                    alarm: 130740000
+                    start: 1044072300000,
+                    end: 1044075961200,
+                    duration: 3661200,
+                    alarm: 1044079620000
                 }
             ],
         },
@@ -380,7 +381,7 @@ describe("SleepAsAndroid format", () => {
     test_merge({
         left:
         "Id,Tz,From,To,Sched,Hours,Rating,Comment,Framerate,Snore,Noise,Cycles,DeepSleep,LenAdjust,Geo\n" +
-        '"123456789","Europe/London","01. 02. 2003 04:05","01. 02. 2003 4:05","01. 02. 2003 05:06","1.000","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
+        '"1044072300000","Europe/London","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
         ,
         right: empty_diary,
         expected: {
@@ -388,17 +389,9 @@ describe("SleepAsAndroid format", () => {
             alarms: [],
             records: [
                 {
-                    Id: '123456789',
+                    Id: '1044072300000',
                     Tz: 'Europe/London',
                     From: {
-                        string: '"01. 02. 2003 04:05"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 4,
-                        minute: 5
-                    },
-                    To: {
                         string: '"01. 02. 2003 4:05"',
                         year: 2003,
                         month: 2,
@@ -406,15 +399,23 @@ describe("SleepAsAndroid format", () => {
                         hour: 4,
                         minute: 5
                     },
-                    Sched: {
-                        string: '"01. 02. 2003 05:06"',
+                    To: {
+                        string: '"01. 02. 2003 5:06"',
                         year: 2003,
                         month: 2,
                         day: 1,
                         hour: 5,
                         minute: 6
                     },
-                    Hours: 1,
+                    Sched: {
+                        string: '"01. 02. 2003 6:07"',
+                        year: 2003,
+                        month: 2,
+                        day: 1,
+                        hour: 6,
+                        minute: 7
+                    },
+                    Hours: 1.017,
                     Rating: 0,
                     Comment: {
                         string: 'Comment text',
@@ -430,10 +431,10 @@ describe("SleepAsAndroid format", () => {
                     Geo: '',
                     times: [],
                     events: [],
-                    start: 123456789,
-                    end: 127056789,
-                    duration: 3600000,
-                    alarm: 130740000
+                    start: 1044072300000,
+                    end: 1044075961200,
+                    duration: 3661200,
+                    alarm: 1044079620000
                 }
             ],
         },
@@ -442,28 +443,20 @@ describe("SleepAsAndroid format", () => {
     test_merge({
         left:
         "Id,Tz,From,To,Sched,Hours,Rating,Comment,Framerate,Snore,Noise,Cycles,DeepSleep,LenAdjust,Geo\n" +
-        '"123456789","Europe/London","01. 02. 2003 04:05","01. 02. 2003 4:05","01. 02. 2003 05:06","1.000","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
+        '"1044072300000","Europe/London","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
         ,
         right:
         "Id,Tz,From,To,Sched,Hours,Rating,Comment,Framerate,Snore,Noise,Cycles,DeepSleep,LenAdjust,Geo\n" +
-        '"123456789","Europe/London","01. 02. 2003 04:05","01. 02. 2003 4:05","01. 02. 2003 05:06","1.000","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
+        '"1044072300000","Europe/London","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
         ,
         expected: {
             prefs: {},
             alarms: [],
             records: [
                 {
-                    Id: '123456789',
+                    Id: '1044072300000',
                     Tz: 'Europe/London',
                     From: {
-                        string: '"01. 02. 2003 04:05"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 4,
-                        minute: 5
-                    },
-                    To: {
                         string: '"01. 02. 2003 4:05"',
                         year: 2003,
                         month: 2,
@@ -471,15 +464,23 @@ describe("SleepAsAndroid format", () => {
                         hour: 4,
                         minute: 5
                     },
-                    Sched: {
-                        string: '"01. 02. 2003 05:06"',
+                    To: {
+                        string: '"01. 02. 2003 5:06"',
                         year: 2003,
                         month: 2,
                         day: 1,
                         hour: 5,
                         minute: 6
                     },
-                    Hours: 1,
+                    Sched: {
+                        string: '"01. 02. 2003 6:07"',
+                        year: 2003,
+                        month: 2,
+                        day: 1,
+                        hour: 6,
+                        minute: 7
+                    },
+                    Hours: 1.017,
                     Rating: 0,
                     Comment: {
                         string: 'Comment text',
@@ -495,10 +496,10 @@ describe("SleepAsAndroid format", () => {
                     Geo: '',
                     times: [],
                     events: [],
-                    start: 123456789,
-                    end: 127056789,
-                    duration: 3600000,
-                    alarm: 130740000
+                    start: 1044072300000,
+                    end: 1044075961200,
+                    duration: 3661200,
+                    alarm: 1044079620000
                 }
             ],
         },
@@ -507,11 +508,11 @@ describe("SleepAsAndroid format", () => {
     test_merge({
         left:
         "Id,Tz,From,To,Sched,Hours,Rating,Comment,Framerate,Snore,Noise,Cycles,DeepSleep,LenAdjust,Geo\n" +
-        '"123456788","Europe/London","01. 02. 2003 04:05","01. 02. 2003 4:05","01. 02. 2003 05:06","1.000","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
+        '"123456788","Europe/London","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
         ,
         right:
         "Id,Tz,From,To,Sched,Hours,Rating,Comment,Framerate,Snore,Noise,Cycles,DeepSleep,LenAdjust,Geo\n" +
-        '"123456789","Europe/London","01. 02. 2003 04:05","01. 02. 2003 4:05","01. 02. 2003 05:06","1.000","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
+        '"1044072300000","Europe/London","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
         ,
         expected: {
             prefs: {},
@@ -521,14 +522,6 @@ describe("SleepAsAndroid format", () => {
                     Id: '123456788',
                     Tz: 'Europe/London',
                     From: {
-                        string: '"01. 02. 2003 04:05"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 4,
-                        minute: 5
-                    },
-                    To: {
                         string: '"01. 02. 2003 4:05"',
                         year: 2003,
                         month: 2,
@@ -536,15 +529,23 @@ describe("SleepAsAndroid format", () => {
                         hour: 4,
                         minute: 5
                     },
-                    Sched: {
-                        string: '"01. 02. 2003 05:06"',
+                    To: {
+                        string: '"01. 02. 2003 5:06"',
                         year: 2003,
                         month: 2,
                         day: 1,
                         hour: 5,
                         minute: 6
                     },
-                    Hours: 1,
+                    Sched: {
+                        string: '"01. 02. 2003 6:07"',
+                        year: 2003,
+                        month: 2,
+                        day: 1,
+                        hour: 6,
+                        minute: 7
+                    },
+                    Hours: 1.017,
                     Rating: 0,
                     Comment: {
                         string: 'Comment text',
@@ -561,22 +562,14 @@ describe("SleepAsAndroid format", () => {
                     times: [],
                     events: [],
                     start: 123456788,
-                    end: 127056788,
-                    duration: 3600000,
-                    alarm: 130740000
+                    end: 127117988,
+                    duration: 3661200,
+                    alarm: 130800000
                 },
                 {
-                    Id: '123456789',
+                    Id: '1044072300000',
                     Tz: 'Europe/London',
                     From: {
-                        string: '"01. 02. 2003 04:05"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 4,
-                        minute: 5
-                    },
-                    To: {
                         string: '"01. 02. 2003 4:05"',
                         year: 2003,
                         month: 2,
@@ -584,15 +577,23 @@ describe("SleepAsAndroid format", () => {
                         hour: 4,
                         minute: 5
                     },
-                    Sched: {
-                        string: '"01. 02. 2003 05:06"',
+                    To: {
+                        string: '"01. 02. 2003 5:06"',
                         year: 2003,
                         month: 2,
                         day: 1,
                         hour: 5,
                         minute: 6
                     },
-                    Hours: 1,
+                    Sched: {
+                        string: '"01. 02. 2003 6:07"',
+                        year: 2003,
+                        month: 2,
+                        day: 1,
+                        hour: 6,
+                        minute: 7
+                    },
+                    Hours: 1.017,
                     Rating: 0,
                     Comment: {
                         string: 'Comment text',
@@ -608,10 +609,10 @@ describe("SleepAsAndroid format", () => {
                     Geo: '',
                     times: [],
                     events: [],
-                    start: 123456789,
-                    end: 127056789,
-                    duration: 3600000,
-                    alarm: 130740000
+                    start: 1044072300000,
+                    end: 1044075961200,
+                    duration: 3661200,
+                    alarm: 1044079620000
                 }
             ],
         },
