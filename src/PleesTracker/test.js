@@ -63,7 +63,6 @@ describe("PleesTracker format", () => {
         format: "Standard",
         input: normal_diary,
         expected: [
-
             {
                 status: 'asleep',
                 start: 1608323029380,

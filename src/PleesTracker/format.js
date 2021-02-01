@@ -47,7 +47,7 @@
 class DiaryPleesTracker extends DiaryBase {
 
     /**
-     * @param {string} file - file contents
+     * @param {Object} file - file contents
      * @param {Function=} serialiser - function to serialise output
      */
     constructor(file,serialiser) {
@@ -80,10 +80,46 @@ class DiaryPleesTracker extends DiaryBase {
                 "duration": data[2] - data[1],
                 "sid"     : data[0],
                 "rating"  : data[3],
-
             };
 
         }
+
+        /**
+         * Spreadsheet manager
+         * @protected
+         * @type {Spreadsheet}
+         */
+        this["spreadsheet"] = new Spreadsheet(this,[
+            {
+                "sheet" : "Records",
+                "member" : "records",
+                "cells": [
+                    {
+                        "member": "sid",
+                        "regexp": /^[1-9][0-9]*$/,
+                        "type": "number",
+                    },
+                    {
+                        "member": "start",
+                        "type": "time",
+                    },
+                    {
+                        "member": "end",
+                        "type": "time",
+                    },
+                    {
+                        "members": [],
+                        "export": () => true,
+                        "import": array_element => array_element["duration"] = array_element["end"] - array_element["start"],
+                    },
+                    {
+                        "member": "rating",
+                        "regexp": /^[0-5]$/,
+                        "type": "number",
+                    },
+                ]
+            }
+        ]);
 
         /*
          * CONSTRUCT FROM DIFFERENT FORMATS
@@ -94,6 +130,8 @@ class DiaryPleesTracker extends DiaryBase {
         case "url":
             // sleep diaries can be encoded as a JSON blob inside a URL parameter:
             return this.initialise_from_url(file);
+        case "spreadsheet":
+            return this.initialise_from_spreadsheet(file);
 
         case "string":
 
