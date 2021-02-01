@@ -15,8 +15,10 @@ describe("Standard format", () => {
         file_format:"Standard",
         input: "{\"file_format\":\"Standard\",\"records\":[]}",
         expected: {
-            minimum_day_duration: 72000000,
-            maximum_day_duration: 144000000,
+            settings: {
+                minimum_day_duration: 72000000,
+                maximum_day_duration: 144000000,
+            },
             records: [],
         }
     });
@@ -43,8 +45,10 @@ describe("Standard format", () => {
             "records": [],
         }),
         expected: {
-            minimum_day_duration: 72000000,
-            maximum_day_duration: 144000000,
+            settings: {
+                minimum_day_duration: 72000000,
+                maximum_day_duration: 144000000,
+            },
             records: [],
         }
     });
@@ -58,8 +62,10 @@ describe("Standard format", () => {
             "maximum_day_duration": 2,
         }),
         expected: wrap_expected({
-            minimum_day_duration: 1,
-            maximum_day_duration: 2,
+            settings: {
+                minimum_day_duration: 1,
+                maximum_day_duration: 2,
+            },
             records: [],
         }),
     });
@@ -168,8 +174,10 @@ describe("Standard format", () => {
             },
         ] }),
         expected: wrap_expected({
-            minimum_day_duration: 72000000,
-            maximum_day_duration: 144000000,
+            settings: {
+                minimum_day_duration: 72000000,
+                maximum_day_duration: 144000000,
+            },
             records: [
                 {
                     start               : 1,
@@ -201,7 +209,6 @@ describe("Standard format", () => {
                 },
                 {
                     start               : 1,
-                    duration            : null,
                     status              : "awake",
                     comments            : [
                         "comment 1",
@@ -214,7 +221,6 @@ describe("Standard format", () => {
                 },
                 {
                     start               : 1,
-                    duration            : null,
                     status              : "awake",
                     comments            : [
                         "comment 1",
@@ -227,7 +233,6 @@ describe("Standard format", () => {
                 },
                 {
                     start               : 1,
-                    duration            : null,
                     status              : "awake",
                     comments            : [
                         "comment 1",
@@ -240,7 +245,6 @@ describe("Standard format", () => {
                 },
                 {
                     start               : 1,
-                    duration            : null,
                     status              : "awake",
                     comments            : [
                         "comment 1",
@@ -252,7 +256,6 @@ describe("Standard format", () => {
                 },
                 {
                     start               : 1,
-                    duration            : null,
                     status              : "awake",
                     comments            : [
                         "comment 1",
@@ -291,12 +294,13 @@ describe("Standard format", () => {
             },
         ] }),
         expected: wrap_expected({
-            minimum_day_duration: 72000000,
-            maximum_day_duration: 144000000,
+            settings: {
+                minimum_day_duration: 72000000,
+                maximum_day_duration: 144000000,
+            },
             records: [
                 {
                     start               : 72000000*0,
-                    duration            : null,
                     status              : "asleep",
                     day_number          : 0,
                     start_of_new_day    : false,
@@ -304,7 +308,6 @@ describe("Standard format", () => {
                 },
                 {
                     start               : 72000000*1,
-                    duration            : null,
                     status              : "asleep",
                     day_number          : 0,
                     start_of_new_day    : false,
@@ -312,7 +315,6 @@ describe("Standard format", () => {
                 },
                 {
                     start               : 72000000*1 + 1,
-                    duration            : null,
                     status              : "asleep",
                     day_number          : 1,
                     start_of_new_day    : true,
@@ -320,7 +322,6 @@ describe("Standard format", () => {
                 },
                 {
                     start               : 72000000*3 + 1,
-                    duration            : null,
                     status              : "asleep",
                     day_number          : 2,
                     start_of_new_day    : true,
@@ -328,7 +329,6 @@ describe("Standard format", () => {
                 },
                 {
                     start               : 72000000*5 + 2,
-                    duration            : null,
                     status              : "asleep",
                     day_number          : 4,
                     start_of_new_day    : true,
@@ -365,15 +365,16 @@ describe("Standard format", () => {
                 },
             ],
             "minimum_day_duration": 1,
-            "maximum_day_duration": Math.pow(2,63),
+            "maximum_day_duration": Math.pow(2,31),
         }),
         expected: wrap_expected({
-            minimum_day_duration: 1,
-            maximum_day_duration: Math.pow(2,63),
+            settings: {
+                minimum_day_duration: 1,
+                maximum_day_duration: Math.pow(2,31),
+            },
             records: [
                 {
                     start               : 72000000*0,
-                    duration            : null,
                     status              : "asleep",
                     day_number          : 0,
                     start_of_new_day    : false,
@@ -381,7 +382,6 @@ describe("Standard format", () => {
                 },
                 {
                     start               : 72000000*1,
-                    duration            : null,
                     status              : "asleep",
                     day_number          : 1,
                     start_of_new_day    : true,
@@ -389,7 +389,6 @@ describe("Standard format", () => {
                 },
                 {
                     start               : 72000000*1 + 1,
-                    duration            : null,
                     status              : "asleep",
                     day_number          : 1,
                     start_of_new_day    : false,
@@ -397,7 +396,6 @@ describe("Standard format", () => {
                 },
                 {
                     start               : 72000000*3 + 1,
-                    duration            : null,
                     status              : "asleep",
                     day_number          : 2,
                     start_of_new_day    : true,
@@ -405,7 +403,6 @@ describe("Standard format", () => {
                 },
                 {
                     start               : 72000000*5 + 2,
-                    duration            : null,
                     status              : "asleep",
                     day_number          : 3,
                     start_of_new_day    : true,
@@ -431,12 +428,13 @@ describe("Standard format", () => {
             ],
         }),
         expected: wrap_expected({
-            minimum_day_duration: 72000000,
-            maximum_day_duration: 144000000,
+            settings: {
+                minimum_day_duration: 72000000,
+                maximum_day_duration: 144000000,
+            },
             records: [
                 {
                     start               : 72000000*0,
-                    duration            : null,
                     status              : "asleep",
                     day_number          : 0,
                     start_of_new_day    : false,
@@ -444,7 +442,6 @@ describe("Standard format", () => {
                 },
                 {
                     start               : 72000000*1,
-                    duration            : null,
                     status              : "asleep",
                     day_number          : 0,
                     start_of_new_day    : false,
@@ -470,8 +467,10 @@ describe("Standard format", () => {
             ],
         }),
         expected: wrap_expected({
-            minimum_day_duration: 72000000,
-            maximum_day_duration: 144000000,
+            settings: {
+                minimum_day_duration: 72000000,
+                maximum_day_duration: 144000000,
+            },
             records: [
                 {
                     duration            : 1,
@@ -505,67 +504,64 @@ describe("Standard format", () => {
                     },
                 ],
             })).to("output").contents
-        ).toEqual('{"file_format":"Standard","records":[{"duration":1,"status":"asleep","start_of_new_day":false,"day_number":0,"missing_record_after":true},{"duration":2,"status":"asleep","start_of_new_day":false,"day_number":0,"is_primary_sleep":true}],"minimum_day_duration":72000000,"maximum_day_duration":144000000}');
+        ).toEqual('{"file_format":"Standard","records":[{"duration":1,"status":"asleep","start_of_new_day":false,"day_number":0,"missing_record_after":true},{"duration":2,"status":"asleep","start_of_new_day":false,"day_number":0,"is_primary_sleep":true}],"settings":{"minimum_day_duration":72000000,"maximum_day_duration":144000000}}');
     });
 
-    it(`merges data correctly`, function() {
-
-        var tests = [
-            {
-                left: [],
-                right: [],
-                expected: [],
-            },
-            {
-                left: [ { start: 1, end: 2 } ],
-                right: [],
-                expected: [ { start: 1, end: 2, duration: 1, start_of_new_day: false, day_number: 0 } ],
-            },
-            {
-                left: [],
-                right: [ { start: 1, end: 2 } ],
-                expected: [ { start: 1, end: 2, duration: 1, start_of_new_day: false, day_number: 0 } ],
-            },
-            {
-                left: [ { start: 1, end: 2 } ],
-                right: [ { start: 1, end: 2 } ],
-                expected: [ { start: 1, end: 2, duration: 1, start_of_new_day: false, day_number: 0 } ],
-            },
-            {
-                left: [ { start: 2, end: 3 } ],
-                right: [ { start: 1, end: 2 } ],
-                expected: [
-                    { start: 1, end: 2, duration: 1, start_of_new_day: false, day_number: 0 },
-                    { start: 2, end: 3, duration: 1, start_of_new_day: false, day_number: 0 },
-                ],
-            },
-            {
-                left: [ { start: 1, end: 2 } ],
-                right: [ { start: 2, end: 3 } ],
-                expected: [
-                    { start: 1, end: 2, duration: 1, start_of_new_day: false, day_number: 0 },
-                    { start: 2, end: 3, duration: 1, start_of_new_day: false, day_number: 0 },
-                ],
-            },
-        ];
-
-        tests.forEach(function(test) {
-            expect(Object.assign(
-                {},
-                new_sleep_diary(wrap_input({
-                    "file_format": "Standard",
-                    "records": test.left,
-                })).merge(new_sleep_diary(wrap_input({
-                    "file_format": "Standard",
-                    "records": test.right,
-                })))
-            )).toEqual({
+    [
+        {
+            left: [],
+            right: [],
+            expected: [],
+        },
+        {
+            left: [ { start: 1, end: 2 } ],
+            right: [],
+            expected: [ { start: 1, end: 2, duration: 1, start_of_new_day: false, day_number: 0 } ],
+        },
+        {
+            left: [],
+            right: [ { start: 1, end: 2 } ],
+            expected: [ { start: 1, end: 2, duration: 1, start_of_new_day: false, day_number: 0 } ],
+        },
+        {
+            left: [ { start: 1, end: 2 } ],
+            right: [ { start: 1, end: 2 } ],
+            expected: [ { start: 1, end: 2, duration: 1, start_of_new_day: false, day_number: 0 } ],
+        },
+        {
+            left: [ { start: 2, end: 3 } ],
+            right: [ { start: 1, end: 2 } ],
+            expected: [
+                { start: 1, end: 2, duration: 1, start_of_new_day: false, day_number: 0 },
+                { start: 2, end: 3, duration: 1, start_of_new_day: false, day_number: 0 },
+            ],
+        },
+        {
+            left: [ { start: 1, end: 2 } ],
+            right: [ { start: 2, end: 3 } ],
+            expected: [
+                { start: 1, end: 2, duration: 1, start_of_new_day: false, day_number: 0 },
+                { start: 2, end: 3, duration: 1, start_of_new_day: false, day_number: 0 },
+            ],
+        },
+    ].forEach(function(test) {
+        test_merge({
+            left: wrap_input({
+                "file_format": "Standard",
+                "records": test.left,
+            }),
+            right: wrap_input({
+                "file_format": "Standard",
+                "records": test.right,
+            }),
+            expected: {
+                settings: {
                     "minimum_day_duration":  72000000,
                     "maximum_day_duration": 144000000,
-                    "records": test.expected,
-                });
+                },
+                "records": test.expected,
+            },
         });
-
     });
 
     it(`summarises records correctly`, function() {
@@ -601,7 +597,7 @@ describe("Standard format", () => {
                     interquartile_mean: 1,
                     median: 1,
                     interquartile_range: 0,
-                    durations: [ 1, null ],
+                    durations: [ 1, undefined ],
                     interquartile_durations: [ 1 ],
                     standard_deviation: 0,
                     interquartile_standard_deviation: 0,

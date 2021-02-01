@@ -43,7 +43,7 @@ const DiaryStandardRecordStatus = {
  *   end                 : number,
  *   start_timezone      : (string|undefined),
  *   end_timezone        : (string|undefined),
- *   duration            : (number|null|undefined),
+ *   duration            : (number|undefined),
  *   status              : DiaryStandardRecordStatus,
  *   tags                : Array<string>,
  *   comments            : Array<string|{time:number,text:string}>,
@@ -68,11 +68,11 @@ let DiaryStandardRecord;
  * let diary = new_sleep_diary(contents_of_my_file));
  *
  * // print the minimum expected day duration in milliseconds:
- * console.log(diary.minimum_day_duration);
+ * console.log(diary.settings.minimum_day_duration);
  * -> 12345
  *
  * // print the maximum expected day duration in milliseconds:
- * console.log(diary.maximum_day_duration);
+ * console.log(diary.settings.maximum_day_duration);
  * -> 23456
  *
  * // Print the complete list of records
@@ -88,7 +88,7 @@ let DiaryStandardRecord;
  *        start_timezone: "Etc/GMT-1",
  *        end_timezone: "Europe/Paris",
  *
- *        duration: 11111111, // or a falsey value if duration is unknown
+ *        duration: 11111111, // or missing if duration is unknown
  *
  *        // tags associated with this period:
  *        tags: [
@@ -136,7 +136,7 @@ let DiaryStandardRecord;
  *      interquartile_standard_deviation: 12.45,
  *                    median            : 12345,
  *      interquartile_range             : 12,
- *                    durations         : [ undefined, 12345, null, ... ],
+ *                    durations         : [ undefined, 12345, undefined, ... ],
  *      interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
  *    }
  *
@@ -151,7 +151,7 @@ let DiaryStandardRecord;
  *      interquartile_standard_deviation: 12.45,
  *                    median            : 12345,
  *      interquartile_range             : 12,
- *                    durations         : [ undefined, 12345, null, ... ],
+ *                    durations         : [ undefined, 12345, undefined, ... ],
  *      interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
  *    }
  */
@@ -175,10 +175,128 @@ class DiaryStandard extends DiaryBase {
             };
         }
 
+        /**
+         * Spreadsheet manager
+         * @protected
+         * @type {Spreadsheet}
+         */
+        this["spreadsheet"] = new Spreadsheet(this,[
+            {
+                "sheet" : "Records",
+                "member" : "records",
+                "cells": [
+                    {
+                        "member": "status",
+                        "regexp": new RegExp('^(' + Object.values(DiaryStandardRecordStatus).join('|') + ')$'),
+                        "type"  : "string",
+                    },
+                    {
+                        "member"  : "start",
+                        "type"    : "time",
+                        "optional": true,
+                    },
+                    {
+                        "member"  : "end",
+                        "type"    : "time",
+                        "optional": true,
+                    },
+                    {
+                        "member": "start_timezone",
+                        "type"  : "string",
+                        "optional": true,
+                    },
+                    {
+                        "member": "end_timezone",
+                        "type"  : "string",
+                        "optional": true,
+                    },
+                    {
+                        "member"  : "duration",
+                        "type"    : "duration",
+                        "optional": true,
+                    },
+                    {
+                        "members": ["tags"],
+                        "export": (array_element,row,offset) => row[offset] = Spreadsheet["create_cell"]( (array_element["tags"]||[]).join("; ") ),
+                        "import": (array_element,row,offset) => {
+                            if ( row[offset]["value"] ) {
+                                const tags = row[offset]["value"].split(/ *; */);
+                                array_element["tags"] = tags;
+                            }
+                            return true;
+                        }
+                    },
+                    {
+                        "members": ["comments"],
+                        "export": (array_element,row,offset) => row[offset] = Spreadsheet["create_cell"](
+                            (array_element["comments"]||[])
+                                .map( c => c["time"] ? `TIME=${c["time"]} ${c["text"]}` : c )
+                                .join("; ")
+                        ),
+                        "import": (array_element,row,offset) => {
+                            if ( row[offset]["value"] ) {
+                                const comments =
+                                      row[offset]["value"]
+                                      .split(/ *; */)
+                                      .map( c => {
+                                          var time;
+                                          c = c.replace( /^TIME=([0-9]*) */, (_,t) => { time = parseInt(t,10); return '' });
+                                          return time ? { "time": time, "text": c } : c;
+                                      });
+                                array_element["comments"] = comments;
+                            }
+                            return true;
+                        },
+                    },
+                    {
+                        "member": "day_number",
+                        "type": "number",
+                        "optional": true,
+                    },
+                    {
+                        "member": "start_of_new_day",
+                        "type": "boolean",
+                        "optional": true,
+                    },
+                    {
+                        "member": "is_primary_sleep",
+                        "type": "boolean",
+                        "optional": true,
+                    },
+                    {
+                        "member": "missing_record_after",
+                        "type": "boolean",
+                        "optional": true,
+                    },
+                ]
+            },
+
+            {
+                "sheet" : "Settings",
+                "member" : "settings",
+                "type" : "dictionary",
+                "cells": [
+                    {
+                        "member": "minimum_day_duration",
+                        "type"  : "duration",
+                    },
+                    {
+                        "member": "maximum_day_duration",
+                        "type"  : "duration",
+                    },
+                ],
+            },
+
+        ]);
+
+
         switch ( file["file_format"]() ) {
 
         case "url":
             return this.initialise_from_url(file);
+
+        case "spreadsheet":
+            return this.initialise_from_spreadsheet(file);
 
         case "archive": // unsupported
 
@@ -213,25 +331,33 @@ class DiaryStandard extends DiaryBase {
              */
             this["records"] = contents["records"];
 
-            /**
-             * Minimum expected length for a day
-             *
-             * <p>We calculate day numbers by looking for "asleep"
-             * records at least this far apart.</p>
-             *
-             * @type number
-             */
-            this["minimum_day_duration"] = contents["minimum_day_duration"] || 20*60*60*1000;
+            const minimum_day_duration = contents["minimum_day_duration"] || 20*60*60*1000,
+                  maximum_day_duration = contents["maximum_day_duration"] || minimum_day_duration*2
+            ;
 
-            /**
-             * Maximum expected length for a day
-             *
-             * <p>We calculate skipped days by looking for "asleep"
-             * records at this far apart</p>
-             *
-             * @type number
-             */
-            this["maximum_day_duration"] = contents["maximum_day_duration"] || this["minimum_day_duration"]*2;
+            this["settings"] = {
+
+                /**
+                 * Minimum expected length for a day
+                 *
+                 * <p>We calculate day numbers by looking for "asleep"
+                 * records at least this far apart.</p>
+                 *
+                 * @type number
+                 */
+                "minimum_day_duration": minimum_day_duration,
+
+                /**
+                 * Maximum expected length for a day
+                 *
+                 * <p>We calculate skipped days by looking for "asleep"
+                 * records at this far apart</p>
+                 *
+                 * @type number
+                 */
+                "maximum_day_duration": maximum_day_duration,
+
+            };
 
             /*
              * Calculate extra information
@@ -245,9 +371,6 @@ class DiaryStandard extends DiaryBase {
                 day_sleeps = [],
                 sleep_wake_record = prev
             ;
-            const minimum_day_duration = this["minimum_day_duration"],
-                  maximum_day_duration = this["maximum_day_duration"]
-            ;
 
             contents["records"]
                 .sort( (a,b) => ( a["start"] - b["start"] ) || ( a["end"] - b["end"] ) )
@@ -255,7 +378,7 @@ class DiaryStandard extends DiaryBase {
 
                     if ( !r.hasOwnProperty("duration") ) {
                         r["duration"] = r["end"] - r["start"];
-                        if ( isNaN(r["duration"]) ) r["duration"] = null;
+                        if ( isNaN(r["duration"]) ) delete r["duration"];
                     }
 
                     if ( r.hasOwnProperty("start_of_new_day") ) {
@@ -318,9 +441,11 @@ class DiaryStandard extends DiaryBase {
         switch ( to_format ) {
 
         case "output":
+            let contents = Object.assign({"file_format":this["file_format"]()},this);
+            delete contents["spreadsheet"];
             return this.serialise({
                 "file_format": () => "string",
-                "contents": JSON.stringify(Object.assign({"file_format":this["file_format"]()},this)),
+                "contents": JSON.stringify(contents),
             });
 
         default:

@@ -57,7 +57,7 @@ An array of comments associated with this record.  Each value can either be a st
 
 (Estimated) day number associated with the record.  This may be useful for creating graphs, but should not be relied on for statistics.
 
-Most formats do not store day-related values explicitly, so this value is usually inferred from the data.  In some cases, these inferences may be incorrect - for example, the day number is increased by a maximum of 2 at a time, no matter how large the gap between two records.  In other cases, they may not be meaningful at all - for example, people with polyphasic sleep might not have a meaningful concept of days at all.  Days typically begin at the start of an "asleep" event, because sleep is the only record type guaranteed to be in a sleep diary.
+Most formats do not store day-related values explicitly, so this value is usually inferred from the data.  In some cases, these inferences may be incorrect - for example, the day number is increased by a maximum of 2 at a time, no matter how large the gap between two records.  In other cases, they may not be meaningful at all - for example, people with polyphasic sleep might not have a meaningful concept of days.  Days typically begin at the start of an "asleep" event, because sleep is the only record type guaranteed to exist in all sleep diary formats.
 
 ### `start_of_new_day`
 
