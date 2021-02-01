@@ -4,7 +4,7 @@ RUN \
     cd /tmp/libfaketime/src/ && \
     make install && \
     \
-    npm install -g jsdoc jasmine google-closure-compiler xmldom timezonecomplete puppeteer && \
+    npm install -g jsdoc jasmine google-closure-compiler xmldom timezonecomplete puppeteer exceljs && \
     cd /usr/local/lib/node_modules/puppeteer && PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true node install.js && \
     \
     apt update && \
