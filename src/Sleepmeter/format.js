@@ -385,6 +385,8 @@ class DiarySleepmeter extends DiaryBase {
          * Compiled regular expressions
          */
 
+        const custom_re = new RegExp("^" + custom + "$");
+
         const custom_aid_re       = new RegExp(custom_aid);
         const custom_hindrance_re = new RegExp(custom_hindrance);
         const custom_tag_re       = new RegExp(custom_tag);
@@ -452,6 +454,40 @@ class DiarySleepmeter extends DiaryBase {
             };
         }
 
+        function date_to_timestamp(date,offset) {
+            const offset_hours   = Math.floor(offset/60),
+                  offset_minutes = Math.floor(offset%60)
+            ;
+            date = new Date(
+                ( date["getTime"] ? date["getTime"]() : date )
+                + ((offset_hours*60)+offset_minutes)*60*1000
+            );
+            return {
+                "string": (
+                    '"' +
+                        date["getUTCFullYear"]() +
+                        '-' +
+                        DiaryBase["zero_pad"]( date["getUTCMonth"]()+1 ) +
+                        '-' +
+                        DiaryBase["zero_pad"]( date["getUTCDate" ] () ) +
+                        ' ' +
+                        DiaryBase["zero_pad"]( date["getUTCHours"]() ) +
+                        ':' +
+                        DiaryBase["zero_pad"]( date["getUTCMinutes"]() ) +
+                        ( offset[0] == '-' ? '' : '+' ) +
+                        DiaryBase["zero_pad"](Math.floor(offset/60),2) +
+                        DiaryBase["zero_pad"](Math.floor(offset%60),2) +
+                    '"'
+                ),
+                "year"     : date["getUTCFullYear"](),
+                "month"    : date["getUTCMonth"   ]()+1,
+                "day"      : date["getUTCDate"    ](),
+                "hour"     : date["getUTCHours"   ](),
+                "minute"   : date["getUTCMinutes" ](),
+                "offset"   : offset,
+            };
+        }
+
         function parse_holes(string) {
             let ret = [];
             if ( string != "" ) {
@@ -469,7 +505,7 @@ class DiarySleepmeter extends DiaryBase {
 
         function parse_dreams(string) {
             let ret = [];
-            if ( string != "NONE" ) {
+            if ( string.length && string != "NONE" ) {
                 let sub_records = string.split('|');
                 for ( let n=0; n!=sub_records.length; ++n ) {
                     let sub_sub_records = sub_records[n].split(':');
@@ -484,7 +520,7 @@ class DiarySleepmeter extends DiaryBase {
         }
 
         function parse_list(string) {
-            if ( string == "NONE" ) {
+            if ( !string.length || string == "NONE" ) {
                 return [];
             } else {
                 return string.split('|');
@@ -663,6 +699,191 @@ class DiarySleepmeter extends DiaryBase {
 
         }
 
+        /**
+         * Spreadsheet manager
+         * @protected
+         * @type {Spreadsheet}
+         */
+        this["spreadsheet"] = new Spreadsheet(this,[
+            {
+                "sheet"  : "Records",
+                "member" : "records",
+                "cells": [
+
+                    {
+                        "members": [ "start", "start_offset" ],
+                        "formats": [ "time", null ],
+                        "export": (array_element,row,offset) => {
+                            row[offset  ] = Spreadsheet["create_cell"]( new Date( array_element["start"] ) );
+                            row[offset+1] = Spreadsheet["create_cell"]( array_element["bedtime"]["offset"] );
+                            return true;
+                        },
+                        "import": (array_element,row,offset) => {
+                            array_element["start"] = row[offset]["value"].getTime();
+                            return array_element["bedtime"] = date_to_timestamp(
+                                row[offset  ]["value"],
+                                row[offset+1]["value"],
+                            )
+                        },
+                    },
+                    {
+                        "members": [ "end", "end_offset" ],
+                        "formats": [ "time", null ],
+                        "export": (array_element,row,offset) => {
+                            row[offset  ] = Spreadsheet["create_cell"]( new Date( array_element["end"] ) );
+                            row[offset+1] = Spreadsheet["create_cell"]( array_element["wake"]["offset"] );
+                            return true;
+                        },
+                        "import": (array_element,row,offset) => {
+                            array_element["end"] = row[offset]["value"].getTime();
+                            return array_element["wake"] = date_to_timestamp(
+                                row[offset  ]["value"],
+                                row[offset+1]["value"],
+                            );
+                        },
+                    },
+                    {
+                        "member": "duration",
+                        "type"  : "duration",
+                    },
+                    {
+                        "members": [ "sleep", "sleep_offset" ],
+                        "formats": [ "time", null ],
+                        "export": (array_element,row,offset) => {
+                            row[offset  ] = Spreadsheet["create_cell"]( new Date( array_element["sleep"]["string"].substr( 1, array_element["sleep"]["string"].length-2 ) ) );
+                            row[offset+1] = Spreadsheet["create_cell"]( array_element["sleep"]["offset"] );
+                            return true;
+                        },
+                        "import": (array_element,row,offset) =>
+                            array_element["sleep"] = date_to_timestamp(
+                                row[offset  ]["value"],
+                                row[offset+1]["value"]
+                            ),
+                    },
+                    {
+                        "members": [ "holes" ],
+                        "regexp" : /^([0-9]*-[0-9]*)*$/,
+                        "export": (array_element,row,offset) => {
+                            row[offset] = Spreadsheet["create_cell"]( array_element["holes"].map( hole => hole["wake"]+'-'+hole["sleep"] ).join('|') );
+                            return true;
+                        },
+                        "import": (array_element,row,offset) => {
+                            array_element["holes"] = parse_holes(row[offset]["value"]);
+                            return true;
+                        },
+                    },
+                    {
+                        "member": "type",
+                        "regexp": /^(NIGHT_SLEEP|NAP)$/,
+                    },
+                    {
+                        "members": [ "dreams" ],
+                        "export": (array_element,row,offset) => {
+                            row[offset] = Spreadsheet["create_cell"](
+                                array_element["dreams"]
+                                    .map(
+                                        dream => [ dream["type"], dream["mood"] ].concat(dream["themes"]).join(':')
+                                    ).join('|')
+                            );
+                            return true;
+                        },
+                        "import": (array_element,row,offset) => array_element["dreams"] = parse_dreams(row[offset]["value"]),
+                    },
+                    {
+                        "members": [ "aids" ],
+                        "export": (array_element,row,offset) => {
+                            row[offset] = Spreadsheet["create_cell"]( array_element["aids"].join("|") )
+                            return true;
+                        },
+                        "import": (array_element,row,offset) => {
+                            array_element["aids"] = parse_list(row[offset]["value"]);
+                            return true;
+                        },
+                    },
+                    {
+                        "members": [ "hindrances" ],
+                        "export": (array_element,row,offset) => {
+                            row[offset] = Spreadsheet["create_cell"]( array_element["hindrances"].join("|") );
+                            return true;
+                        },
+                        "import": (array_element,row,offset) => {
+                            array_element["hindrances"] = parse_list(row[offset]["value"]);
+                            return true;
+                        },
+                    },
+                    {
+                        "members": [ "tags" ],
+                        "export": (array_element,row,offset) => {
+                            row[offset] = Spreadsheet["create_cell"](array_element["tags"].join("|"))
+                            return true;
+                        },
+                        "import": (array_element,row,offset) => {
+                            array_element["tags"] = parse_list(row[offset]["value"]);
+                            return true;
+                        },
+                    },
+                    {
+                        "member": "quality",
+                        "regexp": /^[0-9]*$/,
+                    },
+                    {
+                        "member": "notes",
+                    },
+                ]
+            },
+
+            {
+                "sheet"  : "Custom Aids",
+                "member": "custom_aids",
+                "cells": [
+                    {
+                        "member": "custom_aid_id",
+                        "regexp": custom_re,
+                    },
+                    {
+                        "member": "class",
+                        "regexp": new RegExp( "^(" + sleep_aid_class + ")$" ),
+                    },
+                    {
+                        "member": "name",
+                    },
+                ],
+            },
+
+            {
+                "sheet"  : "Custom Hindrances",
+                "member": "custom_hindrances",
+                "cells": [
+                    {
+                        "member": "custom_hindrance_id",
+                        "regexp": custom_re,
+                    },
+                    {
+                        "member": "class",
+                        "regexp": new RegExp( "^(" + sleep_hindrance_class + ")$" ),
+                    },
+                    {
+                        "member": "name",
+                    },
+                ],
+            },
+
+            {
+                "sheet"  : "Custom Tags",
+                "member": "custom_tags",
+                "cells": [
+                    {
+                        "member": "custom_tag_id",
+                        "regexp": custom_re,
+                    },
+                    {
+                        "member": "name",
+                    },
+                ],
+            },
+
+        ]);
+
         let custom_aids = [],
             custom_hindrances = [],
             custom_tags = [],
@@ -673,6 +894,9 @@ class DiarySleepmeter extends DiaryBase {
 
         case "url":
             return this.initialise_from_url(file);
+
+        case "spreadsheet":
+            return this.initialise_from_spreadsheet(file);
 
         case "string":
 
