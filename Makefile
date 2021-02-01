@@ -9,6 +9,7 @@ all-test: DEFAULT_GOAL test
 FORMATS = Standard Sleepmeter SleepAsAndroid PleesTracker
 
 DIARY_FILES  = src/DiaryBase.js
+DIARY_FILES += src/Spreadsheet.js
 DIARY_FILES += src/export.js
 DIARY_FILES += $(patsubst %,src/%/format.js,$(FORMATS))
 
@@ -30,7 +31,7 @@ sleep-diary-formats.js: src/closure-externs.js src/closure.js $(DIARY_FILES)
 		--externs $^
 	echo "//# sourceMappingURL="$@.map >> $@
 
-test.js: src/test-harness.js $(patsubst %,src/%/test.js,$(FORMATS))
+test.js: src/test-harness.js src/test-spreadsheet.js $(patsubst %,src/%/test.js,$(FORMATS))
 	cat $^ > $@
 
 doc/index.html: doc/README.md $(DIARY_FILES) doc/tutorials/*.md
