@@ -10,6 +10,7 @@ describe("Example format", () => {
         file_format: "Example",
         name: "empty diary",
         input: empty_diary,
+        //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
         expected: {
             ...
         }
@@ -20,6 +21,7 @@ describe("Example format", () => {
         file_format: "Example",
         name: "simple example",
         input: "... string containing a valid record ...",
+        //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
         expected: {
             ...
         }
@@ -28,6 +30,7 @@ describe("Example format", () => {
         file_format: "Example",
         name: "object example",
         input: { ... object containing a valid record ... },
+        //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
         expected: {
             ...
         }

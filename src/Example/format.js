@@ -74,11 +74,7 @@
 class DiaryExample extends DiaryBase {
 
     /**
-     * TODO: delete as appropriate:
-     * @param {string} file - file contents
-     * @param {string|Object} file - file contents, or filename/contents pairs (for archive files)
-     * @param {Object} file - filename/contents pairs
-     *
+     * @param {Object} file - file contents
      * @param {Function=} serialiser - function to serialise output
      */
     constructor(file,serialiser) {
@@ -176,6 +172,67 @@ class DiaryExample extends DiaryBase {
 
         }
 
+        /**
+         * Spreadsheet manager
+         * @protected
+         * @type {Spreadsheet}
+         */
+        this["spreadsheet"] = new Spreadsheet(
+            this,
+            /*
+             * TODO: define columns to convert your format to and from a spreadsheet
+             * (e.g. a .xlsx document).  See ../Spreadsheet.js if your format needs
+             * more flexibility for conversion.
+             */
+            [
+                // Define one object per sheet in the spreadsheet:
+                {
+                    "sheet" : "Records", // User-friendly sheet name
+                    "member" : "records", // sheet will be populated from this[member]
+                    "cells": [
+                        // list of columns in the spreadsheet - usually one per object:
+                        {
+                            "member": "start",
+                            "type": "time",
+                        },
+                        {
+                            "member": "end",
+                            "type": "time",
+                        },
+                        {
+                            "member": "duration",
+                            "type": "duration",
+                        },
+                        {
+                            "member": "rating",
+                            "regexp": /^[0-5]$/,
+                            "type": "number",
+                        },
+                        {
+                            "member": "comment",
+                            "type": "text",
+                        },
+                        // sometimes you need to define custom import/export functions:
+                        {
+                            "members": ["member1", "member2"],
+                            "export": (array_element,row,offset) => {
+                                // put data into the spreadsheet:
+                                row[offset  ] = Spreadsheet["create_cell"]( new Date( array_element["member1"] ) );
+                                row[offset+1] = Spreadsheet["create_cell"](           array_element["member2"]   );
+                                // indicates the export was successful:
+                                return true;
+                            },
+                            "import": (array_element,row,offset) => {
+                                // get data from the spreadsheet:
+                                array_element["member1"] = row[offset  ]["value"].getTime();
+                                array_element["member2"] = row[offset+1]["value"];
+                            },
+                        },
+                    ]
+                }
+            ]
+        );
+
         /*
          * CONSTRUCT FROM DIFFERENT FORMATS
          */
@@ -185,15 +242,17 @@ class DiaryExample extends DiaryBase {
         case "url":
             // sleep diaries can be encoded as a JSON blob inside a URL parameter:
             return this.initialise_from_url(file);
+        case "spreadsheet":
+            return this.initialise_from_spreadsheet(file);
 
         case "string":
 
             // TODO: construct from string
-            //return this.invalid(file); // uncomment this if this type can't be read from a string
+            //return this.invalid(file); // uncomment if this type can't be read from a string
 
             /*
              * This library detects file types by calling each constructor in turn.
-             * The constructor's should start by running a simple test to see
+             * The constructor should start by running a simple test to see
              * if this looks at all like our file format.  It's OK for this test
              * to accept files with subtle errors.
              */
@@ -335,8 +394,8 @@ class DiaryExample extends DiaryBase {
 }
 
 DiaryBase.register({
-    "name": "Example", // CamelCase name for use in code
-    "constructor": DiaryExample, // the class mentioned above
-    "title": "Example", // Title Case name for displaying to users
+    "name": "Example", // CamelCase name, used in code
+    "constructor": DiaryExample, // the class we just defined
+    "title": "Example", // Title Case name, displayed to users
     "url": "/src/Example", // shown to users who want to know about this format
 });
