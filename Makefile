@@ -8,7 +8,7 @@ all-test: DEFAULT_GOAL test
 # Add your formats to the following line:
 FORMATS = Standard Sleepmeter SleepAsAndroid PleesTracker
 
-DIARY_FILES  = src/DiaryBase.js
+DIARY_FILES  = src/DiaryBase.js src/DiaryLoader.js
 DIARY_FILES += src/Spreadsheet.js
 DIARY_FILES += src/export.js
 DIARY_FILES += $(patsubst %,src/%/format.js,$(FORMATS))
