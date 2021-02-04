@@ -292,20 +292,14 @@ class DiaryStandard extends DiaryBase {
 
         switch ( file["file_format"]() ) {
 
-        case "url":
-            return this.initialise_from_url(file);
-
-        case "spreadsheet":
-            return this.initialise_from_spreadsheet(file);
-
-        case "archive": // unsupported
-
-            return this.invalid(file);
-
         case "string":
-            file = {
-                "file_format": () => "Standard",
-                "contents": /** @type (Object|null) */ (JSON.parse(file["contents"])),
+            try {
+                file = {
+                    "file_format": () => "Standard",
+                    "contents": /** @type (Object|null) */ (JSON.parse(file["contents"])),
+                }
+            } catch (e) {
+                return this.invalid(file);
             }
             if ( file["contents"]["file_format"] != "Standard" ) {
                 return this.invalid(file);
@@ -313,6 +307,8 @@ class DiaryStandard extends DiaryBase {
             // FALL THROUGH
 
         default:
+
+            if ( this.initialise_from_common_formats(file) ) return;
 
             let contents = file["contents"];
             if (

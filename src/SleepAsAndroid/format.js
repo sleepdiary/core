@@ -540,9 +540,6 @@ class DiarySleepAsAndroid extends DiaryBase {
 
         switch ( file["file_format"]() ) {
 
-        case "url":
-            return this.initialise_from_url(file);
-
         case "spreadsheet":
 
             // Records
@@ -752,6 +749,8 @@ class DiarySleepAsAndroid extends DiaryBase {
             }
 
         default:
+
+            if ( this.initialise_from_common_formats(file) ) return;
 
             records =
                 file["to"]("Standard")["records"]

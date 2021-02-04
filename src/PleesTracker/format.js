@@ -121,12 +121,6 @@ class DiaryPleesTracker extends DiaryBase {
 
         switch ( file["file_format"]() ) {
 
-        case "url":
-            // sleep diaries can be encoded as a JSON blob inside a URL parameter:
-            return this.initialise_from_url(file);
-        case "spreadsheet":
-            return this.initialise_from_spreadsheet(file);
-
         case "string":
 
             if ( !test.test(file["contents"]) ) return this.invalid(file);
@@ -141,11 +135,9 @@ class DiaryPleesTracker extends DiaryBase {
 
             break;
 
-        case "archive":
-
-            return this.invalid(file); // uncomment this if this type can't be read from an archive
-
         default:
+
+            if ( this.initialise_from_common_formats(file) ) return;
 
             records =
                 file["to"]("Standard")["records"]

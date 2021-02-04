@@ -261,26 +261,32 @@ class DiaryBase {
     }
 
     /*
-     * Attempt to initialise an object from a URL string
-     * @param {Object} file - file contents
+     * Attempt to initialise an object from common file formats
+     * @param {Object} file - file to initialise from
+     * @return {boolean} - whether parsing was successful
      */
-    initialise_from_url(file) {
-        file = file["contents"];
-        if ( this["file_format"]() == file["file_format"] ) {
-            Object.keys(file["contents"]).forEach( key => this[key] = file["contents"][key] );
-        } else {
-            return this.invalid(file);
-        }
-    }
+    initialise_from_common_formats(file) {
+        switch ( file["file_format"]() ) {
 
-    /*
-     * Attempt to initialise an object from a spreadsheet
-     * @param {Spreadsheet} file - file contents
-     */
-    initialise_from_spreadsheet(file) {
-        if ( !this["spreadsheet"]["load"](file) ) {
-            return this.invalid(file);
+        case "url":
+            file = file["contents"];
+            if ( this["file_format"]() == file["file_format"] ) {
+                Object.keys(file["contents"]).forEach( key => this[key] = file["contents"][key] );
+                return true;
+            } else {
+                return this.invalid(file);
+            }
+
+        case "spreadsheet":
+            if ( this["spreadsheet"]["load"](file) ) return true;
+            // FALL THROUGH
+
+        case "archive":
+            this.invalid(file);
+
         }
+
+        return false;
     }
 
 

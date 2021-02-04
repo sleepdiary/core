@@ -892,12 +892,6 @@ class DiarySleepmeter extends DiaryBase {
 
         switch ( file["file_format"]() ) {
 
-        case "url":
-            return this.initialise_from_url(file);
-
-        case "spreadsheet":
-            return this.initialise_from_spreadsheet(file);
-
         case "string":
 
             /*
@@ -914,11 +908,9 @@ class DiarySleepmeter extends DiaryBase {
 
             break;
 
-        case "archive": // unsupported
-
-            return this.invalid(file);
-
         default:
+
+            if ( this.initialise_from_common_formats(file) ) return;
 
             let bedtimes = {};
 

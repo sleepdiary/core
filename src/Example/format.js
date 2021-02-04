@@ -239,12 +239,6 @@ class DiaryExample extends DiaryBase {
 
         switch ( file["file_format"]() ) {
 
-        case "url":
-            // sleep diaries can be encoded as a JSON blob inside a URL parameter:
-            return this.initialise_from_url(file);
-        case "spreadsheet":
-            return this.initialise_from_spreadsheet(file);
-
         case "string":
 
             // TODO: construct from string
@@ -278,20 +272,28 @@ class DiaryExample extends DiaryBase {
             }
             break;
 
+        /*
+          TODO: decide which (if any) of these you need:
+
         case "archive":
-
-            // TODO: read from archive
-
-            //return this.invalid(file); // uncomment this if this type can't be read from an archive
-
+            // construct from zip file - only relevant if your format is usually saved in an archive
             break;
+
+        case "spreadsheet":
+            // construct from spreadsheet - usually handled by initialise_from_common_formats()
+
+        case "url":
+            // construct from URL-encoded string - usually handled by initialise_from_common_formats()
 
         case "OtherFormat":
-
-            // optional: construct from a specific other diary format
+            // construct from a specific other diary format
             break;
 
+        */
+
         default:
+
+            if ( this.initialise_from_common_formats(file) ) return;
 
             // TODO: construct from a diary in an unknown format
 
