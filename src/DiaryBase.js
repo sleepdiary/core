@@ -427,6 +427,10 @@ function new_sleep_diary(file,serialiser) {
             file["contents"] = JSON.parse(decodeURIComponent(file["contents"].substr(12)));
         }
 
+    } else {
+
+        throw error;
+
     }
 
     for ( let n=0; n!=sleep_diary_formats.length; ++n ) {
