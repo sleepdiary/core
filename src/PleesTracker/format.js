@@ -54,35 +54,6 @@ class DiaryPleesTracker extends DiaryBase {
 
         super(file,serialiser); // call the SleepDiary constructor
 
-        /*
-         * PROPERTIES
-         */
-
-        var records = [];
-
-        /*
-         * PARSERS
-         *
-         * Sleep diaries often encode complex data as strings.
-         *
-         */
-
-        const test = new RegExp( "^sid,start,stop,rating\n([1-9][0-9]*,[1-9][0-9]*,[1-9][0-9]*,[0-5]\n)*$" );
-
-        // your parser might be easier to read if you construct the record in a separate function:
-        function insert_record(data) {
-
-            data = data.split(',').map( r => parseInt( r, 10 ) );
-
-            return {
-                "start"   : data[1],
-                "stop"    : data[2],
-                "sid"     : data[0],
-                "rating"  : data[3],
-            };
-
-        }
-
         /**
          * Spreadsheet manager
          * @protected
@@ -115,50 +86,22 @@ class DiaryPleesTracker extends DiaryBase {
             }
         ]);
 
-        /*
-         * CONSTRUCT FROM DIFFERENT FORMATS
-         */
-
-        switch ( file["file_format"]() ) {
-
-        case "string":
-
-            if ( !test.test(file["contents"]) ) return this.invalid(file);
-
-            records = (
-                file["contents"]
-                    .replace(/\n$/,'')
-                    .split("\n")
-                    .splice(1)
-                    .map(insert_record)
-            );
-
-            break;
-
-        default:
-
-            if ( this.initialise_from_common_formats(file) ) return;
-
-            records =
+        if ( !this.initialise_from_common_formats(file) ) {
+            /**
+             * Individual records from the sleep diary
+             * @type {Array}
+             */
+            this["records"] = (
                 file["to"]("Standard")["records"]
-                .filter( r => r["status"] == "asleep" )
-                .map( (r,n) => ({
-                    "start"   : r["start"],
-                    "stop"    : r["end"  ],
-                    "sid"     : n+1,
-                    "rating"  : 0,
-                }))
-            ;
-
-            break;
-
+                    .filter( r => r["status"] == "asleep" )
+                    .map( (r,n) => ({
+                        "start"   : r["start"],
+                        "stop"    : r["end"  ],
+                        "sid"     : n+1,
+                        "rating"  : 0,
+                    }))
+            );
         }
-
-        /**
-         * Individual records from the sleep diary
-         * @type {Array}
-         */
-        this["records"] = records;
 
     }
 

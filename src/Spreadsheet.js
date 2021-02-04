@@ -398,6 +398,15 @@ class Spreadsheet {
         }
         if ( typeof(value) == "number" ) return value;
         if ( !value || !value.search ) return NaN;
+        if ( !value.search(/^[0-9]{4,}$/) ) {
+            // string looks like a large number
+            const ret = parseInt(value,10);
+            return ret * (
+                ( ret < new Date().getTime()/100 )
+                ? 1000 // assume the time is in seconds
+                : 1
+            );
+        }
 
         // treat e.g. "MidNight - 01:00" as "midnight", but leave "2010-11-12T13:14Z" alone:
         let cleaned_value = (
@@ -501,6 +510,72 @@ class Spreadsheet {
             }
         );
 
+    }
+
+    /**
+     * Copy data from the parameter into this.sheets and this.associated
+     *
+     * @param {string} contents - CSV file to load from
+     * @return {Object|undefined} spreadsheet information
+     */
+    static ["parse_csv"](contents) {
+
+        const value = "([^\",\\n]*|\"\([^\"]|\"\")*\")";
+
+        // Excel requires a byte order mark, which we ignore:
+        if ( contents[0] == "\u{FEFF}" ) contents = contents.substr(1);
+        // reduce the complexity of the regexp by guaranteeing a trailing newline:
+        if ( contents.search(/\n$/) == -1 ) contents += "\n";
+
+        // does this look like a valid CSV file?
+        if ( contents.search(new RegExp(`^(${value}(,${value})*\n)*$`) ) ) return;
+
+        let spreadsheet;
+        try {
+            spreadsheet = new window["ExcelJS"]["Workbook"]();
+        } catch (e) {
+            spreadsheet = new ( require("exceljs")["Workbook"] )();
+        }
+
+        let raw_sheet = spreadsheet["addWorksheet"]("Records");
+        let sheet = [];
+
+        let row_number=0;
+        contents.replace(
+            new RegExp(`${value}(,${value})*\n`, 'g'),
+            line_str => {
+                let raw_row = raw_sheet["getRow"](row_number+1);
+                let row = [];
+                sheet.push(row);
+                let n=0;
+                line_str
+                    .replace( new RegExp(value+'[,\n]','g'), value => {
+                        let raw_cell = raw_row["getCell"](n+1);
+                        if ( value[0] == '"' ) {
+                            raw_cell["value"] = value.substr(1,value.length-3).replace( /""/g, '"' );
+                        } else {
+                            raw_cell["value"] = value.substr(0,value.length-1);
+                        }
+                        row.push(Spreadsheet["create_cell"](raw_cell["value"]));
+                    });
+            }
+        );
+
+        return {
+            "spreadsheet": spreadsheet,
+            "sheets": [{ "name": "Records", "cells": sheet }],
+        }
+
+    }
+
+    static ["escape_csv_component"]( value ) {
+        return (
+            ( value === undefined )
+            ? ''
+            : ( value.toString().search(/[",\n]/) == -1 )
+            ? value
+            : '"'+value.replace(/"/g, '""')+'"'
+        );
     }
 
     /**

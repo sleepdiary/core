@@ -277,6 +277,7 @@ class DiaryBase {
                 return this.invalid(file);
             }
 
+        case "string":
         case "spreadsheet":
             if ( this["spreadsheet"]["load"](file) ) return true;
             // FALL THROUGH
@@ -419,6 +420,7 @@ function new_sleep_diary(file,serialiser) {
 
     if ( typeof(file) == "string" ) {
 
+        file_format = "string";
         file = { "file_format": () => "string", "contents": file };
 
     } else if ( file_format ) {
@@ -437,6 +439,10 @@ function new_sleep_diary(file,serialiser) {
 
         throw error;
 
+    }
+
+    if ( file_format == "string" ) {
+        Object.assign(file,Spreadsheet["parse_csv"](file["contents"]));
     }
 
     for ( let n=0; n!=sleep_diary_formats.length; ++n ) {
