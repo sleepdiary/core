@@ -13,22 +13,19 @@ describe("PleesTracker format", () => {
         {
             "sid"     : 1,
             "start"   : 1608323029380,
-            "end"     : 1608323057541,
-            "duration": 28161,
+            "stop"    : 1608323057541,
             "rating"  : 0,
         },
         {
             "sid"     : 2,
             "start"   : 1608323062156,
-            "end"     : 1608323063678,
-            "duration": 1522,
+            "stop"    : 1608323063678,
             "rating"  : 5,
         },
         {
             "sid"     : 3,
             "start"   : 1608323066387,
-            "end"     : 1608323067794,
-            "duration": 1407,
+            "stop"    : 1608323067794,
             "rating"  : 3,
         },
     ];
@@ -183,23 +180,20 @@ describe("PleesTracker format", () => {
             records: normal_records.concat([
                 {
                     start: 608323029380,
-                    end: 608323057541,
-                    duration: 28161,
-                    sid: 1,
+                    stop: 608323057541,
+                    sid: 4,
                     rating: 0
                 },
                 {
                     start: 608323062156,
-                    end: 608323063678,
-                    duration: 1522,
-                    sid: 2,
+                    stop: 608323063678,
+                    sid: 5,
                     rating: 5
                 },
                 {
                     start: 608323066387,
-                    end: 608323067794,
-                    duration: 1407,
-                    sid: 3,
+                    stop: 608323067794,
+                    sid: 6,
                     rating: 3
                 },
             ]),

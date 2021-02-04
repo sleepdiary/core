@@ -37,7 +37,7 @@
  *      {
  *        "sid"   : 1,
  *        "start" : 12345678,
- *        "end"   : 23456789,
+ *        "stop"  : 23456789,
  *        "rating": 5,
  *      },
  *      ...
@@ -76,8 +76,7 @@ class DiaryPleesTracker extends DiaryBase {
 
             return {
                 "start"   : data[1],
-                "end"     : data[2],
-                "duration": data[2] - data[1],
+                "stop"    : data[2],
                 "sid"     : data[0],
                 "rating"  : data[3],
             };
@@ -104,13 +103,8 @@ class DiaryPleesTracker extends DiaryBase {
                         "type": "time",
                     },
                     {
-                        "member": "end",
+                        "member": "stop",
                         "type": "time",
-                    },
-                    {
-                        "members": [],
-                        "export": () => true,
-                        "import": array_element => array_element["duration"] = array_element["end"] - array_element["start"],
                     },
                     {
                         "member": "rating",
@@ -158,8 +152,7 @@ class DiaryPleesTracker extends DiaryBase {
                 .filter( r => r["status"] == "asleep" )
                 .map( (r,n) => ({
                     "start"   : r["start"],
-                    "end"     : r["end"  ],
-                    "duration": r["end"  ] - r["start"],
+                    "stop"    : r["end"  ],
                     "sid"     : n+1,
                     "rating"  : 0,
                 }))
@@ -190,9 +183,9 @@ class DiaryPleesTracker extends DiaryBase {
                         this["records"]
                         .map(
                             r => [
-                                r["sid"],
-                                r["start"],
-                                r["end"],
+                                r["sid"   ],
+                                r["start" ],
+                                r["stop"  ],
                                 r["rating"],
                             ].join(',') + "\n"
                         ).join("")
@@ -205,9 +198,8 @@ class DiaryPleesTracker extends DiaryBase {
                 "records": this["records"].map(
                     r => ({
                         "status"  : "asleep",
-                        "start"   : r["start"   ],
-                        "end"     : r["end"     ],
-                        "duration": r["duration"],
+                        "start"   : r["start"],
+                        "end"     : r["stop" ],
                     })
                 ),
             });
@@ -225,11 +217,13 @@ class DiaryPleesTracker extends DiaryBase {
         other = other["to"](this["file_format"]());
 
         let existing_ids = {};
-        this["records"].forEach( record => existing_ids[record["start"] + ' ' + record["end"]] = 1 );
+        this["records"].forEach( record => existing_ids[record["start"] + ' ' + record["stop"]] = 1 );
 
         this["records"] = this["records"].concat(
-            other["records"].filter( record => !existing_ids.hasOwnProperty(record["start"] + ' ' + record["end"]) )
+            other["records"].filter( record => !existing_ids.hasOwnProperty(record["start"] + ' ' + record["stop"]) )
         );
+
+        this["records"].forEach( (record,n) => record["sid"]=n+1 );
 
         return this;
     }
