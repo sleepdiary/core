@@ -1,28 +1,64 @@
-const sleep_diary_exports = (
+var sleep_diary_exports = (
     ( typeof module !== "undefined" && module.exports )
         ? require("./sleep-diary-formats.js")
         : window
 );
-const new_sleep_diary = sleep_diary_exports.new_sleep_diary;
-const Spreadsheet     = sleep_diary_exports.Spreadsheet;
+var sleep_diary_formats = sleep_diary_exports.sleep_diary_formats;
+var new_sleep_diary = sleep_diary_exports.new_sleep_diary;
+var Spreadsheet     = sleep_diary_exports.Spreadsheet;
+var serialiser      = ( sleep_diary_exports.DiaryLoader || {} ).serialiser;
 
-function test_constructor(test) {
+var roundtrip_modifiers = {};
+function register_roundtrip_modifier(format,callback) {
+    roundtrip_modifiers[format] = callback;
+}
+
+function compare_diaries(observed,expected) {
+    var clone_observed = Object.assign({},observed);
+    var clone_expected = Object.assign({},expected);
+    delete clone_observed.spreadsheet;
+    delete clone_expected.spreadsheet;
+    Object.keys(clone_observed).forEach( function(key) {
+        if ( clone_observed[key] == serialiser ) delete clone_observed[key];
+    });
+    Object.keys(clone_expected).forEach( function(key) {
+        if ( clone_expected[key] == serialiser ) delete clone_expected[key];
+    });
+    //console.error("Observed and expected objects should have been equal:\n",observed,expected);
+    return expect(clone_observed).toEqual(clone_expected);
+}
+
+function test_constructor(test,serialiser) {
     var diary = null, error = false;
+    var console_error = console.error;
+    if ( test.quiet ) console.error = function() {};
     try {
+        var input = test.input;
+        if ( test.clone_contents ) {
+            input.contents = JSON.parse(JSON.stringify(input.contents));
+        }
+        if ( input && typeof(input) == "function" ) input = input();
         if ( typeof(test.input) == "string" || test.input.file_format ) {
-            diary = new_sleep_diary(test.input);
+            diary = new_sleep_diary(test.input,serialiser);
         } else {
-            diary = new_sleep_diary({ "file_format": function() { return "archive" }, "contents": test.input });
+            diary = new_sleep_diary({ "file_format": function() { return "archive" }, "contents": test.input },serialiser);
         }
     } catch (e) {
         if ( !test.error ) console.warn(e);
         error = true;
     }
+    if ( test.quiet ) console.error = console_error;
 
     it(`produces the correct error for "${test.name}"`, function() {
         expect(error).toEqual(!!test.error);
     });
 
+    if ( !error ) {
+        // if the following error occurs, you need to edit your ["extension"]() function:
+        it(`produces an extension other than ".exm" for "${test.name}"`, function() {
+            expect(diary.format_info().extension).not.toEqual(".exm");
+        });
+    }
     return error == !!test.error ? diary : null;
 }
 
@@ -31,16 +67,21 @@ function test_parse(test) {
 
     if ( !test.name ) test.name = "format's 'parse' test";
 
-    var spreadsheetify = (test.spreadsheetify||'') != "disable";
+    var debug = (
+        false
+        // || test.name == "my test"
+        // || true
+    );
 
-    var diary = test_constructor(test);
+    var spreadsheetify = (test.spreadsheetify||'') != "disable";
+    var output         = (test.output        ||'') != "disable";
+
+    var diary = test_constructor(test,serialiser);
 
     if ( diary ) {
 
         it(`reads test "${test.name}" correctly`, function() {
-            let clone = Object.assign({},diary);
-            delete clone.spreadsheet;
-            expect(clone).toEqual(test.expected);
+            compare_diaries(diary,test.expected);
         });
 
         it(`produces a file of the correct format for "${test.name||"format's 'parse' test"}"`, function() {
@@ -48,49 +89,142 @@ function test_parse(test) {
         });
 
         it(`URL-ifies "${test.name||"format's 'parse' test"}" correctly`, function() {
-            let clone1 = Object.assign({},diary);
-            let clone2 = Object.assign({},new_sleep_diary({
+            var url = diary.to("url");
+            var observed = new_sleep_diary({
                 "file_format": "url",
-                "contents": diary.to("url"),
-            }));
-            delete clone1.spreadsheet;
-            delete clone2.spreadsheet;
-            expect(clone1).toEqual(clone2);
+                "contents": url,
+            },serialiser);
+            compare_diaries(observed,diary);
         });
 
-        if ( spreadsheetify && ( typeof module === "undefined" || !module.exports ) ) {
-            it(`converts "${test.name||"format's 'parse' test"}" to spreadsheet correctly`, function() {
-                let clone1 = Object.assign({},diary);
-                Object.keys(clone1)
-                    .forEach( function(key) {
-                        if ( (typeof(clone1[key])).toLocaleLowerCase() == "function" ) { delete clone1[key] }
-                    })
-                ;
+        /*
+         * This is a very rough test for roundtripping between formats.
+         * It compares two diaries modified like so:
+         *
+         * 1. current_format                                     -> Standard
+         * 2. current_format -> another_format -> current_format -> Standard
+         *
+         * It's normal to lose data in the conversion to Standard format,
+         * but formats shouldn't lose any more data than that.
+         */
+        var n = 0;
+        sleep_diary_formats.forEach( function(format) {
+            it(`converts "${test.name||"format's 'parse' test"}" to ${format.name} correctly`, function() {
                 return new Promise(function(resolve, reject) {
-                    diary.to_async("spreadsheet")
-                        .then( function(raw) {
-                            return Spreadsheet.buffer_to_spreadsheet(raw).then(
-                                function(spreadsheet) {
-                                    var diary_loader = new DiaryLoader(
-                                        function(diary,source) {
-                                            let clone2 = Object.assign({},diary);
-                                            Object.keys(clone2)
-                                                .forEach( function(key) {
-                                                    if ( (typeof(clone2[key])).toLocaleLowerCase() == "function" ) { delete clone2[key] }
-                                                })
-                                            ;
-                                            delete clone1.spreadsheet;
-                                            delete clone2.spreadsheet;
-                                            expect(clone2).toEqual(clone1);
+                    diary.to_async(format.name)
+                        .then(
+                            function(formatted) {
+                                formatted.to_async(diary.file_format())
+                                    .then(
+                                        function(roundtripped) {
+                                            var observed = Object.assign({},roundtripped.to("Standard"));
+                                            var expected = Object.assign({},diary       .to("Standard"));
+                                            if ( debug ) console.log({
+                                                "original": diary,
+                                                "original to Standard": diary.to("Standard"),
+                                                "original to formatted": formatted,
+                                                "original to formatted to Standard": formatted.to("Standard"),
+                                                "original to formatted and back again": roundtripped,
+                                                "observed": observed,
+                                                "expected": expected,
+                                            });
+                                            [observed,expected].forEach(
+                                                diary => diary.records = diary.records.map(
+                                                    record => Object.assign({},record)
+                                                )
+                                            );
+                                            if ( roundtrip_modifiers[diary.file_format()] ) {
+                                                roundtrip_modifiers[diary.file_format()](expected,observed,format);
+                                            }
+                                            if ( formatted.format_info().statuses ) {
+                                                var statuses = {};
+                                                formatted.format_info().statuses.forEach( s => statuses[s] = 1 );
+                                                var total_expected = expected.records.length;
+                                                expected.records = expected.records.filter(
+                                                    r => statuses[r["status"]]
+                                                );
+                                                if ( total_expected != expected.records.length ) {
+                                                    [observed,expected].forEach(
+                                                        diary => diary.records = diary.records.map( r => {
+                                                            var ret = Object.assign( {}, r );
+                                                            delete ret.missing_record_after;
+                                                            return ret;
+                                                        })
+                                                    );
+                                                }
+                                            }
+                                            compare_diaries(observed,expected);
                                             resolve();
                                         },
                                         reject
                                     );
-                                    diary_loader.load( spreadsheet );
-                                })
-                        })
+                            },
+                            reject
+                        );
                 });
             });
+        });
+
+        if ( typeof module === "undefined" || !module.exports ) {
+
+            if ( output ) {
+                it(`outputs "${test.name||"format's 'parse' test"}" correctly`, function() {
+                    return new Promise(function(resolve, reject) {
+                        diary.to_async("output")
+                            .then( function(output) {
+                                var diary_loader = new DiaryLoader(
+                                    function(observed,source) {
+                                        if ( debug ) {
+                                            console.log({
+                                                original: diary,
+                                                observed: observed,
+                                                source: source,
+                                            });
+                                        }
+                                        compare_diaries(observed,diary);
+                                        resolve();
+                                    },
+                                    reject
+                                );
+                                diary_loader.load( DiaryLoader.to_url(output) );
+                            });
+                    });
+                });
+            }
+
+            if ( spreadsheetify ) {
+                it(`converts "${test.name||"format's 'parse' test"}" to spreadsheet correctly`, function() {
+                    var clone1 = Object.assign({},diary);
+                    Object.keys(clone1)
+                        .forEach( function(key) {
+                            if ( (typeof(clone1[key])).toLocaleLowerCase() == "function" ) { delete clone1[key] }
+                        })
+                    ;
+                    return new Promise(function(resolve, reject) {
+                        diary.to_async("spreadsheet")
+                            .then( function(raw) {
+                                return Spreadsheet.buffer_to_spreadsheet(raw).then(
+                                    function(spreadsheet) {
+                                        var diary_loader = new DiaryLoader(
+                                            function(diary,source) {
+                                                var clone2 = Object.assign({},diary);
+                                                Object.keys(clone2)
+                                                    .forEach( function(key) {
+                                                        if ( (typeof(clone2[key])).toLocaleLowerCase() == "function" ) { delete clone2[key] }
+                                                    })
+                                                ;
+                                                compare_diaries(clone2,clone1);
+                                                resolve();
+                                            },
+                                            reject
+                                        );
+                                        diary_loader.load( spreadsheet );
+                                    })
+                            })
+                    });
+                });
+            }
+
         }
 
     }
@@ -109,20 +243,16 @@ function test_from_standard(test) {
                 file_format: "Standard",
                 records: test.input
             }
-        }});
-    var expected_diary = test_constructor({ name: test.name, input: test.expected });
+        }},serialiser);
+    var expected_diary = test_constructor({ name: test.name, input: test.expected },serialiser);
 
-    it(`initialises "${test.name}" from Standard format correctly"`, function() {
+    it(`initialises "${test.name}" from Standard format correctly`, function() {
 
         expect( !!diary ).toEqual( true );
         expect( !!expected_diary ).toEqual( true );
 
         if ( diary && expected_diary ) {
-            let clone1 = Object.assign({},diary.to(test.format));
-            let clone2 = Object.assign({},expected_diary);
-            delete clone1.spreadsheet;
-            delete clone2.spreadsheet;
-            expect( clone1 ).toEqual( clone2 );
+            compare_diaries(diary.to(test.format),expected_diary);
         }
 
     });
@@ -136,21 +266,16 @@ function test_to(test) {
     var diary = test_constructor(test);
 
     if ( diary ) {
-
-        if ( test.format == "Standard" ) {
-            it(`converts "${test.name}" to "${test.format}" correctly"`, function() {
-                return diary.to_async(test.format).then(function(converted) {
-                    expect( converted.records ).toEqual( test.expected );
+        it(`converts "${test.name}" to "${test.format}" correctly`, function() {
+            return diary.to_async(test.format).then(
+                function(converted) {
+                    return expect(
+                        ( test.format == "Standard" )
+                        ? converted.records
+                        : converted.contents
+                    ).toEqual( test.expected )
                 });
-            });
-        } else {
-            it(`converts "${test.name}" to "${test.format}" correctly"`, function() {
-                return diary.to_async(test.format).then(function(converted) {
-                    expect( converted.contents ).toEqual( test.expected );
-                });
-            });
-        }
-
+        });
     }
 
 }
@@ -159,8 +284,8 @@ function test_merge(test) {
 
     if ( !test.name ) test.name = "format's 'merge' test";
 
-    it(`merges "${test.name}" correctly"`, function() {
-        let clone = Object.assign(
+    it(`merges "${test.name}" correctly`, function() {
+        var clone = Object.assign(
             {},
             new_sleep_diary(test.left)
                 .merge(new_sleep_diary(test.right))
