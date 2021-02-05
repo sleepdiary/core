@@ -8,10 +8,11 @@ describe("Example format", () => {
     // TODO: test an empty diary:
     test_parse({
         file_format: "Example",
-        name: "empty diary",
+        name: "Empty diary",
         input: empty_diary,
         //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
         expected: {
+            records: [],
             ...
         }
     });
@@ -19,7 +20,7 @@ describe("Example format", () => {
     // TODO: test one or both ways to create a simple non-empty object:
     test_parse({
         file_format: "Example",
-        name: "simple example",
+        name: "Simple example",
         input: "... string containing a valid record ...",
         //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
         expected: {
@@ -28,7 +29,7 @@ describe("Example format", () => {
     });
     test_parse({
         file_format: "Example",
-        name: "object example",
+        name: "Object example",
         input: { ... object containing a valid record ... },
         //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
         expected: {
@@ -38,7 +39,7 @@ describe("Example format", () => {
 
     // TODO: test conversion to "output" format:
     test_to({
-        name: "output test",
+        name: "Output test",
         format: "output",
         input: ...
         expected: ...
@@ -46,7 +47,7 @@ describe("Example format", () => {
 
     // TODO: test conversion to Standard format:
     test_to({
-        name: "standard format test",
+        name: "Standard Format test",
         format: "Standard",
         input: ...
         expected: [
@@ -56,7 +57,7 @@ describe("Example format", () => {
 
     // TODO: test initialisation from Standard format:
     test_from_standard({
-        name: "standard format test",
+        name: "Standard Format test",
         format: "Example",
         input: [
             ...
@@ -66,7 +67,7 @@ describe("Example format", () => {
 
     // TODO: two empty diaries:
     test_merge({
-        name: "two empty diaries",
+        name: "Two empty diaries",
         left: empty_diary,
         right: empty_diary,
         expected: ...
@@ -74,7 +75,7 @@ describe("Example format", () => {
 
     // TODO: left is empty, right is non-empty:
     test_merge({
-        name: "left empty, right non-empty",
+        name: "Left empty, right non-empty",
         left: empty_diary,
         right: ...
         expected: ...
@@ -82,7 +83,7 @@ describe("Example format", () => {
 
     // TODO: left is non-empty, right is empty:
     test_merge({
-        name: "left non-empty, right empty",
+        name: "Left non-empty, right empty",
         left: ...
         right: empty_diary,
         expected: ...
@@ -90,7 +91,7 @@ describe("Example format", () => {
 
     // TODO: left and right have the same records (should be deduplicated):
     test_merge({
-        name: "two identical diaries",
+        name: "Two identical diaries",
         left: ...
         right: ...
         expected: ...
@@ -98,7 +99,7 @@ describe("Example format", () => {
 
     // TODO: left and right have different records:
     test_merge({
-        name: "two different diaries",
+        name: "Two different diaries",
         left: ...
         right: ...
         expected: ...

@@ -79,7 +79,7 @@ class DiaryExample extends DiaryBase {
      */
     constructor(file,serialiser) {
 
-        super(file,serialiser); // call the SleepDiary constructor
+        super(file,serialiser); // call the DiaryBase constructor
 
         /*
          * PROPERTIES
@@ -202,6 +202,10 @@ class DiaryExample extends DiaryBase {
                         {
                             "member": "duration",
                             "type": "duration",
+                        },
+                        {
+                            "member": "status",
+                            "type": "text",
                         },
                         {
                             "member": "rating",
@@ -332,7 +336,7 @@ class DiaryExample extends DiaryBase {
         case "Standard":
 
             return new DiaryStandard({
-                "records": this["record"].map(function(record) {
+                "records": this["records"].map(function(record) {
 
                     /*
                      * TODO: convert each record to the Standard format
@@ -381,14 +385,27 @@ class DiaryExample extends DiaryBase {
         // you probably want to start by converting the other file to this format:
         other = other["to"](this["file_format"]());
 
+        // then you need to deduplicate the records:
+        function create_id(record) {
+            // if your format contains unique IDs:
+            return record["id"];
+            // or you can construct an ID by concatenating a handful of values:
+            return (
+                [ "status", "start", "end", ... ]
+                .map( member => record[member] )
+                .join()
+            );
+        }
+
         let existing_ids = {};
-        this["records"].forEach( record => existing_ids[record["id"]] = 1 );
+        this["records"].forEach( r => existing_ids[create_id(r)] = 1 );
 
         this["records"] = this["records"].concat(
-            other["records"].filter( record => !existing_ids.hasOwnProperty(record["id"]) )
+            other["records"].filter( r => !existing_ids.hasOwnProperty(create_id(r)) )
         );
 
         return this;
+
     }
 
     ["file_format"]() { return "Example"; }
