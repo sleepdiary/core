@@ -419,6 +419,15 @@ class DiaryStandard extends DiaryBase {
                         }
                     }
 
+                    if ( r.hasOwnProperty("comments") ) {
+                        const comments = r["comments"];
+                        if ( comments === undefined ) {
+                            delete r["comments"];
+                        } else if ( !Array.isArray(comments) ) {
+                            r["comments"] = [ comments ];
+                        }
+                    }
+
                     prev = r;
 
                 })
