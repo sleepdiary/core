@@ -7,6 +7,34 @@
  */
 class DiaryLoader {
 
+    static load_resources() {
+        try {
+            [
+                [
+                    window["JSZip"],
+                    "https://cdn.jsdelivr.net/npm/jszip@3.6.x/dist/jszip.min.js"
+                ],
+                [
+                    window["tc"],
+                    "https://cdn.jsdelivr.net/npm/tzdata@1.0.x/tzdata.js",
+                    "https://cdn.jsdelivr.net/npm/timezonecomplete@5.12.x/dist/timezonecomplete.min.js"
+                ],
+                [
+                    window["ExcelJS"],
+                    "https://cdn.jsdelivr.net/npm/exceljs@4.2.x/dist/exceljs.min.js"
+                ]
+            ].forEach( resource => {
+                if ( !resource[0] ) {
+                    resource.slice(1).forEach( url => {
+                        let script = document.createElement("script");
+                        script.src = url;
+                        document.head.appendChild(script);
+                    });
+                }
+            });
+        } catch (e) {}
+    }
+
     /**
      * @param {Function=} success_callback - called when a new file is loaded successfully
      * @param {Function=} error_callback - called when a file cannot be loaded
@@ -75,32 +103,7 @@ class DiaryLoader {
         }
         */
 
-        // Load other resources:
-        try {
-            [
-                [
-                    window["JSZip"],
-                    "https://cdn.jsdelivr.net/npm/jszip@3.5.0/dist/jszip.min.js"
-                ],
-                [
-                    window["tc"],
-                    "https://cdn.jsdelivr.net/npm/tzdata@1.0.22/tzdata.js",
-                    "https://cdn.jsdelivr.net/npm/timezonecomplete@5.11.2/dist/timezonecomplete.min.js"
-                ],
-                [
-                    window["ExcelJS"],
-                    "https://cdn.jsdelivr.net/npm/exceljs@4.2.0/dist/exceljs.min.js"
-                ]
-            ].forEach( resource => {
-                if ( !resource[0] ) {
-                    resource.slice(1).forEach( url => {
-                        let script = document.createElement("script");
-                        script.src = url;
-                        document.head.appendChild(script);
-                    });
-                }
-            });
-        } catch (e) {}
+        DiaryLoader.load_resources();
 
     }
 
@@ -114,6 +117,21 @@ class DiaryLoader {
      */
     ["load"](raw,source) {
 
+        const jszip = window["JSZip"];
+
+        // wait for JSZip to load:
+        if ( !jszip ) {
+            return setTimeout( () => this["load"](raw,source), 100 );
+        }
+
+        if ( typeof(raw) == "string" && !raw.search(/^(blob|data):/) ) {
+            let xhr = new XMLHttpRequest;
+            xhr.responseType = 'blob';
+            xhr.onload = () => this["load"]([xhr.response],source);
+            xhr.open('GET', raw);
+            return xhr.send();
+        }
+
         if ( !source ) source = raw;
 
         if ( raw.target && raw.target.files ) raw = raw.target.files;
@@ -123,7 +141,7 @@ class DiaryLoader {
             Array.from(raw).forEach( file => {
 
                 let file_reader = new FileReader(),
-                    zip = new window["JSZip"]()
+                    zip = new jszip()
                 ;
 
                 // extract the file contents:
@@ -182,23 +200,7 @@ class DiaryLoader {
 
             let diary;
             try {
-                diary = window["new_sleep_diary"](
-                    raw,
-                    data => {
-                        switch ( data["file_format"]() ) {
-                        case "string":
-                            return btoa(data["contents"]);
-                        case "archive":
-                            let zip = new window["JSZip"]();
-                            Object.keys(data["contents"]).forEach(
-                                filename => zip["file"](filename,data["contents"][filename])
-                            )
-                            return zip["generateAsync"]({"type": "base64", "compression": "DEFLATE"});
-                        default:
-                            throw Error("Unsupported output format: " + data["file_format"]());
-                        }
-                    }
-                );
+                diary = window["new_sleep_diary"]( raw, DiaryLoader["serialiser"] );
             } catch (e) {
                 this[  "error_callback"]( raw  , source );
                 throw e;
@@ -211,6 +213,46 @@ class DiaryLoader {
 
         }
 
+    }
+
+    static ["serialiser"](data) {
+        switch ( data["file_format"]() ) {
+        case "array":
+            return data["contents"];
+        case "string":
+            return btoa(unescape(encodeURIComponent(data["contents"])));
+        case "archive":
+            const callback = (resolve,reject) => {
+                const jszip = window["JSZip"];
+                if ( !jszip ) {
+                    return setTimeout( () => callback(resolve,reject), 100 );
+                }
+                let zip = new jszip();
+                Object.keys(data["contents"]).forEach(
+                    filename => zip["file"](filename,data["contents"][filename])
+                );
+                return zip["generateAsync"]({"type": "base64", "compression": "DEFLATE"}).then(resolve,reject);
+            }
+            DiaryLoader.load_resources();
+            return new Promise(callback);
+        default:
+            throw Error("Unsupported output format: " + data["file_format"]());
+        }
+    }
+
+    static ["to_url"](serialised) {
+        if ( typeof(serialised) == "string" ) {
+            return 'data:application/octet-stream;base64,'+serialised;
+        } else {
+            if ( serialised["file_format"] && serialised["contents"] ) {
+                if ( serialised["file_format"]() == "archive" ) {
+                    serialised = JSON.stringify(serialised);
+                } else {
+                    serialised = serialised["contents"];
+                }
+            }
+            return URL.createObjectURL(new Blob([serialised]));
+        }
     }
 
 };
