@@ -9,6 +9,7 @@ Third-party documentation for a variety of file formats.  These describe issues 
 * [Plees Tracker](src/PleesTracker/)
 * [Sleep as Android](src/SleepAsAndroid/)
 * [Sleepmeter](src/Sleepmeter/)
+* [SpreadsheetTable](src/SpreadsheetTable/)
 
 The example code can translate these formats to and from [Standard format](src/Standard), which provides a standard interface for common functionality.
 

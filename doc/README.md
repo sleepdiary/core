@@ -36,6 +36,10 @@ var diary_loader = new DiaryLoader(
             console.log( "Extras for Sleep as Android", diary );
             break;
 
+        case "SpreadsheetTable":
+            console.log( "Extras for tables created in spreadsheets", diary );
+            break;
+
         }
 
     },

@@ -44,7 +44,9 @@ var diary_loader = new DiaryLoader(
             "../Standard/demo.html#" + diary.to("Standard").to("url")
         );
 
-        function set_element( elem, value ) {
+        function set_element( elem, value, member_map ) {
+
+            var child_member_map = (value||{})["member_map"] || member_map;
 
             if ( !elem ) {
                 if ( DEBUG>1 ) console.warn( "Not setting element - no associated element", value );
@@ -64,7 +66,7 @@ var diary_loader = new DiaryLoader(
                 } else {
                     value.forEach( v => {
                         var item_elem = elem.content.cloneNode(true).firstElementChild;
-                        set_element( item_elem, v );
+                        set_element( item_elem, v, child_member_map );
                         elem.parentNode.insertBefore( item_elem, elem );
                     });
                 }
@@ -85,7 +87,7 @@ var diary_loader = new DiaryLoader(
                         Object.keys(value).forEach( key => {
                             var item_elem = item_template.content.cloneNode(true).firstElementChild;
                             item_elem.querySelector(".diary-key").textContent = key;
-                            set_element( item_elem.querySelector(".diary-value"), value[key] );
+                            set_element( item_elem.querySelector(".diary-value"), value[key], child_member_map );
                             item_template.parentNode.insertBefore( item_elem, item_template );
                         });
                     }
@@ -94,12 +96,17 @@ var diary_loader = new DiaryLoader(
 
                     if ( DEBUG>2 ) console.log( "Setting object element", elem, value );
 
+                    var inverse_member_map = {};
+                    Object.keys(member_map||{}).forEach( key => inverse_member_map[member_map[key][0]] = key );
+
                     Object.keys(value).forEach(
                         key => {
-                            var element = elem.querySelector(".diary-element[name='" + key + "']");
+                            var element = elem.querySelector(
+                                ".diary-element[name='" + ( inverse_member_map.hasOwnProperty(key) ? inverse_member_map[key] : key ) + "']"
+                            );
                             if ( element ) {
                                 if ( DEBUG>2 ) console.log( "Setting key", element, key, value[key] );
-                                set_element( element, value[key] );
+                                set_element( element, value[key], child_member_map );
                             } else {
                                 if ( DEBUG>2 ) console.log( "Not setting key - no element", key, value[key] );
                             }
