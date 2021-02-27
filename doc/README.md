@@ -40,6 +40,10 @@ var diary_loader = new DiaryLoader(
             console.log( "Extras for tables created in spreadsheets", diary );
             break;
 
+        case "SpreadsheetGraph":
+            console.log( "Extras for graphs created in spreadsheets", diary );
+            break;
+
         }
 
     },

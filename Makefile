@@ -8,7 +8,7 @@ all-test: DEFAULT_GOAL test
 # Add your formats to the following line:
 FORMATS = Standard Sleepmeter SleepAsAndroid PleesTracker
 # Low priority formats:
-FORMATS += SpreadsheetTable
+FORMATS += SpreadsheetTable SpreadsheetGraph
 
 DIARY_FILES  = src/DiaryBase.js src/DiaryLoader.js
 DIARY_FILES += src/Spreadsheet.js

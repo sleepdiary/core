@@ -37,6 +37,7 @@ var diary_loader = new DiaryLoader(
         case "Sleepmeter":
         case "PleesTracker":
         case "SpreadsheetTable":
+        case "SpreadsheetGraph":
             location = "src/" + diary.file_format() + "/demo.html#" + diary.to("url");
             break;
         default:
