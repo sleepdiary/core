@@ -1,0 +1,16 @@
+#
+# Ignored files
+#
+
+# These files are sometimes useful during development, but should never be committed:
+/src/*/demo.html
+README.html
+
+# These files should only be committed to the gh-pages branch:
+/doc/*.html
+/doc/fonts
+/doc/scripts
+/doc/styles
+/sleep-diary-formats.js
+/sleep-diary-formats.js.map
+/test.js
