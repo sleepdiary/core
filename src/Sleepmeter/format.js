@@ -927,7 +927,7 @@ class DiarySleepmeter extends DiaryBase {
                             bedtime = records[record["start"]] ||
                                 [ record["start"], record["start_timezone"] ]
                         ;
-                        record["tags"].forEach(
+                        (record["tags"]||[]).forEach(
                             tag => {
                                 if ( sleep_tag_map.hasOwnProperty(tag) ) tags[sleep_tag_map[tag]].push(tag);
                             }
@@ -946,7 +946,7 @@ class DiarySleepmeter extends DiaryBase {
                             "hindrances"    : tags[1],
                             "tags"          : tags[2],
                             "quality"       : 5,
-                            "notes"         : record["comments"].join('; ')
+                            "notes"         : (record["comments"]||[]).join('; ')
                         });
                         break;
 

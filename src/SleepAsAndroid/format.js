@@ -768,9 +768,9 @@ class DiarySleepAsAndroid extends DiaryBase {
                     "Hours"     : ( r["end"] - r["start"] ) / (60*60*1000),
                     "Rating"    : 2.5,
                     "Comment"   : {
-                        "string": r["comments"].join("\n") + r["tags"].map( tag => `#${tag}` ).join(' '),
-                        "tags"  : r["tags"].map( tag => ({ "count": 1, "value": tag }) ),
-                        "notags": r["comments"].join("\n")
+                        "string": (r["comments"]||[]).join("\n") + (r["tags"]||[]).map( tag => `#${tag}` ).join(' '),
+                        "tags"  : (r["tags"]||[]).map( tag => ({ "count": 1, "value": tag }) ),
+                        "notags": (r["comments"]||[]).join("\n")
                     },
                     "Framerate" : "10000",
                     "Snore"     : null,
