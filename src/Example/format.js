@@ -409,6 +409,7 @@ class DiaryExample extends DiaryBase {
     }
 
     ["file_format"]() { return "Example"; }
+    ["extension"]() { return ".exm"; } // TODO: replace this with the standard file extension for this file
 
 }
 

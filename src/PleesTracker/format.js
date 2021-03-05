@@ -164,6 +164,7 @@ class DiaryPleesTracker extends DiaryBase {
     }
 
     ["file_format"]() { return "PleesTracker"; }
+    ["extension"]() { return ".csv"; }
 
 }
 

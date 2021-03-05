@@ -1116,6 +1116,7 @@ class DiarySleepAsAndroid extends DiaryBase {
     }
 
     ["file_format"]() { return "SleepAsAndroid"; }
+    ["extension"]() { return ".zip"; }
 
 }
 

@@ -472,6 +472,7 @@ class DiaryStandard extends DiaryBase {
     }
 
     ["file_format"]() { return "Standard"; }
+    ["extension"]() { return ".json"; }
 
     /**
      * Internal function used by summarise_*

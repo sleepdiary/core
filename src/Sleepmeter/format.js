@@ -1243,6 +1243,7 @@ class DiarySleepmeter extends DiaryBase {
     }
 
     ["file_format"]() { return "Sleepmeter"; }
+    ["extension"]() { return ".csv"; }
 
 }
 
