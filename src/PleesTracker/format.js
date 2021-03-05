@@ -137,7 +137,7 @@ class DiaryPleesTracker extends DiaryBase {
                         "end"     : r["stop" ],
                     })
                 ),
-            });
+            }, this.serialiser);
 
         default:
 

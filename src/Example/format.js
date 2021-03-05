@@ -363,7 +363,7 @@ class DiaryExample extends DiaryBase {
                      */
 
                 })
-            });
+            }, this.serialiser);
 
         case "OtherFormat":
 

@@ -926,7 +926,7 @@ class DiarySleepAsAndroid extends DiaryBase {
                             "comments"      : [record["Comment"]["notags"]],
                         })
                     )
-            });
+            }, this.serialiser);
 
         default:
 

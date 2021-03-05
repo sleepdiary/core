@@ -1094,7 +1094,7 @@ class DiarySleepmeter extends DiaryBase {
                 }
             );
 
-            return new DiaryStandard({ "records": records });
+            return new DiaryStandard({ "records": records }, this.serialiser);
 
         default:
 

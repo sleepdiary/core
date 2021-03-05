@@ -154,7 +154,8 @@ class DiaryBase {
         default:
             if ( sleep_diary_converters.hasOwnProperty(to_format) ) {
                 return new sleep_diary_converters[to_format](
-                    this["to"]("Standard")
+                    this["to"]("Standard"),
+                    this.serialiser,
                 );
             } else {
                 throw Error( this["file_format"]() + " cannot be converted to " + to_format);
