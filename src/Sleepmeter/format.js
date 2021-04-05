@@ -442,7 +442,8 @@ class DiarySleepmeter extends DiaryBase {
                         ':' +
                         DiaryBase["zero_pad"]( date["minute"]() ) +
                         ( offset < 0 ? '-' : '+' ) +
-                        DiaryBase["zero_pad"](Math.abs(offset),4) +
+                        DiaryBase["zero_pad"](Math.abs(Math.round(offset/60))) +
+                        DiaryBase["zero_pad"](Math.abs(           offset%60 )) +
                         '"'
                 ),
                 "year"     : date["year"](),
@@ -919,25 +920,41 @@ class DiarySleepmeter extends DiaryBase {
                     switch ( record["status"] ) {
 
                     case "in bed":
-                        bedtimes[record["end"]] = [ record["start"], record["start_timestamp"] ];
+                        bedtimes[record["end"]] = [ record["start"], record["start_timezone"] ];
                         break;
 
                     case "asleep":
                         let tags = [ [], [], [] ],
-                            bedtime = records[record["start"]] ||
+                            bedtime = bedtimes[record["start"]] ||
                                 [ record["start"], record["start_timezone"] ]
                         ;
                         (record["tags"]||[]).forEach(
                             tag => {
-                                if ( sleep_tag_map.hasOwnProperty(tag) ) tags[sleep_tag_map[tag]].push(tag);
+                                if ( sleep_tag_map.hasOwnProperty(tag) ) {
+                                    tags[sleep_tag_map[tag]].push(tag);
+                                } else {
+                                    let our_tag = custom_tags.find(
+                                        custom_tag => tag == custom_tag["name"]
+                                    );
+                                    if ( our_tag ) {
+                                        tags[2].push(our_tag["custom_tag_id"]);
+                                    } else {
+                                        const id = "CUSTOM_" + DiaryBase["zero_pad"](custom_tags.length+1,4);
+                                        custom_tags.push({
+                                            "custom_tag_id": id,
+                                            "name"         : tag,
+                                        });
+                                        tags[2].push(id);
+                                    }
+                                }
                             }
                         );
                         records.push({
-                            "start"         : record["start"   ],
+                            "start"         : bedtime[0],
                             "end"           : record["end"     ],
                             "duration"      : record["duration"],
-                            "wake"          : parse_timestamp(record["end"  ],record["end_timestamp"]),
-                            "sleep"         : parse_timestamp(record["start"],record["start_timestamp"]),
+                            "wake"          : parse_timestamp(record["end"  ],record["end_timezone"]),
+                            "sleep"         : parse_timestamp(record["start"],record["start_timezone"]),
                             "bedtime"       : parse_timestamp( bedtime[0], bedtime[1] ),
                             "holes"         : [],
                             "type"          : record["is_primary_sleep"] ? "NIGHT_SLEEP" : "NAP",
@@ -1019,7 +1036,7 @@ class DiarySleepmeter extends DiaryBase {
                     rec["wake"   ]["string"],
                     rec["sleep"  ]["string"],
                     rec["bedtime"]["string"],
-                    rec["holes"].map( hole => `${hole.wake}-${hole.sleep}` ).join('|'),
+                    rec["holes"].map( hole => `${hole["wake"]}-${hole["sleep"]}` ).join('|'),
                     rec["type"],
                     rec["dreams"].map(
                         dream => [ dream["type"], dream["mood"] ].concat(dream["themes"]).join(':')
@@ -1069,28 +1086,36 @@ class DiarySleepmeter extends DiaryBase {
                     var sleep = record["sleep"],
                         sleep_time = new Date(sleep["string"].substr(1,sleep["string"].length-2)).getTime()
                     ;
-                    records.push({
-                        "status"        : "in bed",
-                        "start"         : record["start"],
-                        "end"           : sleep_time,
-                        "start_timezone": parse_timezone(record["bedtime"]),
-                          "end_timezone": parse_timezone(record["sleep"]),
-                    });
+                    if ( record["start"] < sleep_time ) {
+                        records.push({
+                            "status"        : "in bed",
+                            "start"         : record["start"],
+                            "end"           : sleep_time,
+                            "start_timezone": parse_timezone(record["bedtime"]),
+                              "end_timezone": parse_timezone(record["sleep"]),
+                        });
+                    }
                     let tags = [];
                     record["aids"      ].forEach( h => tags.push( custom_aid_map      [h] || h ) );
                     record["hindrances"].forEach( h => tags.push( custom_hindrance_map[h] || h ) );
                     record["tags"      ].forEach( h => tags.push( custom_tag_map      [h] || h ) );
-                    records.push({
-                        "status"          : "asleep",
-                        "start"           : sleep_time,
-                        "end"             : record["end"],
-                        "duration"        : record["duration"],
-                        "start_timezone"  : parse_timezone(record["sleep"]),
-                          "end_timezone"  : parse_timezone(record["wake"]),
-                        "tags"            : tags,
-                        "comments"        : record["notes"].length ? [ record["notes"] ] : [],
-                        "is_primary_sleep": record["type"] == "NIGHT_SLEEP",
-                    });
+                    records.push(Object.assign(
+                        {
+                            "status"          : "asleep",
+                            "start"           : (
+                                ( record["start"] === undefined )
+                                ? ( sleep_time || undefined )
+                                : Math.max( record["start"], sleep_time )
+                            ),
+                            "end"             : record["end"],
+                            "start_timezone"  : parse_timezone(record["sleep"]),
+                              "end_timezone"  : parse_timezone(record["wake"]),
+                            "tags"            : tags,
+                            "comments"        : record["notes"].length ? [ record["notes"] ] : [],
+                        },
+                        ( record["duration"] === undefined ) ? {} : { "duration" : record["duration"] },
+                        ( record["type"] == "NIGHT_SLEEP" ) ? { "is_primary_sleep": true } : {},
+                    ));
                 }
             );
 

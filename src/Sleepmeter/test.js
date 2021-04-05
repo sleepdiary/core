@@ -1,3 +1,36 @@
+register_roundtrip_modifier("Sleepmeter",function(our_diary,roundtripped_diary,other_format) {
+    switch ( other_format.name ) {
+    case "PleesTracker":
+    case "SpreadsheetGraph":
+    case "SpreadsheetTable":
+        [our_diary,roundtripped_diary].forEach(function(diary) {
+            diary.records.forEach( function(record) {
+                /*
+                 * Sleepmeter stores explicit timezones, durations and tags.
+                 * These formats do not support those values.
+                 * Therefore, roundtripping necessarily breaks the timezone.
+                 */
+                ["start_timezone","end_timezone","duration","tags"].forEach(function(key) {
+                    delete record[key];
+                });
+            });
+        });
+    }
+    switch ( other_format.name ) {
+    case "PleesTracker":
+        [our_diary,roundtripped_diary].forEach(function(diary) {
+            diary.records.forEach( function(record) {
+                /*
+                 * Values not supported - and guessed incorrectly - in these formats
+                 */
+                ["comments"].forEach(function(key) {
+                    delete record[key];
+                });
+            });
+        });
+    }
+});
+
 describe("Sleepmeter format", () => {
 
     var empty_diary = "wake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n";
@@ -59,7 +92,7 @@ describe("Sleepmeter format", () => {
     test_parse({
         file_format: "Sleepmeter",
         name: "complex example from README.md",
-        input: "custom_aid_id,class,name\nCUSTOM_0002,RELAXATION,\"custom aid 2\"\nCUSTOM_0003,EXERTION,\"custom aid 3\"\nCUSTOM_0001,HERBAL,\"custom aid 1\"\n\ncustom_hindrance_id,class,name\nCUSTOM_0003,OBLIGATION,\"custom hindrance 3\"\nCUSTOM_0002,MENTAL,\"custom hindrance 2\"\nCUSTOM_0001,NOISE,\"custom hindrance 1\"\n\ncustom_tag_id,name\nCUSTOM_0001,\"custom tag 1\"\nCUSTOM_0002,\"custom tag 2\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2099-12-31 23:57+1000\",\"2099-12-31 23:58+1000\",\"2099-12-31 23:59+1000\",,NIGHT_SLEEP,NONE,CUSTOM_0001,CUSTOM_0001,CUSTOM_0001,5,\"\"\n\"1900-01-02 00:00+0000\",\"1900-01-01 00:02+0000\",\"1900-01-01 00:01+0000\",1-57|1436-1437,NAP,NONE,NONE,NONE,NONE,5,\"comment\"\n",
+        input: "custom_aid_id,class,name\nCUSTOM_0002,RELAXATION,\"custom aid 2\"\nCUSTOM_0003,EXERTION,\"custom aid 3\"\nCUSTOM_0001,HERBAL,\"custom aid 1\"\n\ncustom_hindrance_id,class,name\nCUSTOM_0003,OBLIGATION,\"custom hindrance 3\"\nCUSTOM_0002,MENTAL,\"custom hindrance 2\"\nCUSTOM_0001,NOISE,\"custom hindrance 1\"\n\ncustom_tag_id,name\nCUSTOM_0001,\"custom tag 1\"\nCUSTOM_0002,\"custom tag 2\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2099-12-31 23:59+1000\",\"2099-12-31 23:58+1000\",\"2099-12-31 23:57+1000\",,NIGHT_SLEEP,NONE,CUSTOM_0001,CUSTOM_0001,CUSTOM_0001,5,\"\"\n\"1900-01-02 00:00+0000\",\"1900-01-01 00:02+0000\",\"1900-01-01 00:01+0000\",1-57|1436-1437,NAP,NONE,NONE,NONE,NONE,5,\"comment\"\n",
         expected: {
             "custom_aids": [
                 {
@@ -107,14 +140,15 @@ describe("Sleepmeter format", () => {
             ],
             "records": [
                 {
-                    "end": 4102408620000,
+                    "start": 4102408620000,
+                    "end": 4102408740000,
                     "wake": {
-                        "string": "\"2099-12-31 23:57+1000\"",
+                        "string": "\"2099-12-31 23:59+1000\"",
                         "year": 2099,
                         "month": 12,
                         "day": 31,
                         "hour": 23,
-                        "minute": 57,
+                        "minute": 59,
                         "offset": 600
                     },
                     //"sleep timestamp": 4102408680000,
@@ -127,17 +161,16 @@ describe("Sleepmeter format", () => {
                         "minute": 58,
                         "offset": 600
                     },
-                    "start": 4102408740000,
                     "bedtime": {
-                        "string": "\"2099-12-31 23:59+1000\"",
+                        "string": "\"2099-12-31 23:57+1000\"",
                         "year": 2099,
                         "month": 12,
                         "day": 31,
                         "hour": 23,
-                        "minute": 59,
+                        "minute": 57,
                         "offset": 600
                     },
-                    "duration": -60000,
+                    "duration": 60000,
                     "holes": [],
                     "type": "NIGHT_SLEEP",
                     "dreams": [],
@@ -1226,37 +1259,38 @@ describe("Sleepmeter format", () => {
     });
 
     test_to({
+        name: "empty diary to Standard",
         format: "Standard",
         input: empty_diary,
         expected: [],
     });
 
     test_to({
+        name: "non-empty diary to Standard",
         format: "Standard",
-        input: "custom_aid_id,class,name\nCUSTOM_0001,RELAXATION,\"value 1\"\n\ncustom_hindrance_id,class,name\nCUSTOM_0001,NOISE,\"value 2\"\n\ncustom_tag_id,name\nCUSTOM_0001,\"value 3\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:15+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,CUSTOM_0001,CUSTOM_0001,CUSTOM_0001,5,\"\"\n",
+        input: "custom_aid_id,class,name\nCUSTOM_0001,RELAXATION,\"value 1\"\n\ncustom_hindrance_id,class,name\nCUSTOM_0001,NOISE,\"value 2\"\n\ncustom_tag_id,name\nCUSTOM_0001,\"value 3\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 17:18+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 13:14+0000\",,NIGHT_SLEEP,NONE,CUSTOM_0001,CUSTOM_0001,CUSTOM_0001,5,\"\"\n",
         expected: [
             {
-                status: 'asleep',
-                start: 1289574960000,
-                end  : 1289567700000,
-                start_timezone: 'Etc/GMT',
-                  end_timezone: 'Etc/GMT',
-                tags: [ 'value 1', 'value 2', 'value 3' ],
-                comments: [],
-                is_primary_sleep: true,
-                duration: -7260000,
-                start_of_new_day: true,
-                day_number: 2,
-            },
-            {
                 status: 'in bed',
-                start: 1289582280000,
+                start: 1289567640000,
                 end: 1289574960000,
                 start_timezone: 'Etc/GMT',
                   end_timezone: 'Etc/GMT',
-                duration: -7320000,
+                duration: 7320000,
                 start_of_new_day: false,
-                day_number: 2
+                day_number: 0,
+            },
+            {
+                status: 'asleep',
+                start: 1289574960000,
+                end  : 1289582280000,
+                start_timezone: 'Etc/GMT',
+                  end_timezone: 'Etc/GMT',
+                tags: [ 'value 1', 'value 2', 'value 3' ],
+                is_primary_sleep: true,
+                duration: 7320000,
+                start_of_new_day: true,
+                day_number: 2,
             },
         ],
     });
