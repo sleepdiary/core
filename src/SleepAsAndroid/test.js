@@ -1,3 +1,36 @@
+register_roundtrip_modifier("SleepAsAndroid",function(our_diary,roundtripped_diary,other_format) {
+    switch ( other_format.name ) {
+    case "PleesTracker":
+        [our_diary,roundtripped_diary].forEach(function(diary) {
+            diary.records.forEach( function(record) {
+                /*
+                 * Sleep As Android requires exactly one string comment.
+                 * PleesTracker does not support comments.
+                 * Therefore, roundtripping necessarily breaks comments.
+                 */
+                ["comments"].forEach(function(key) {
+                    delete record[key];
+                });
+            });
+        });
+    case "SpreadsheetGraph":
+    case "SpreadsheetTable":
+    case "Sleepmeter":
+        [our_diary,roundtripped_diary].forEach(function(diary) {
+            diary.records.forEach( function(record) {
+                /*
+                 * Sleep As Android requires timezones.
+                 * These formats do not support timezones.
+                 * Therefore, roundtripping necessarily breaks the timezone.
+                 */
+                ["start_timezone","end_timezone"].forEach(function(key) {
+                    delete record[key];
+                });
+            });
+        });
+    }
+});
+
 describe("SleepAsAndroid format", () => {
 
     function wrap_input(contents) {
@@ -273,7 +306,6 @@ describe("SleepAsAndroid format", () => {
                   end: 1044075961200,
                 start_timezone: "Europe/London",
                   end_timezone: "Europe/London",
-                tags: [],
                 comments: [ '"Comment\n"text' ],
                 duration: 3661200,
                 start_of_new_day: true,
@@ -291,7 +323,6 @@ describe("SleepAsAndroid format", () => {
                 status: 'asleep',
                 start: 1044072300000,
                 end: 1044075961200,
-                tags: [],
                 comments: [ '"Comment\n"text' ],
                 duration: 3661200,
                 start_of_new_day: true,

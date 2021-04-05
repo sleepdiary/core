@@ -760,7 +760,7 @@ class DiarySleepAsAndroid extends DiaryBase {
                     "end"       : r["end"     ],
                     "duration"  : r["duration"],
                     "alarm"     : Math.round( r["end"] / (60*1000) ) * (60*1000),
-                    "Id"        : r["start"].toString(),
+                    "Id"        : (r["start"]||0).toString(),
                     "Tz"        : r["start_timezone"] || r["end_timezone"] || "Etc/GMT",
                     "From"      : parse_timestamp(r["start"], r["start_timezone"] || r["end_timezone"] ),
                     "To"        : parse_timestamp(r["end"  ], r["end_timezone"] || r["start_timezone"]),
@@ -916,15 +916,22 @@ class DiarySleepAsAndroid extends DiaryBase {
             return new DiaryStandard({
                 "records": this["records"]
                     .map(
-                        record => ({
-                            "status"        : "asleep",
-                            "start"         :  record["start"],
-                            "end"           :  record["end"  ],
-                            "start_timezone":  record["Tz"],
-                              "end_timezone":  record["Tz"],
-                            "tags"          :  record["Comment"]["tags"].map( tag => tag["value"] ),
-                            "comments"      : [record["Comment"]["notags"]],
-                        })
+                        record => Object.assign(
+                            {
+                                "status"        : "asleep",
+                                "start"         :  record["start"],
+                                "end"           :  record["end"  ],
+                                "start_timezone":  record["Tz"],
+                                "end_timezone":  record["Tz"],
+                                "tags"          :  record["Comment"]["tags"].map( tag => tag["value"] ),
+                                "comments"      : (
+                                    record["Comment"]["notags"].length
+                                        ?[record["Comment"]["notags"]]
+                                        :undefined
+                                ),
+                            },
+                            ( record["duration"] === undefined ) ? {} : { "duration" :  record["duration"] },
+                        )
                     )
             }, this.serialiser);
 
@@ -1004,7 +1011,7 @@ class DiarySleepAsAndroid extends DiaryBase {
                                     record["times" ].map( time => ( time["hours"]*60 + time["minutes"] ) / (60*24) ),
                                     record["events"].map( event => "Event"              ),
                                 )
-                                .map( c => Spreadsheet["create_cell"](c) )
+                                .map( c => Spreadsheet["create_cell"](c,"#FFEEEEEE,#FFEEEEEE") )
                         );
 
                         // line 2:
