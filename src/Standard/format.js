@@ -154,6 +154,61 @@ let DiaryStandardRecord;
  *                    durations         : [ undefined, 12345, undefined, ... ],
  *      interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
  *    }
+ *
+ * // Print the user's daily schedule on a 24-hour clock:
+ * console.log( diary.summarise_schedule();
+ * -> {
+ *      sleep: { // time (GMT) when the user falls asleep:
+ *                      average           : 12345.678,
+ *                      mean              : 12356.789,
+ *        interquartile_mean              : 12345.678,
+ *                      standard_deviation: 12.56,
+ *        interquartile_standard_deviation: 12.45,
+ *                      median            : 12345,
+ *        interquartile_range             : 12,
+ *                      durations         : [ undefined, 12345, undefined, ... ],
+ *        interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
+ *      },
+ *      wake: { // time (GMT) when the user wakes up:
+ *                      average           : 12345.678,
+ *                      mean              : 12356.789,
+ *        interquartile_mean              : 12345.678,
+ *                      standard_deviation: 12.56,
+ *        interquartile_standard_deviation: 12.45,
+ *                      median            : 12345,
+ *        interquartile_range             : 12,
+ *                      durations         : [ undefined, 12345, undefined, ... ],
+ *        interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
+ *      },
+ *    }
+ *
+ * // Print the user's daily schedule on a 24-hour clock for the past 30 days:
+ * let cutoff = new Date().getTime() - 1000*60*60*24*30;
+ * console.log( diary.summarise_schedule( record => record.start > cutoff ) );
+ * -> {
+ *      sleep: { // time (GMT) when the user falls asleep:
+ *                      average           : 12345.678,
+ *                      mean              : 12356.789,
+ *        interquartile_mean              : 12345.678,
+ *                      standard_deviation: 12.56,
+ *        interquartile_standard_deviation: 12.45,
+ *                      median            : 12345,
+ *        interquartile_range             : 12,
+ *                      durations         : [ undefined, 12345, undefined, ... ],
+ *        interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
+ *      },
+ *      wake: { // time (GMT) when the user wakes up:
+ *                      average           : 12345.678,
+ *                      mean              : 12356.789,
+ *        interquartile_mean              : 12345.678,
+ *                      standard_deviation: 12.56,
+ *        interquartile_standard_deviation: 12.45,
+ *                      median            : 12345,
+ *        interquartile_range             : 12,
+ *                      durations         : [ undefined, 12345, undefined, ... ],
+ *        interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
+ *      },
+ *    }
  */
 class DiaryStandard extends DiaryBase {
 
@@ -630,6 +685,105 @@ class DiaryStandard extends DiaryBase {
         }
 
         return DiaryStandard.summarise(durations);
+
+    }
+
+    /**
+     * Summary statistics about daily events
+     *
+     * <p>Somewhat similar to {@link DiaryStandard#summarise_records}.</p>
+     *
+     * <p>Calculates the time of day when the user is likey to wake up
+     * or go to sleep.</p>
+     *
+     * <p>Sleep/wake times are currently calculated based on the
+     * beginning/end time for each day's primary sleep, although this
+     * may change in future.</p>
+     *
+     * @public
+     *
+     * @see [summarise_records]{@link DiaryStandard#summarise_records}
+     *
+     * @param {function(*)=} filter - only examine records that match this filter
+     * @param {number} [day_length=86400000] - times of day are calculated relative to this amount of time
+     *
+     * @return {{
+     *   sleep : MaybeDiaryStandardStatistics,
+     *   wake  : MaybeDiaryStandardStatistics
+     * }}
+     *
+     */
+    ["summarise_schedule"](filter,day_length) {
+
+        /*
+         * Note: this function needs to work around a weird issue.
+         *
+         * If a user went to sleep at 11:50pm one day and 00:10am the
+         * next, a naive algorithm might calculate the user's mean
+         * sleep time to be noon.  To avoid this problem, we calculate
+         * values twice - once normally and once with all numbers
+         * rotated by half the day length.  Then we use whichever
+         * one has the lowest standard deviation.
+         */
+
+        const hours = 60*60*1000;
+
+        day_length = day_length || 24*hours;
+
+        const half_day_length = day_length/2;
+
+        // get the earliest start time for each day:
+        let sleep_early = [],
+            sleep_late  = [],
+            wake_early  = [],
+            wake_late   = []
+        ;
+        ( filter ? this["records"].filter(filter) : this["records"] )
+            .forEach( r => {
+                if ( r["is_primary_sleep"] ) {
+                    if ( r["start"] ) {
+                        sleep_early.push( r["start"]                 %day_length);
+                        sleep_late .push((r["start"]+half_day_length)%day_length);
+                    }
+                    if ( r["end"] ) {
+                        wake_early .push( r["end"  ]                 %day_length);
+                        wake_late  .push((r["end"  ]+half_day_length)%day_length);
+                    }
+                }
+            });
+
+        let sleep_stats_early = DiaryStandard.summarise(sleep_early),
+            sleep_stats_late  = DiaryStandard.summarise(sleep_late ),
+             wake_stats_early = DiaryStandard.summarise( wake_early),
+             wake_stats_late  = DiaryStandard.summarise( wake_late )
+        ;
+
+        [
+            [ sleep_stats_late, sleep_stats_early ],
+            [  wake_stats_late,  wake_stats_early ],
+        ].forEach( stats => {
+            if ( stats[0] ) {
+                [ "average", "mean", "interquartile_mean", "median" ].forEach(
+                    key => stats[0][key] = ( stats[0][key] + half_day_length ) % day_length
+                );
+                [ "durations", "interquartile_durations" ].forEach(
+                    key => stats[0][key] = stats[1][key]
+                );
+            }
+        });
+
+        return {
+            "wake": (
+                (wake_stats_early||{})["standard_deviation"] < (wake_stats_late||{})["standard_deviation"]
+                ? wake_stats_early
+                : wake_stats_late
+            ),
+            "sleep": (
+                (sleep_stats_early||{})["standard_deviation"] < (sleep_stats_late||{})["standard_deviation"]
+                ? sleep_stats_early
+                : sleep_stats_late
+            ),
+        };
 
     }
 

@@ -680,4 +680,171 @@ describe("Standard format", () => {
 
     });
 
+    it(`calculates the correct daily schedule`, function() {
+
+
+        var tests = [
+            {
+                records: [],
+                expected: {
+                    wake: null,
+                    sleep: null,
+                },
+            },
+
+            {
+                records: [
+                    { is_primary_sleep: true, start: 1 },
+                ],
+                expected: {
+                    wake: null,
+                    sleep: {
+                        average: 1,
+                        mean: 1,
+                        interquartile_mean: 1,
+                        median: 1,
+                        interquartile_range: 0,
+                        durations: [ 1 ],
+                        interquartile_durations: [ 1 ],
+                        standard_deviation: 0,
+                        interquartile_standard_deviation: 0,
+                    },
+                },
+            },
+
+            {
+                records: [
+                    { is_primary_sleep: true, end: 1 },
+                ],
+                expected: {
+                    wake: {
+                        average: 1,
+                        mean: 1,
+                        interquartile_mean: 1,
+                        median: 1,
+                        interquartile_range: 0,
+                        durations: [ 1 ],
+                        interquartile_durations: [ 1 ],
+                        standard_deviation: 0,
+                        interquartile_standard_deviation: 0,
+                    },
+                    sleep: null,
+                },
+            },
+
+            {
+                records: [
+                    { is_primary_sleep: true, start: 1, end: 1 },
+                ],
+                expected: {
+                    wake: {
+                        average: 1,
+                        mean: 1,
+                        interquartile_mean: 1,
+                        median: 1,
+                        interquartile_range: 0,
+                        durations: [ 1 ],
+                        interquartile_durations: [ 1 ],
+                        standard_deviation: 0,
+                        interquartile_standard_deviation: 0,
+                    },
+                    sleep: {
+                        average: 1,
+                        mean: 1,
+                        interquartile_mean: 1,
+                        median: 1,
+                        interquartile_range: 0,
+                        durations: [ 1 ],
+                        interquartile_durations: [ 1 ],
+                        standard_deviation: 0,
+                        interquartile_standard_deviation: 0,
+                    },
+                },
+            },
+
+            {
+                records: [
+                    { is_primary_sleep: true, start: 1, end: 24*60*60*1000-1 },
+                ],
+                expected: {
+                    wake: {
+                        average: 24*60*60*1000-1,
+                        mean: 24*60*60*1000-1,
+                        interquartile_mean: 24*60*60*1000-1,
+                        median: 24*60*60*1000-1,
+                        interquartile_range: 0,
+                        durations: [ 24*60*60*1000-1 ],
+                        interquartile_durations: [ 24*60*60*1000-1 ],
+                        standard_deviation: 0,
+                        interquartile_standard_deviation: 0,
+                    },
+                    sleep: {
+                        average: 1,
+                        mean: 1,
+                        interquartile_mean: 1,
+                        median: 1,
+                        interquartile_range: 0,
+                        durations: [ 1 ],
+                        interquartile_durations: [ 1 ],
+                        standard_deviation: 0,
+                        interquartile_standard_deviation: 0,
+                    },
+                },
+            },
+
+            {
+                records: [
+                    { is_primary_sleep: true, start: 1 },
+                    { is_primary_sleep: true, start: 3 },
+                ],
+                expected: {
+                    wake: null,
+                    sleep: {
+                        average: 2,
+                        mean: 2,
+                        interquartile_mean: 3,
+                        median: 3,
+                        interquartile_range: 0,
+                        durations: [ 1, 3 ],
+                        interquartile_durations: [ 3 ],
+                        standard_deviation: 1,
+                        interquartile_standard_deviation: 0,
+                    },
+                },
+            },
+
+            {
+                records: [
+                    { is_primary_sleep: true, start: 24*60*60*1000-1 },
+                    { is_primary_sleep: true, start: 1 },
+                ],
+                expected: {
+                    wake: null,
+                    sleep: {
+                        average: 0,
+                        mean: 0,
+                        interquartile_mean: 1,
+                        median: 1,
+                        interquartile_range: 0,
+                        durations: [ 1, 24*60*60*1000-1 ],
+                        interquartile_durations: [ 24*60*60*1000-1 ],
+                        standard_deviation: 1,
+                        interquartile_standard_deviation: 0,
+                    },
+                },
+            },
+
+        ];
+
+        tests.forEach(function(test) {
+            expect(
+                new_sleep_diary(wrap_input({
+                    "file_format": "Standard",
+                    "records": test.records,
+                })).summarise_schedule()
+            ).toEqual(test.expected);
+        });
+
+    });
+
 });
