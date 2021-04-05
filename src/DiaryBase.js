@@ -481,6 +481,7 @@ function new_sleep_diary(file,serialiser) {
         }
     }
 
+    console.error( "Failed to read sleep diary", file );
     throw error;
 
 };
