@@ -1243,13 +1243,16 @@ class DiarySleepmeter extends DiaryBase {
     }
 
     ["file_format"]() { return "Sleepmeter"; }
-    ["extension"]() { return ".csv"; }
+    ["format_info"]() {
+        return {
+            "name": "Sleepmeter",
+            "title": "Sleepmeter",
+            "url": "/src/Sleepmeter",
+            "statuses": [ "in bed", "asleep" ],
+            "extension": ".csv",
+        }
+    }
 
 }
 
-DiaryBase.register({
-    "name": "Sleepmeter",
-    "constructor": DiarySleepmeter,
-    "title": "Sleepmeter",
-    "url": "/src/Sleepmeter",
-});
+DiaryBase.register(DiarySleepmeter);

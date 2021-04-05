@@ -1116,14 +1116,17 @@ class DiarySleepAsAndroid extends DiaryBase {
     }
 
     ["file_format"]() { return "SleepAsAndroid"; }
-    ["extension"]() { return ".zip"; }
+    ["format_info"]() {
+        return {
+            "name": "SleepAsAndroid",
+            "title": "Sleep as Android",
+            "url": "/src/SleepAsAndroid",
+            "statuses": [ "asleep" ],
+            "extension": ".zip",
+        }
+    }
 
 }
 
 // Register this as a sleep diary:
-DiaryBase.register({
-    "name": "SleepAsAndroid",
-    "constructor": DiarySleepAsAndroid,
-    "title": "Sleep as Android",
-    "url": "/src/SleepAsAndroid",
-});
+DiaryBase.register(DiarySleepAsAndroid);

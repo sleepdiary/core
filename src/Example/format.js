@@ -409,13 +409,16 @@ class DiaryExample extends DiaryBase {
     }
 
     ["file_format"]() { return "Example"; }
-    ["extension"]() { return ".exm"; } // TODO: replace this with the standard file extension for this file
+    ["format_info"]() {
+        return {
+            "name": "Example", // CamelCase name, used in code
+            "title": "Example", // Title Case name, displayed to users
+            "url": "/src/Example", // shown to users who want to know about this format
+            //"statuses": [ "awake", "asleep" ], // if this format only supports a limited set of statuses
+            "extension": ".exm", // TODO: replace this with the standard file extension for this file
+        }
+    }
 
 }
 
-DiaryBase.register({
-    "name": "Example", // CamelCase name, used in code
-    "constructor": DiaryExample, // the class we just defined
-    "title": "Example", // Title Case name, displayed to users
-    "url": "/src/Example", // shown to users who want to know about this format
-});
+DiaryBase.register(DiaryExample);

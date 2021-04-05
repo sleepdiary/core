@@ -527,7 +527,14 @@ class DiaryStandard extends DiaryBase {
     }
 
     ["file_format"]() { return "Standard"; }
-    ["extension"]() { return ".json"; }
+    ["format_info"]() {
+        return {
+            "name": "Standard",
+            "title": "Standardised diary format",
+            "url": "/src/Standard",
+            "extension": ".json",
+        }
+    }
 
     /**
      * Internal function used by summarise_*
@@ -806,9 +813,4 @@ class DiaryStandard extends DiaryBase {
 
 }
 
-DiaryBase.register({
-    "name": "Standard",
-    "constructor": DiaryStandard,
-    "title": "Standardised diary format",
-    "url": "/src/Standard",
-});
+DiaryBase.register(DiaryStandard);

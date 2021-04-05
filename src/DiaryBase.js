@@ -222,12 +222,14 @@ class DiaryBase {
      *
      * @public
      *
-     * @param {DiaryFormat} format - sleep diary format
+     * @param {Function} constructor - sleep diary format
      *
      * @example
      *   DiaryBase.register(MyClass);
      */
-    static register( format ) {
+    static register( constructor ) {
+        let format = constructor["prototype"]["format_info"]();
+        format["constructor"] = constructor;
         sleep_diary_formats.push(format);
         if ( format["url"][0] == '/' ) {
             format["url"] = "https://andrew-sayers.github.io/sleep-diary-formats" + format["url"];

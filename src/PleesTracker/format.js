@@ -164,13 +164,16 @@ class DiaryPleesTracker extends DiaryBase {
     }
 
     ["file_format"]() { return "PleesTracker"; }
-    ["extension"]() { return ".csv"; }
+    ["format_info"]() {
+        return {
+            "name": "PleesTracker",
+            "title": "Plees Tracker",
+            "url": "/src/PleesTracker",
+            "statuses": [ "asleep" ],
+            "extension": ".csv",
+        }
+    }
 
 }
 
-DiaryBase.register({
-    "name": "PleesTracker",
-    "constructor": DiaryPleesTracker,
-    "title": "Plees Tracker",
-    "url": "/src/PleesTracker",
-});
+DiaryBase.register(DiaryPleesTracker);
