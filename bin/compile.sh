@@ -84,4 +84,3 @@ git log --oneline --graph @{u}...HEAD
 
 echo
 echo "Please review the above changes, then do: git push"
-

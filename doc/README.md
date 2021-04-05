@@ -11,7 +11,7 @@ In your HTML:
 
 <script src=".../sleep-diary-formats.js"></script>
 ```
-    
+
 In your JavaScript:
 
 ```javascript

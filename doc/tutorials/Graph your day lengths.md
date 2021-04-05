@@ -18,11 +18,11 @@ Now open a text editor and paste in this HTML:
     <title>Day length graph</title>
   </head>
   <body>
-  
+
     <div><input type="file" id="diary-input"></div>
 
     <svg style="background:#eeeeee" width="600" height="500"></svg>
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.3.1/d3.min.js"></script>
     <script src="./sleep-diary-formats.js"></script>
     <script src="index.js"></script>
@@ -44,7 +44,7 @@ var diary_loader = new DiaryLoader(
     (diary,source) => {
 
         console.log( "Here's your data in Standard format:\n", diary.to("Standard") );
-    
+
     },
     (raw,source) => {
         alert( "Could not load diary" );
