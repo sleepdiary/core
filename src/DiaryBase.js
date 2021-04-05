@@ -403,14 +403,14 @@ class DiaryBase {
         return [
             /* status       must match                 style */
             [ "awake"     , "w.ke"                    , ""                    ],
-            [ "asleep"    , "sle*p"                   , "#FFFFFF00,#FF0000FF" ],
+            [ "asleep"    , "sle*p(?!.*aid)"          , "#FFFFFF00,#FF0000FF" ],
             [ "snack"     , "snack"                   , "#FFFF7FFF,#FF7FFF7F" ],
             [ "meal"      , "meal|eat"                , "#FFFF00FF,#FF00FF00" ],
             [ "alcohol"   , "alco"                    , "#FF1FAFEF,#FFE05010" ],
             [ "chocolate" , "choc"                    , "#FF84C0FF,#FF7B3F00" ],
             [ "caffeine"  , "caffeine|coffee|tea|cola", "#FF0B3B8B,#FFF4C474" ],
             [ "drink"     , "drink"                   , "#FFDF8F5F,#FF2070a0" ],
-            [ "sleep aid" , "pill|tranq"              , "#FFAFFF7F,#FF500080" ],
+            [ "sleep aid" , "sle*p.*aid|pill|tranq"   , "#FFAFFF7F,#FF500080" ],
             [ "exercise"  , "exercise"                , "#FF00C0C0,#FFFF3F3F" ],
             [ "toilet"    , "toilet|bathroom|loo"     , "#FF363636,#FFC9C9C9" ],
             [ "noise"     , "noise"                   , "#FF8F8F8F,#FF707070" ],
