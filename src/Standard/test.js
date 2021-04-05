@@ -1,3 +1,75 @@
+register_roundtrip_modifier("Standard",function(our_diary,roundtripped_diary,other_format) {
+    [our_diary,roundtripped_diary].forEach(function(diary) {
+        diary.records  = diary.records.slice(0).map(function(record) {
+            if ( record.comments ) record.comments = record.comments.slice(0);
+            return record;
+        });
+        diary.settings = Object.assign( {}, diary.settings );
+    });
+    if ( our_diary.settings.minimum_day_duration != 72000000 || our_diary.settings.maximum_day_duration != 144000000 ) {
+        // not supported in most formats - we don't expect to get any meaningful data
+        [our_diary,roundtripped_diary].forEach(function(diary) {
+            delete diary.settings.minimum_day_duration;
+            delete diary.settings.maximum_day_duration;
+            diary.records.forEach( function(record) {
+                /*
+                 * calculations will be wrong with different durations
+                 */
+                ["start_of_new_day","day_number"].forEach(function(key) {
+                    delete record[key];
+                });
+            });
+
+        });
+    }
+    switch ( other_format.name ) {
+    case "SpreadsheetGraph":
+    case "SpreadsheetTable":
+    case "PleesTracker":
+        [our_diary,roundtripped_diary].forEach(function(diary) {
+            diary.records.forEach( function(record) {
+                /*
+                 * Values not supported - and guessed incorrectly - in these formats
+                 */
+                ["duration","day_number","is_primary_sleep","start_of_new_day"].forEach(function(key) {
+                    delete record[key];
+                });
+            });
+        });
+    }
+    switch ( other_format.name ) {
+    case "SpreadsheetTable":
+        our_diary.records.forEach( function(record) {
+            /*
+             * Values not supported - in these formats
+             */
+            if ( record.comments ) {
+                record.comments = record.comments.map(
+                    comment => ( typeof(comment) == "string" ) ? comment : comment["text"]
+                );
+            }
+        });
+    }
+    switch ( other_format.name ) {
+    case "Sleepmeter":
+    case "SleepAsAndroid":
+        our_diary.records.forEach( function(r,n) {
+            /*
+             * These formats converts missing timezones to Etc/GMT, which can also be specified manually.
+             * Standard format allows missing timezones.
+             * Therefore, roundtripping breaks some timezones.
+             */
+            ["start_timezone","end_timezone"].forEach(function(key) {
+                if ( r[key] === undefined &&
+                     !((roundtripped_diary.records[n]||{})[key]||'').search(/^Etc\/GMT(-1)?$/) ) {
+                    delete r[key];
+                    delete roundtripped_diary.records[n][key];
+                }
+            });
+        });
+    }
+});
+
 describe("Standard format", () => {
 
     function wrap_expected(expected) { return expected; }
@@ -29,6 +101,7 @@ describe("Standard format", () => {
         file_format:"Standard",
         input: '{',
         error: true,
+        quiet: true,
     });
 
     test_parse({
@@ -36,6 +109,7 @@ describe("Standard format", () => {
         file_format:"Standard",
         input:  { "file_format": "Standard" },
         error: true,
+        quiet: true,
     });
 
     test_parse({
@@ -58,20 +132,52 @@ describe("Standard format", () => {
         file_format:"Standard",
         input: wrap_input({
             "records": [],
-            "minimum_day_duration": 1,
-            "maximum_day_duration": 2,
+            "minimum_day_duration": 16,
+            "maximum_day_duration": 32,
         }),
         expected: wrap_expected({
             settings: {
-                minimum_day_duration: 1,
-                maximum_day_duration: 2,
+                minimum_day_duration: 16,
+                maximum_day_duration: 32,
             },
             records: [],
         }),
     });
 
     test_parse({
+        name: "hard-to-parse comment",
+        file_format:"Standard",
+        input:  wrap_input({
+            "records": [
+                {
+                    status   : "awake",
+                    comments : [
+                        "this is a single field containing one comma (,) one newline (\n) and one double quote (\")",
+                    ],
+                },
+            ],
+        }),
+        expected: {
+            settings: {
+                minimum_day_duration: 72000000,
+                maximum_day_duration: 144000000,
+            },
+            records: [
+                {
+                    status   : "awake",
+                    comments : [
+                        "this is a single field containing one comma (,) one newline (\n) and one double quote (\")",
+                    ],
+                    day_number       : 0,
+                    start_of_new_day : false,
+                },
+            ],
+        }
+    });
+
+    test_parse({
         name: "records with various members defined",
+        spreadsheetify: 'disable',
         file_format:"Standard",
         input: wrap_input({ "file_format": "Standard", "records": [
             {
@@ -80,8 +186,8 @@ describe("Standard format", () => {
                 duration            : 3,
                 status              : "awake",
                 comments            : [
-                    "comment 1",
-                    { time: 4, text:"comment 2" },
+                   "comment string",
+                    { time: 4, text:"comment object" },
                 ],
                 day_number          : 1,
                 start_of_new_day    : true,
@@ -94,8 +200,8 @@ describe("Standard format", () => {
                 //duration            : 3,
                 status              : "awake",
                 comments            : [
-                    "comment 1",
-                    { time: 4, text:"comment 2" },
+                   "comment string",
+                    { time: 4, text:"comment object" },
                 ],
                 day_number          : 1,
                 start_of_new_day    : true,
@@ -108,8 +214,8 @@ describe("Standard format", () => {
                 //duration            : 3,
                 status              : "awake",
                 comments            : [
-                    "comment 1",
-                    { time: 4, text:"comment 2" },
+                   "comment string",
+                    { time: 4, text:"comment object" },
                 ],
                 day_number          : 1,
                 start_of_new_day    : true,
@@ -122,8 +228,8 @@ describe("Standard format", () => {
                 //duration            : 3,
                 status              : "awake",
                 comments            : [
-                    "comment 1",
-                    { time: 4, text:"comment 2" },
+                   "comment string",
+                    { time: 4, text:"comment object" },
                 ],
                 //day_number          : 1,
                 start_of_new_day    : true,
@@ -136,8 +242,8 @@ describe("Standard format", () => {
                 //duration            : 3,
                 status              : "awake",
                 comments            : [
-                    "comment 1",
-                    { time: 4, text:"comment 2" },
+                   "comment string",
+                    { time: 4, text:"comment object" },
                 ],
                 //day_number          : 1,
                 //start_of_new_day    : true,
@@ -150,8 +256,8 @@ describe("Standard format", () => {
                 //duration            : 3,
                 status              : "awake",
                 comments            : [
-                    "comment 1",
-                    { time: 4, text:"comment 2" },
+                   "comment string",
+                    { time: 4, text:"comment object" },
                 ],
                 //day_number          : 1,
                 //start_of_new_day    : true,
@@ -164,8 +270,8 @@ describe("Standard format", () => {
                 //duration            : 3,
                 status              : "awake",
                 comments            : [
-                    "comment 1",
-                    { time: 4, text:"comment 2" },
+                   "comment string",
+                    { time: 4, text:"comment object" },
                 ],
                 //day_number          : 1,
                 //start_of_new_day    : true,
@@ -185,8 +291,8 @@ describe("Standard format", () => {
                     duration            : 3,
                     status              : "awake",
                     comments            : [
-                        "comment 1",
-                        { time: 4, text:"comment 2" },
+                        "comment string",
+                        { time: 4, text:"comment object" },
                     ],
                     day_number          : 1,
                     start_of_new_day    : true,
@@ -199,8 +305,8 @@ describe("Standard format", () => {
                     duration            : 1,
                     status              : "awake",
                     comments            : [
-                        "comment 1",
-                        { time: 4, text:"comment 2" },
+                        "comment string",
+                        { time: 4, text:"comment object" },
                     ],
                     day_number          : 1,
                     start_of_new_day    : true,
@@ -211,8 +317,8 @@ describe("Standard format", () => {
                     start               : 1,
                     status              : "awake",
                     comments            : [
-                        "comment 1",
-                        { time: 4, text:"comment 2" },
+                        "comment string",
+                        { time: 4, text:"comment object" },
                     ],
                     day_number          : 1,
                     start_of_new_day    : true,
@@ -223,8 +329,8 @@ describe("Standard format", () => {
                     start               : 1,
                     status              : "awake",
                     comments            : [
-                        "comment 1",
-                        { time: 4, text:"comment 2" },
+                        "comment string",
+                        { time: 4, text:"comment object" },
                     ],
                     day_number          : 2,
                     start_of_new_day    : true,
@@ -235,8 +341,8 @@ describe("Standard format", () => {
                     start               : 1,
                     status              : "awake",
                     comments            : [
-                        "comment 1",
-                        { time: 4, text:"comment 2" },
+                        "comment string",
+                        { time: 4, text:"comment object" },
                     ],
                     day_number          : 2,
                     start_of_new_day    : false,
@@ -247,8 +353,8 @@ describe("Standard format", () => {
                     start               : 1,
                     status              : "awake",
                     comments            : [
-                        "comment 1",
-                        { time: 4, text:"comment 2" },
+                        "comment string",
+                        { time: 4, text:"comment object" },
                     ],
                     day_number          : 2,
                     start_of_new_day    : false,
@@ -258,8 +364,8 @@ describe("Standard format", () => {
                     start               : 1,
                     status              : "awake",
                     comments            : [
-                        "comment 1",
-                        { time: 4, text:"comment 2" },
+                        "comment string",
+                        { time: 4, text:"comment object" },
                     ],
                     day_number          : 2,
                     start_of_new_day    : false,
@@ -270,6 +376,7 @@ describe("Standard format", () => {
 
     test_parse({
         name: "Day-length calculations",
+        spreadsheetify: 'disable',
         file_format:"Standard",
         input: wrap_input({ "file_format": "Standard", "records": [
             {
@@ -339,6 +446,8 @@ describe("Standard format", () => {
 
     test_parse({
         name: "Day-length calculations with specified min/max duration",
+        spreadsheetify: 'disable',
+        output: 'disable',
         file_format:"Standard",
         input: wrap_input({
             "file_format": "Standard",
@@ -413,6 +522,7 @@ describe("Standard format", () => {
 
     test_parse({
         name: "Out-of-order records",
+        spreadsheetify: 'disable',
         file_format:"Standard",
         input: wrap_input({
             "file_format": "Standard",
@@ -457,11 +567,11 @@ describe("Standard format", () => {
             "file_format": "Standard",
             "records": [
                 {
-                    duration: 1,
+                    duration: 16,
                     status  : "asleep",
                 },
                 {
-                    duration: 2,
+                    duration: 32,
                     status  : "asleep",
                 },
             ],
@@ -473,14 +583,14 @@ describe("Standard format", () => {
             },
             records: [
                 {
-                    duration            : 1,
+                    duration            : 16,
                     status              : "asleep",
                     day_number          : 0,
                     start_of_new_day    : false,
                     missing_record_after: true,
                 },
                 {
-                    duration            : 2,
+                    duration            : 32,
                     status              : "asleep",
                     day_number          : 0,
                     start_of_new_day    : false,

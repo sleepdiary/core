@@ -58,6 +58,27 @@ const DiaryStandardRecordStatus = {
  */
 let DiaryStandardRecord;
 
+/**
+ * @typedef {{
+ *                 average           : number,
+ *                 mean              : number,
+ *   interquartile_mean              : number,
+ *                 standard_deviation: number,
+ *   interquartile_standard_deviation: number,
+ *                 median            : number,
+ *   interquartile_range             : number,
+ *                 durations         : Array<number|undefined>,
+ *   interquartile_durations         : Array<number|undefined>
+ * }} DiaryStandardStatistics
+ *
+ * Information about records from a diary
+ */
+let DiaryStandardStatistics;
+
+/**
+ * @typedef {null|DiaryStandardStatistics} MaybeDiaryStandardStatistics
+ */
+let MaybeDiaryStandardStatistics;
 
 /**
  * @public
@@ -344,7 +365,6 @@ class DiaryStandard extends DiaryBase {
 
         ]);
 
-
         switch ( file["file_format"]() ) {
 
         case "string":
@@ -380,10 +400,14 @@ class DiaryStandard extends DiaryBase {
              *
              * @type Array<DiaryStandardRecord>
              */
-            this["records"] = contents["records"];
+            this["records"] = contents["records"]
+                .map( r => Object.assign({},r) )
+                .sort( (a,b) => ( a["start"] - b["start"] ) || ( a["end"] - b["end"] ) )
+            ;
 
-            const minimum_day_duration = contents["minimum_day_duration"] || 20*60*60*1000,
-                  maximum_day_duration = contents["maximum_day_duration"] || minimum_day_duration*2
+            const settings = contents["settings"]||contents,
+                  minimum_day_duration = settings["minimum_day_duration"] || 20*60*60*1000,
+                  maximum_day_duration = settings["maximum_day_duration"] || minimum_day_duration*2
             ;
 
             this["settings"] = {
@@ -423,9 +447,15 @@ class DiaryStandard extends DiaryBase {
                 sleep_wake_record = prev
             ;
 
-            contents["records"]
-                .sort( (a,b) => ( a["start"] - b["start"] ) || ( a["end"] - b["end"] ) )
+            this["records"]
                 .forEach( r => {
+
+                    ["start","end"].forEach( key => {
+                        if ( r[key] == undefined ) delete r[key];
+                    });
+                    ["tags","comments"].forEach( key => {
+                        if ( !(r[key]||[]).length ) delete r[key];
+                    });
 
                     if ( !r.hasOwnProperty("duration") ) {
                         r["duration"] = r["end"] - r["start"];
@@ -469,7 +499,7 @@ class DiaryStandard extends DiaryBase {
 
                     if ( r["status"] == "asleep" ) {
 
-                        if ( (day_sleeps[r["day_number"]]||{"duration":0})["duration"] < r["duration"] ) {
+                        if ( (day_sleeps[r["day_number"]]||{"duration":-Infinity})["duration"] < r["duration"] ) {
                             day_sleeps[r["day_number"]] = r;
                         }
                     }
@@ -542,7 +572,7 @@ class DiaryStandard extends DiaryBase {
      */
     static summarise(durations) {
 
-        let defined_durations = durations.filter( r => r ),
+        let defined_durations = durations.filter( r => r !== undefined ),
             total_durations   = defined_durations.length
         ;
 
@@ -620,17 +650,7 @@ class DiaryStandard extends DiaryBase {
      *
      * @param {function(*)=} filter - only examine records that match this filter
      *
-     * @return {null|{
-     *                 average           : number,
-     *                 mean              : number,
-     *   interquartile_mean              : number,
-     *                 standard_deviation: number,
-     *   interquartile_standard_deviation: number,
-     *                 median            : number,
-     *   interquartile_range             : number,
-     *                 durations         : Array<number|undefined>,
-     *   interquartile_durations         : Array<number|undefined>
-     * }}
+     * @return MaybeDiaryStandardStatistics
      *
      */
     ["summarise_records"](filter) {
@@ -655,17 +675,7 @@ class DiaryStandard extends DiaryBase {
      *
      * @param {function(*)=} filter - only examine records that match this filter
      *
-     * @return {null|{
-     *                 average           : number,
-     *                 mean              : number,
-     *   interquartile_mean              : number,
-     *                 standard_deviation: number,
-     *   interquartile_standard_deviation: number,
-     *                 median            : number,
-     *   interquartile_range             : number,
-     *                 durations         : Array<number|undefined>,
-     *   interquartile_durations         : Array<number|undefined>
-     * }}
+     * @return MaybeDiaryStandardStatistics
      *
      */
     ["summarise_days"](filter) {
