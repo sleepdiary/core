@@ -329,7 +329,7 @@ class DiaryExample extends DiaryBase {
             // TODO: convert to whatever format other programs would expect this file to be in
 
             return this.serialise({
-                "file_format": "string", // or "archive"
+                "file_format": () => "string", // or "archive"
                 "contents": ... // serialised diary
             });
 

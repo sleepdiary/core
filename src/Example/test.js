@@ -1,3 +1,37 @@
+register_roundtrip_modifier("Example",function(our_diary,roundtripped_diary,other_format) {
+    /*
+     * TODO: add workarounds for expected information loss when roundtripping between formats
+     *
+     * test_parse() checks that roundtrips work between your format and others by comparing:
+     *
+     * 1. your format                                  -> Standard
+     * 2. your format -> another format -> your format -> Standard
+     *
+     * It's normal to lose data in the conversion to Standard format,
+     * any other data loss suggests a bug in either your format,
+     * the standard format, or the target format.
+     *
+     * Whenever possible, you should treat these errors as bugs.
+     * But if data loss is inevitable, this function lets you
+     * modify the values before they are compared.
+     *
+     */
+    switch ( other_format.name ) {
+    case "SomeFormat":
+        [our_diary,roundtripped_diary].forEach(function(diary) {
+            diary.records.forEach( function(record) {
+                /*
+                 * TODO: explain why key1 and key2 cannot be usefully compared
+                 */
+                ["key1","key2"].forEach(function(key) {
+                    delete record[key];
+                });
+            });
+        });
+    }
+});
+
+
 describe("Example format", () => {
 
     // TODO: replace "Example" with "YourFormat"
@@ -11,6 +45,7 @@ describe("Example format", () => {
         name: "Empty diary",
         input: empty_diary,
         //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
+        //output: 'disable', // uncomment if this format contains information that can't be output
         expected: {
             records: [],
             ...
@@ -23,6 +58,7 @@ describe("Example format", () => {
         name: "Simple example",
         input: "... string containing a valid record ...",
         //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
+        //output: 'disable', // uncomment if this format contains information that can't be output
         expected: {
             ...
         }
@@ -32,8 +68,31 @@ describe("Example format", () => {
         name: "Object example",
         input: { ... object containing a valid record ... },
         //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
+        //output: 'disable', // uncomment if this format contains information that can't be output
         expected: {
             ...
+        }
+    });
+
+    // TODO: test a hard-to-parse comment:
+    test_parse({
+        file_format: "Example",
+        name: "Object example",
+        input: {
+            records: [
+                {
+                    comment: "this is a single field containing one comma (,) one newline (\n) and one double quote (\")",
+                },
+            ],
+        },
+        //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
+        //output: 'disable', // uncomment if this format contains information that can't be output
+        expected: {
+            records: [
+                {
+                    comment: "this is a single field containing one comma (,) one newline (\n) and one double quote (\")",
+                },
+            ],
         }
     });
 
