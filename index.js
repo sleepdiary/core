@@ -29,8 +29,65 @@
  * SOFTWARE.
  */
 
+function to_duration(value) {
+    var hours = Math.floor( value / (60*60*1000) ),
+        minutes = Math.floor( value / (60*1000) ) % 60
+    ;
+    return (
+        hours +
+        ( minutes < 10 ? ':0' : ':' ) +
+        minutes
+    );
+}
+
 var diary_loader = new DiaryLoader(
     (diary,source) => {
+
+        var standardised = diary.to("Standard"),
+            cutoff = new Date().getTime() - 1000*60*60*24*30,
+            summary_all           = standardised.summarise_days(),
+            summary_recent        = standardised.summarise_days( function(record) { return record.start > cutoff; }),
+            summary_asleep        = standardised.summarise_records( function(record) { return record.status == "asleep"; }),
+            summary_recent_asleep = standardised.summarise_records( function(record) { return record.start > cutoff && record.status == "asleep"; }),
+
+            schedule_all          = standardised.summarise_schedule(),
+            schedule_recent       = standardised.summarise_schedule( function(record) { return record.start > cutoff; }),
+            diary_output = '<table><tbody>'
+        ;
+
+        if ( summary_all ) {
+
+            if ( schedule_all.wake ) {
+                diary_output += '<tr><th>Long-term average wake time</th><td>' + to_duration(schedule_all.wake.average) + ' GMT ± ' + to_duration(schedule_all.wake.standard_deviation) + '</td></tr>';
+            }
+            if ( schedule_recent.wake ) {
+                diary_output += '<tr><th>Recent average wake time</th><td>' + to_duration(schedule_recent.wake.average) + ' GMT ± ' + to_duration(schedule_recent.wake.standard_deviation) + '</td></tr>';
+            }
+
+            if ( schedule_all.sleep ) {
+                diary_output += '<tr><th>Long-term average bedtime</th><td>' + to_duration(schedule_all.sleep.average) + ' GMT ± ' + to_duration(schedule_all.sleep.standard_deviation) + '</td></tr>';
+            }
+            if ( schedule_recent.sleep ) {
+                diary_output += '<tr><th>Recent average bedtime</th><td>' + to_duration(schedule_recent.sleep.average) + ' GMT ± ' + to_duration(schedule_recent.sleep.standard_deviation) + '</td></tr>';
+            }
+
+            if ( summary_asleep ) {
+                diary_output += '<tr><th>Long-term average sleep duration</th><td>' + to_duration(summary_asleep.average) + '</td></tr>';
+            }
+            if ( summary_recent_asleep ) {
+                diary_output += '<tr><th>Recent average sleep duration</th><td>' + to_duration(summary_recent_asleep.average) + '</td></tr>';
+            }
+
+            diary_output += '<tr><th>Long-term average day length</th><td>' + to_duration(summary_all.average) + '</td></tr>';
+            if ( summary_recent ) {
+                diary_output += '<tr><th>Recent average day length</th><td>' + to_duration(summary_recent.average) + '</td></tr>';
+            }
+
+        } else {
+
+            diary_output += '<tr><th colspan="2"this diary seems to be empty - please add some records</th></tr>';
+
+        }
 
         switch ( diary.file_format() ) {
         case "SleepAsAndroid":
@@ -38,15 +95,60 @@ var diary_loader = new DiaryLoader(
         case "PleesTracker":
         case "SpreadsheetTable":
         case "SpreadsheetGraph":
-            location = "src/" + diary.file_format() + "/demo.html#" + diary.to("url");
+            diary_output += '<tr><th>Overview</th><td><a href="src/' + diary.file_format() + '/demo.html#' + diary.to("url") + '">view</a></td></tr>';
             break;
         default:
-            location = "src/Standard/demo#" + diary.to("url");
+            diary_output += '<tr><th>Overview</th><td><a href="src/Standard/demo.html#' + diary.to("Standard").to("url") + '">view</a></td></tr>';
         }
+
+        diary_output += (
+            '<tr><th>Spreadsheet</th><td><a id="spreadsheet" href="#spreadsheet">download</a></td></tr>' +
+            '<tr>' +
+              '<th>Convert</th>' +
+              '<td><select id="convert-format">' +
+                '<option>Choose a format...</option>' +
+                '<option value="SleepAsAndroid">Sleep as Android</option>' +
+                '<option value="Sleepmeter">Sleepmeter</option>' +
+                '<option value="PleesTracker">PleesTracker</option>' +
+                '<option value="SpreadsheetGraph">Spreadsheet graph</option>' +
+                '<option value="SpreadsheetTable">Spreadsheet table</option>' +
+              '</select></td>' +
+            '</tr>'
+        );
+
+        document.getElementById('diary-output').innerHTML = diary_output + "</tbody></table>";
+
+        document.getElementById('convert-format').addEventListener( 'change', function(event) {
+            if ( event.target.value ) {
+                diary.to_async(event.target.value).then(function(diary) {
+                    diary.to_async("output").then(function(output) {
+                        var a = document.createElement('a');
+                        a.setAttribute( 'href', DiaryLoader.to_url(output) );
+                        a.setAttribute('download', "diary" + diary.format_info().extension());
+                        a.click();
+                    })
+                });
+            }
+        }, false);
+
+        document.getElementById('spreadsheet').addEventListener( 'click', function(event) {
+            diary.to_async("spreadsheet").then(
+                spreadsheet => {
+                    var a = document.createElement('a');
+                    a.setAttribute(
+                        'href',
+                        URL.createObjectURL(
+                            new Blob([spreadsheet])
+                        )
+                    );
+                    a.setAttribute('download', "diary.xlsx");
+                    a.click();
+                })
+        });
 
     },
     (raw,source) => {
-        alert( "This does not seem to be a sleep diary.\nPlease try another file." );
+        document.getElementById('diary-output').innerHTML = "<strong>Sorry, we can't read diaries in this format.<br>Please try another file.</strong>";
     }
 );
 
