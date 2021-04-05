@@ -393,7 +393,8 @@ class DiaryBase {
         } catch (e) {
             tc = require("timezonecomplete");
         }
-        return new tc["DateTime"](date,timezone?tc["zone"](timezone):undefined);
+        const ret = new tc["DateTime"](date||0,tc["zone"]("Etc/UTC"));
+        return timezone ? ret["toZone"](tc["zone"](timezone)) : ret;
     }
 
     /**
