@@ -112,7 +112,7 @@ class DiaryPleesTracker extends DiaryBase {
         case "output":
 
             return this.serialise({
-                "file_format": "string",
+                "file_format": () => "string",
                 "contents": (
                     "sid,start,stop,rating\n" +
                         this["records"]
@@ -132,9 +132,9 @@ class DiaryPleesTracker extends DiaryBase {
             return new DiaryStandard({
                 "records": this["records"].map(
                     r => ({
-                        "status"  : "asleep",
-                        "start"   : r["start"],
-                        "end"     : r["stop" ],
+                        "status" : "asleep",
+                        "start"  : r["start"],
+                        "end"    : r["stop" ],
                     })
                 ),
             }, this.serialiser);
