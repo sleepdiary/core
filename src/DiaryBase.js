@@ -110,7 +110,6 @@ class DiaryBase {
      * <p>Supported formats:</p>
      *
      * <ul>
-     *   <li><tt>output</tt> - contents serialised for output (e.g. to a file)</li>
      *   <li><tt>url</tt> - contents serialised for inclusion in a URL</li>
      *   <li><tt>json</tt> - contents serialised to JSON</li>
      *   <li><tt>Standard</tt> - Standard format</li>
@@ -171,6 +170,7 @@ class DiaryBase {
      * <p>Supported formats:</p>
      *
      * <ul>
+     *   <li><tt>output</tt> - contents serialised for output (e.g. to a file)</li>
      *   <li><tt>spreadsheet</tt> - binary data that can be loaded by a spreadsheet program</li>
      *   <li><em>(formats supported by [to()]{@link DiaryBase#to})</em></li>
      * </ul>
