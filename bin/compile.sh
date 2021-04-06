@@ -30,38 +30,28 @@ then
 fi
 echo
 
-if git log --oneline | grep -i 'fixup!\|squash\!'
-then
-    echo
-    echo "Please do: git rebase -i @{u}"
-    exit 2
-fi
+RESULT=
 
-if ! git diff --exit-code
-then
+fail() {
+    echo
+    echo ^^^ "$@"
+    echo
+    echo
+    RESULT=2
+}
+
+git log --oneline | grep -i 'fixup!\|squash\!' && fail "Please do: git rebase -i @{u}"
+git diff --exit-code || {
     git status
-    echo
-    echo "Please commit the above changes"
-    exit 2
-fi
+    fail "Please commit the above changes"
+}
 
-if git diff @{u} | grep -i '^\+.*todo'
-then
-    echo "Please remove 'TODO' messages in your code"
-    exit 2
-fi
 
-if git diff @{u} | grep -i '^\+.*[^@]example'
-then
-    echo "Please fix any 'example' messages in your code"
-    exit 2
-fi
+git diff @{u} -- . ':!src/Example' | grep -i '^\+.*todo' && fail "Please remove 'TODO' messages in your code"
 
-if git diff @{u} | grep -i '^\+.*\.\.\.'
-then
-    echo "Please fix any '...' messages in your code"
-    exit 2
-fi
+git diff @{u} -- . ':!src/Example' | grep -i '^\+.*[^@]example' && fail "Please fix 'example' messages in your code"
+
+git diff @{u} -- . ':!src/Example' | grep -i '^\+.*\.\.\.' && fail "Please fix '...' messages in your code"
 
 git ls-files src/\*/format.js \
     | sed -e 's/^src\///' -e 's/\/format.js$//' -e '/^Example$/ d' \
@@ -71,11 +61,12 @@ git ls-files src/\*/format.js \
           do
               if ! grep -q "$FORMAT" "$FILE"
               then
-                  echo "Please add $FORMAT to $FILE"
-                  exit 2
+                  fail "Please add $FORMAT to $FILE"
               fi
           done
       done
+
+[ -n "$RESULT" ] && exit "$RESULT"
 
 # Make sure we're going to push what we expected to:
 git diff @{u} ':(exclude)doc/*.html' ':(exclude)sleep-diary-formats.js.map'
