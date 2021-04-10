@@ -652,6 +652,20 @@ class DiaryStandard extends DiaryBase {
      *
      * @return MaybeDiaryStandardStatistics
      *
+     * @example
+     * console.log( diary.summarise_records( record => record.status == "asleep" ) );
+     * -> {
+     *                    average           : 12345.678,
+     *                    mean              : 12356.789,
+     *      interquartile_mean              : 12345.678,
+     *                    standard_deviation: 12.56,
+     *      interquartile_standard_deviation: 12.45,
+     *                    median            : 12345,
+     *      interquartile_range             : 12,
+     *                    durations         : [ undefined, 12345, undefined, ... ],
+     *      interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
+     *    }
+     *
      */
     ["summarise_records"](filter) {
 
@@ -677,6 +691,19 @@ class DiaryStandard extends DiaryBase {
      *
      * @return MaybeDiaryStandardStatistics
      *
+     * @example
+     * console.log( diary.summarise_days( record => record.start > cutoff ) );
+     * -> {
+     *                    average           : 12345.678,
+     *                    mean              : 12356.789,
+     *      interquartile_mean              : 12345.678,
+     *                    standard_deviation: 12.56,
+     *      interquartile_standard_deviation: 12.45,
+     *                    median            : 12345,
+     *      interquartile_range             : 12,
+     *                    durations         : [ undefined, 12345, undefined, ... ],
+     *      interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
+     *    }
      */
     ["summarise_days"](filter) {
 
@@ -729,6 +756,32 @@ class DiaryStandard extends DiaryBase {
      *   wake  : MaybeDiaryStandardStatistics
      * }}
      *
+     * @example
+     * console.log( diary.summarise_schedule();
+     * -> {
+     *      sleep: { // time (GMT) when the user falls asleep:
+     *                      average           : 12345.678,
+     *                      mean              : 12356.789,
+     *        interquartile_mean              : 12345.678,
+     *                      standard_deviation: 12.56,
+     *        interquartile_standard_deviation: 12.45,
+     *                      median            : 12345,
+     *        interquartile_range             : 12,
+     *                      durations         : [ undefined, 12345, undefined, ... ],
+     *        interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
+     *      },
+     *      wake: { // time (GMT) when the user wakes up:
+     *                      average           : 12345.678,
+     *                      mean              : 12356.789,
+     *        interquartile_mean              : 12345.678,
+     *                      standard_deviation: 12.56,
+     *        interquartile_standard_deviation: 12.45,
+     *                      median            : 12345,
+     *        interquartile_range             : 12,
+     *                      durations         : [ undefined, 12345, undefined, ... ],
+     *        interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
+     *      },
+     *    }
      */
     ["summarise_schedule"](filter,day_length) {
 
