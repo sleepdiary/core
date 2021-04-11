@@ -35,5 +35,5 @@ git add .
 # Commit/push changes
 #
 
-git commit -a -m "Update documentation"
+git diff -q || git commit -a -m "Update documentation"
 git push

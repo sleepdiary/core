@@ -8,7 +8,7 @@ You can also see <a id="diary-standard-link">this document in standard format</a
 
 <template class="diary-element" name="records"><div>
 
-### Timing
+<h3>Timing</h3>
 
 <dl>
 <dt>Bedtime</dt>
@@ -42,7 +42,7 @@ minutes
 <dd class="diary-element" name="type"></dd>
 </dl>
 
-### Dreams
+<h3>Dreams</h3>
 <table>
 <thead>
 <tr>
@@ -62,7 +62,7 @@ minutes
 </tbody>
 </table>
 
-### Description
+<h3>Description</h3>
 <dl>
 <dt>Aids</dt>
 <dd class="aids"></dd>

@@ -8,7 +8,7 @@ This page should show the contents of a document.  If you do not see a document,
 
 <template class="diary-element" name="records"><div>
 
-### Status
+<h3>Status</h3>
 
 <dl>
 
@@ -30,7 +30,7 @@ This page should show the contents of a document.  If you do not see a document,
 
 </dl>
 
-### Commentary
+<h3>Commentary</h3>
 
 <dl>
 
@@ -42,7 +42,7 @@ This page should show the contents of a document.  If you do not see a document,
 
 </dl>
 
-### Metadata
+<h3>Metadata</h3>
 
 <dl>
 
