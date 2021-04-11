@@ -58,6 +58,8 @@ This page should show the contents of a document.  If you do not see a document,
 <dt>Does it look like there is a missing record after this one?</dt>
 <dd class="diary-element diary-is-list" name="missing_record_after"></dd>
 
+</dl>
+
 <hr>
 
 </div></template>

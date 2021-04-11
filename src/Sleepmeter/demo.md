@@ -13,17 +13,17 @@ You can also see <a id="diary-standard-link">this document in standard format</a
 <dl>
 <dt>Bedtime</dt>
 <dd>
-<span class="diary-element" name="bedtime"><span class="diary-element" name="string"></span>
+<span class="diary-element" name="bedtime"><span class="diary-element" name="string"></span></span>
 -
 <span class="diary-element diary-date" name="start"></span>
 </dd>
 <dt>Sleep time</dt>
 <dd>
-<span class="diary-element" name="sleep"><span class="diary-element" name="string"></span>
+<span class="diary-element" name="sleep"><span class="diary-element" name="string"></span></span>
 </dd>
 <dt>Wake time</dt>
 <dd>
-<span class="diary-element" name="wake"><span class="diary-element" name="string"></span>
+<span class="diary-element" name="wake"><span class="diary-element" name="string"></span></span>
 -
 <span class="diary-element diary-date" name="end"></span>
 </dd>
@@ -56,7 +56,7 @@ minutes
 <tr>
 <td class="diary-element" name="type"></td>
 <td class="diary-element" name="mood"></td>
-<td class="diary-element diary-is-list" name="themes">
+<td class="diary-element diary-is-list" name="themes"></td>
 </tr>
 </template>
 </tbody>
