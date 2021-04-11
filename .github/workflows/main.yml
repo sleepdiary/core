@@ -18,8 +18,9 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
       - uses: actions/setup-node@v1
       - uses: actions/checkout@v2
-        fetch-depth: 0
-        ref: gh-pages
+        with:
+          fetch-depth: 0
+          ref: gh-pages
       - name: Build docs
         run: ./bin/build-docs.sh
         env:
