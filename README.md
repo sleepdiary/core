@@ -30,7 +30,7 @@ Select a sleep diary to analyse.  It will be processed in your browser - no data
 
 # Reporting issues
 
-Please [create a new GitHub issue](https://github.com/andrew-sayers/sleep-diary-formats/issues/new/choose) or <a href="https://discord.com/channels/725475399156629615/725477106103877772">mention it on Discord</a>.  GitHub is generally a better place to discuss feature requests, but Discord is more private if you need to include data from your personal sleep diary.
+Please [create a new GitHub issue](https://github.com/sleep-diary-formats/sleep-diary-formats.github.io/issues/new/choose) or <a href="https://discord.com/channels/725475399156629615/725477106103877772">mention it on Discord</a>.  GitHub is generally a better place to discuss feature requests, but Discord is more private if you need to include data from your personal sleep diary.
 
 Please get in touch if you would like to add a new format!
 

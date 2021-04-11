@@ -16,19 +16,19 @@ You can also see <a id="diary-standard-link">this document in standard format</a
 <dd class="diary-element" name="Tz"></dd>
 <dt>Sleep time</dt>
 <dd>
-<span class="diary-element" name="From"><span class="diary-element" name="string"></span>
+<span class="diary-element" name="From"><span class="diary-element" name="string"></span></span>
 -
 <span class="diary-element diary-date" name="start"></span>
 </dd>
 <dt>Wake time</dt>
 <dd>
-<span class="diary-element" name="To"><span class="diary-element" name="string"></span>
+<span class="diary-element" name="To"><span class="diary-element" name="string"></span></span>
 -
 <span class="diary-element diary-date" name="end"></span>
 </dd>
 <dt>Next scheduled sleep tracking terminating alarm</dt>
 <dd>
-<span class="diary-element" name="Sched"><span class="diary-element" name="string"></span>
+<span class="diary-element" name="Sched"><span class="diary-element" name="string"></span></span>
 -
 <span class="diary-element diary-date" name="alarm"></span>
 </dd>

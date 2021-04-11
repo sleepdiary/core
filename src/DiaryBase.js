@@ -232,7 +232,7 @@ class DiaryBase {
         format["constructor"] = constructor;
         sleep_diary_formats.push(format);
         if ( format["url"][0] == '/' ) {
-            format["url"] = "https://andrew-sayers.github.io/sleep-diary-formats" + format["url"];
+            format["url"] = "https://sleep-diary-formats.github.io" + format["url"];
         }
         if ( format.name != "Standard" ) {
             sleep_diary_converters[format.name] = format.constructor;
