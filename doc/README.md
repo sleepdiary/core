@@ -9,7 +9,7 @@ In your HTML:
 
 ...
 
-<script src=".../sleep-diary-formats.js"></script>
+<script src="https://sleep-diary-formats.github.io/sleep-diary-formats.js"></script>
 ```
 
 In your JavaScript:
