@@ -1,8 +1,7 @@
 FROM node:latest
 RUN \
-    git clone https://github.com/wolfcw/libfaketime.git /tmp/libfaketime && \
-    cd /tmp/libfaketime/src/ && \
-    make install && \
+    git clone --depth 1 https://github.com/wolfcw/libfaketime.git /tmp/libfaketime && \
+    make -j -C /tmp/libfaketime/src install && \
     \
     npm install -g jsdoc jasmine google-closure-compiler xmldom timezonecomplete puppeteer exceljs && \
     cd /usr/local/lib/node_modules/puppeteer && PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true node install.js && \
