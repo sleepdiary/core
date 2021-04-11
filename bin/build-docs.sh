@@ -35,7 +35,7 @@ fg
 # Run the build itself
 #
 
-git merge --strategy-option=theirs main
+git merge --strategy-option=theirs origin/main
 make -j -B gh-pages
 git add .
 
