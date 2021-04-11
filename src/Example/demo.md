@@ -12,7 +12,7 @@ Here is a template that defines the top-level "records" member of your diary:
 
 <template class="diary-element" name="records"><div>
 
-### Times
+<h3>Times</h3>
 
 Elements with a "diary-element" class are normally treated as members of the current object.  Elements that also have "diary-date" are converted from Unix timestamps to date strings:
 
@@ -23,7 +23,7 @@ Elements with a "diary-element" class are normally treated as members of the cur
 <dd class="diary-element diary-date" name="end"></dd>
 </dl>
 
-### Nested element
+<h3>Nested element</h3>
 
 You can nest "diary-element"s to describe objects:
 
@@ -32,7 +32,7 @@ You can nest "diary-element"s to describe objects:
 <span class="diary-element" name="second-value-in-object"></span>
 </template>
 
-### Arrays
+<h3>Arrays</h3>
 
 A "diary-element" object for an array will be cloned once for each value in the array:
 
