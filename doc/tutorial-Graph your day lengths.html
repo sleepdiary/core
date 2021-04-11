@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Tutorial: Graph your day lengths</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Tutorial: Graph your day lengths</h1>
+
+    <section>
+
+<header>
+    
+
+    <h2>Graph your day lengths</h2>
+</header>
+
+<article>
+    <img style="float:right" src="Graph your day lengths.jpg">
+<p>In this tutorial, we will use the <a href="DiaryStandard.html#summarise_days">the summarise_days() function</a> and <a href="https://d3js.org/">D3.js</a> to create a graph of your recent day lengths.  This tutorial assumes a basic understanding of HTML and JavaScript, and assumes you have already created a sleep diary in a supported format.</p>
+<h2>Step one: create your folder and HTML</h2>
+<p>Create a new folder called <code>day-length-graph</code> and download <a href="../sleep-diary-formats.js">sleep-diary-formats.js</a> into it.  This is where all our code will go.</p>
+<p>Now open a text editor and create a file called <code>index.html</code> in your <code>day-length-graph</code> folder.  Paste this HTML into the file:</p>
+<div style="clear:both"></div>
+<pre class="prettyprint source lang-html"><code>&lt;!DOCTYPE html>
+&lt;html lang=&quot;en&quot;>
+  &lt;head>
+    &lt;meta charset=&quot;utf-8&quot;>
+    &lt;title>Day length graph&lt;/title>
+  &lt;/head>
+  &lt;body>
+
+    &lt;div>&lt;input type=&quot;file&quot; id=&quot;diary-input&quot;>&lt;/div>
+
+    &lt;svg style=&quot;background:#eeeeee&quot; width=&quot;600&quot; height=&quot;500&quot;>
+      &lt;text style=&quot;white-space:pre-wrap&quot; y=&quot;20&quot; id=&quot;svg-text&quot;>
+        (graph goes here)
+      &lt;/text>
+    &lt;/svg>
+
+    &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/d3/6.3.1/d3.min.js&quot;>&lt;/script>
+    &lt;script src=&quot;./sleep-diary-formats.js&quot;>&lt;/script>
+    &lt;script src=&quot;index.js&quot;>&lt;/script>
+
+  &lt;/body>
+&lt;/html>
+</code></pre>
+<p>When you open the file in your browser, you should see a page with a file input and a light grey rectangle with the text “(graph goes here)”.</p>
+<h2>Step two: load your sleep diary</h2>
+<p>Create a new file called <code>index.js</code> and paste in this JavaScript:</p>
+<pre class="prettyprint source lang-javascript"><code>var diary_loader = new DiaryLoader(
+    (diary,source) => {
+
+        // convert from your program's format to the Standard format:
+        var diary_standard = diary.to(&quot;Standard&quot;);
+
+        document.getElementById(&quot;svg-text&quot;).innerHTML = JSON.stringify(diary_standard.records,null,' ');
+        console.log( &quot;Here is your data in Standard format:\n&quot;, diary_standard );
+
+    },
+    (raw,source) => {
+        alert( &quot;Could not load diary&quot; );
+    }
+);
+
+document.getElementById(&quot;diary-input&quot;)
+    .addEventListener( &quot;change&quot;, event => diary_loader.load(event) );
+</code></pre>
+<p>Now refresh the page and load a diary with the file input.  You should see the first few records from your diary.  You can also examine the data  by pressing <em>ctrl + shift + C</em> (<em>Apple + shift + C</em> on Mac), and clicking <em>Console</em>.</p>
+<h2>Step three: analyse your sleep diary</h2>
+<p>Now we've loaded your data into JavaScript, we need to calculate how long your days have been.  Find this bit in your JavaScript:</p>
+<pre class="prettyprint source lang-javascript"><code>        document.getElementById(&quot;svg-text&quot;).innerHTML = JSON.stringify(diary_standard.records,null,' ');
+        console.log( diary.to(&quot;Standard&quot;) );
+</code></pre>
+<p>Replace it with:</p>
+<pre class="prettyprint source lang-javascript"><code>        var cutoff = new Date().getTime() - 30*24*60*60*1000; // 30 days
+        var summary = diary.to(&quot;Standard&quot;).summarise_days( r => r.start > cutoff );
+
+        document.getElementById(&quot;svg-text&quot;).innerHTML = JSON.stringify(summary,null,' ');
+        console.log(summary);
+</code></pre>
+<p>Save the file, refresh the page and reload your diary.  You should see summary information about your last 30 days.  If you see <code>null</code> instead of summary information, edit the <code>cutoff</code> line to include older records.</p>
+<p>Have a look around your data.  There's a lot there, but <code>durations</code> is the only part we'll use in this tutorial.</p>
+<h2>Step four: prepare your data for D3</h2>
+<p>To make a bar graph, D3.js needs to know the label and height of each bar.  More specifically, it needs three variables: a list of labels, a list of heights, and a list with both together.</p>
+<p>Replace the <code>svg-text</code> and <code>console.log</code> lines with these:</p>
+<pre class="prettyprint source lang-javascript"><code>        var bars = summary.durations
+          .map( (height,n) => [height,'day ' + n] )
+          .filter( r => r[0] ) // remove missing values
+        ;
+
+        var heights = bars.map( d => d[0] );
+        var labels = bars.map( d => d[1] );
+
+        console.log( bars, labels, heights );
+</code></pre>
+<p>Once again, save the file and examine the console before you carry on.</p>
+<h2>Step five: create the graph</h2>
+<p>Now we need to tell D3 to display the graph in your <code>&lt;svg&gt;</code> element.  Replace the <code>console.log</code> line with the following:</p>
+<pre class="prettyprint source lang-javascript"><code>        // remove the &quot;graph goes here&quot; message:
+        d3.selectAll(&quot;svg > *&quot;).remove()
+
+        // initialise the &lt;svg> element:
+        var svg = d3.select(&quot;svg&quot;),
+            width = svg.attr(&quot;width&quot;) - 50,
+            height = svg.attr(&quot;height&quot;) - 40,
+            xScale = d3.scaleBand().range ([0, width]).padding(0.4),
+            yScale = d3.scaleLinear().range ([height, 0]),
+            g = svg.append(&quot;g&quot;)
+              .attr(&quot;transform&quot;, &quot;translate(49,15)&quot;)
+        ;
+
+        // define the size of the X and Y axes:
+        xScale.domain(labels);
+        yScale.domain([d3.min(heights) * 0.95, d3.max(heights) * 1.05]);
+
+        // populate the graph:
+        g.selectAll(&quot;.bar&quot;)
+            .data(bars)
+            .enter().append(&quot;rect&quot;)
+            .attr(&quot;x&quot;, d => xScale(d[1]) )
+            .attr(&quot;y&quot;, d => yScale(d[0]) )
+            .attr(&quot;width&quot;, xScale.bandwidth())
+            .attr(&quot;height&quot;, d => height - yScale(d[0]) )
+            .style(&quot;fill&quot;, &quot;steelblue&quot;)
+        ;
+
+        console.log( &quot;Created a graph of size &quot; + width + &quot;x&quot; + height );
+</code></pre>
+<p>Now when you refresh and load your diary, you should see a list of bars showing how long your recent days have been.</p>
+<h2>Step six: add some labels</h2>
+<p>Now you have a bar graph, so the last step is to add some labels to it.  Replace the final <code>console.log</code> with this:</p>
+<pre class="prettyprint source lang-javascript"><code>        g.append(&quot;g&quot;)
+            .attr(&quot;transform&quot;, &quot;translate(0,&quot; + height + &quot;)&quot;)
+            .call(d3.axisBottom(xScale))
+        ;
+
+        g.append(&quot;g&quot;)
+            .call(d3.axisLeft(yScale).tickFormat(
+                t => {
+                    var hours   = Math.floor( t / (60*60*1000) ),
+                        minutes = Math.floor( t /    (60*1000) ) % 60
+                    ;
+                    return hours + ( minutes &lt; 10 ? ':0' : ':' ) + minutes;
+                }).ticks(10))
+            .append(&quot;text&quot;)
+            .attr(&quot;y&quot;, 6)
+            .attr(&quot;dy&quot;, &quot;0.71em&quot;)
+            .attr(&quot;text-anchor&quot;, &quot;end&quot;)
+            .text(&quot;value&quot;)
+        ;
+</code></pre>
+<p>This tells D3 to add labels to the X and Y axes.  Now you have a graph of your recent day lengths!</p>
+<p>See <a href="day-length-graph/">the source code for this example</a>.</p>
+</article>
+
+</section>
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DiaryBase.html">DiaryBase</a></li><li><a href="DiaryLoader.html">DiaryLoader</a></li><li><a href="DiaryPleesTracker.html">DiaryPleesTracker</a></li><li><a href="DiarySleepAsAndroid.html">DiarySleepAsAndroid</a></li><li><a href="DiarySleepmeter.html">DiarySleepmeter</a></li><li><a href="DiarySpreadsheetGraph.html">DiarySpreadsheetGraph</a></li><li><a href="DiarySpreadsheetTable.html">DiarySpreadsheetTable</a></li><li><a href="DiaryStandard.html">DiaryStandard</a></li><li><a href="Spreadsheet.html">Spreadsheet</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-Graph your day lengths.html">Graph your day lengths</a></li><li><a href="tutorial-List supported formats.html">List supported formats</a></li><li><a href="tutorial-Using diary objects.html">Using diary objects</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DiaryStandardRecordStatus">DiaryStandardRecordStatus</a></li><li><a href="global.html#new_sleep_diary">new_sleep_diary</a></li><li><a href="global.html#sleep_diary_formats">sleep_diary_formats</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sun Apr 11 2021 12:49:33 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: DiaryBase.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: DiaryBase.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
+ * Copyright 2020 Andrew Sayers &lt;andrew-github.com@pileofstuff.org>
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use, copy,
+ * modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+"use strict";
+
+/**
+ * Functions for converting from the current type to some other type
+ * @private
+ */
+const sleep_diary_converters = {};
+
+/**
+ * @typedef {{
+ *   name        : string,
+ *   constructor : Function,
+ *   title       : string,
+ *   url         : string
+ * }} DiaryFormat
+ */
+let DiaryFormat;
+
+/**
+ * List of known formats for sleep diaries
+ * @type Array&lt;DiaryFormat>
+ * @tutorial List supported formats
+ * @public
+ */
+const sleep_diary_formats = [];
+
+/**
+ * @class Base class for sleep diary formats
+ *
+ * @unrestricted
+ * @abstract
+ */
+class DiaryBase {
+
+    /**
+     * @param {string|Object} file - object containing the file
+     * @param {Function=} serialiser - function to serialise output
+     */
+    constructor(file,serialiser) {
+        if ( serialiser ) {
+            /**
+             * Serialise a value for output
+             * @type {Function}
+             */
+            this.serialiser = serialiser;
+        }
+    }
+
+    /*
+     * Abstract functions
+     */
+
+    /**
+     * Name of the current file format
+     * @nocollapse
+     * @public
+     */
+    static ["file_format"]() { return "DiaryBase" }
+
+    /**
+     * Merge another diary into this one
+     *
+     * @public
+     *
+     * @param {DiaryBase} other - diary to merge in
+     *
+     * @example
+     *   diary.merge(my_data);
+     */
+    ["merge"](other) { return this; }
+
+    /*
+     * Functions that may or may not need to be overridden in descendent classes
+     */
+
+    /**
+     * Create a deep copy of the current object
+     */
+    ["clone"]() {
+        return new_sleep_diary(this["to"]("url"),this.serialiser);
+    }
+
+    /**
+     * Convert a value to some other format
+     *
+     * &lt;p>Supported formats:&lt;/p>
+     *
+     * &lt;ul>
+     *   &lt;li>&lt;tt>url&lt;/tt> - contents serialised for inclusion in a URL&lt;/li>
+     *   &lt;li>&lt;tt>json&lt;/tt> - contents serialised to JSON&lt;/li>
+     *   &lt;li>&lt;tt>Standard&lt;/tt> - Standard format&lt;/li>
+     *   &lt;li>&lt;em>(other formats)&lt;/em> - the name of any other diary format&lt;/li>
+     * &lt;/ul>
+     *
+     * &lt;p>[to_async()]{@link DiaryBase#to_async} supports more formats
+     * and should be used where possible.  You should only call this
+     * function directly if you want to guarantee synchronous execution.&lt;/p>
+     *
+     * @public
+     *
+     * @param {string} to_format - requested format
+     * @return {*} diary data in new format
+     *
+     * @example
+     * console.log( diary.to("NewFormat") );
+     */
+    ["to"](to_format) {
+
+        switch ( to_format ) {
+
+        case this["file_format"]():
+            return this;
+
+        case "url":
+            return "sleep-diary=" + encodeURIComponent(JSON.stringify(
+                {
+                    "file_format": this["file_format"](),
+                    "contents"   : this,
+                },
+                (key,value) => ( key == "spreadsheet" ) ? undefined : value
+            ));
+
+        case "json":
+            return JSON.stringify(
+                this,
+                (key,value) => ( key == "spreadsheet" ) ? undefined : value
+            );
+
+        default:
+            if ( sleep_diary_converters.hasOwnProperty(to_format) ) {
+                return new sleep_diary_converters[to_format](
+                    this["to"]("Standard"),
+                    this.serialiser,
+                );
+            } else {
+                throw Error( this["file_format"]() + " cannot be converted to " + to_format);
+            }
+
+        }
+
+    }
+
+    /**
+     * Convert a value to some other format
+     *
+     * &lt;p>Supported formats:&lt;/p>
+     *
+     * &lt;ul>
+     *   &lt;li>&lt;tt>output&lt;/tt> - contents serialised for output (e.g. to a file)&lt;/li>
+     *   &lt;li>&lt;tt>spreadsheet&lt;/tt> - binary data that can be loaded by a spreadsheet program&lt;/li>
+     *   &lt;li>&lt;em>(formats supported by [to()]{@link DiaryBase#to})&lt;/em>&lt;/li>
+     * &lt;/ul>
+     *
+     * &lt;p>See also [to()]{@link DiaryBase#to}, a lower-level function
+     * that supports formats that can be generated synchronously.  You
+     * can use that function if a Promise interface would be
+     * cumbersome or unnecessary in a given piece of code.&lt;/p>
+     *
+     * @public
+     *
+     * @param {string} to_format - requested format
+     * @return {Promise|Object} Promise that returns the converted diary
+     *
+     * @example
+     *   diary.to_async("NewFormat").then( reformatted => console.log( reformatted_diary ) );
+     */
+    ["to_async"](to_format) {
+
+        switch ( to_format ) {
+
+        case "spreadsheet":
+            if ( !this["spreadsheet"]["synchronise"]() ) {
+                throw Error("Could not synchronise data");
+            }
+            return this["spreadsheet"]["serialise"]();
+
+        default:
+            const ret = this["to"](to_format);
+            return ret["then"] ? ret : { "then": callback => callback(ret) };
+        }
+
+    }
+
+    /**
+     * Serialise data for output
+     * @protected
+     */
+    serialise(data) {
+        return this.serialiser ? this.serialiser(data) : data;
+    }
+
+    /*
+     * Construction helpers
+     */
+
+    /**
+     * Register a new format
+     *
+     * @public
+     *
+     * @param {Function} constructor - sleep diary format
+     *
+     * @example
+     *   DiaryBase.register(MyClass);
+     */
+    static register( constructor ) {
+        let format = constructor["prototype"]["format_info"]();
+        format["constructor"] = constructor;
+        sleep_diary_formats.push(format);
+        if ( format["url"][0] == '/' ) {
+            format["url"] = "https://andrew-sayers.github.io/sleep-diary-formats" + format["url"];
+        }
+        if ( format.name != "Standard" ) {
+            sleep_diary_converters[format.name] = format.constructor;
+        }
+
+    };
+
+    /**
+     * Indicates the file is not valid in our file format
+     * @param {string|Object} file - file contents, or filename/contents pairs (for archive files)
+     * @protected
+     */
+    invalid(file) {
+        throw null;
+    }
+
+    /**
+     * Indicates the file is a corrupt file in the specified format
+     * @param {string|Object} file - file contents, or filename/contents pairs (for archive files)
+     * @param {string} message - optional error message
+     * @protected
+     */
+    corrupt(file,message) {
+        if ( message ) {
+            throw new Error( `Does not appear to be a valid ${this["file_format"]()} file:\n${message}` );
+        } else {
+            throw new Error( `Does not appear to be a valid ${this["file_format"]()} file` );
+        }
+    }
+
+    /*
+     * Attempt to initialise an object from common file formats
+     * @param {Object} file - file to initialise from
+     * @return {boolean} - whether parsing was successful
+     */
+    initialise_from_common_formats(file) {
+        switch ( file["file_format"]() ) {
+
+        case "url":
+            file = file["contents"];
+            if ( this["file_format"]() == file["file_format"] ) {
+                Object.keys(file["contents"]).forEach( key => this[key] = file["contents"][key] );
+                return true;
+            } else {
+                return this.invalid(file);
+            }
+
+        case "string":
+        case "spreadsheet":
+            if ( this["spreadsheet"]["load"](file) ) return true;
+            // FALL THROUGH
+
+        case "archive":
+            this.invalid(file);
+
+        }
+
+        return false;
+    }
+
+
+    /*
+     * Utility functions
+     */
+
+    /**
+     * Convert a string to a number with leading zeros
+     *
+     * @public
+     *
+     * @param {number} n - number to pad
+     * @param {number=} [length=2] - length of the output string
+     *
+     * @example
+     * DiaryBase.zero_pad( 1    ) // ->   "01"
+     * DiaryBase.zero_pad( 1, 4 ) // -> "0001"
+     */
+    static ["zero_pad"]( n, length ) {
+        let zeros = '';
+        if ( n ) {
+            for ( let m=Math.pow( 10, (length||2)-1 ); m>n; m/=10 ) zeros += '0';
+        } else {
+            for ( let m=1; m&lt;(length||2); ++m ) zeros += '0';
+        }
+        return zeros + n;
+    }
+
+    /**
+     * parse an XML string to a DOM
+     *
+     * @param {string} string - XML string to parse
+     * @public
+     *
+     * @example
+     *   let xml = DiaryBase.parse_xml("&lt;foo>");
+     */
+    static ["parse_xml"]( string ) {
+
+        let dom_parser;
+        try {
+            dom_parser = window.DOMParser;
+            if ( !dom_parser ) throw "";
+        } catch (e) {
+            dom_parser = require("xmldom").DOMParser;
+        }
+
+        return new dom_parser().parseFromString(string, "application/xml");
+
+    }
+
+    /**
+     * return values that exist in the second argument but not the first
+     *
+     * @param {Array} list1 - first list of values
+     * @param {Array} list2 - second list of values
+     * @param {function(*)} unique_id - function that returns the unique ID for a list item
+     * @return {Array}
+     * @public
+     *
+     * @example
+     *   let filtered = DiaryBase.unique(["a","b"],["b","c"],l=>l);
+     *   -> ["c"]
+     */
+    static ["unique"]( list1, list2, unique_id ) {
+        let list1_ids = {};
+        list1.forEach( l => list1_ids[unique_id(l)] = 1 );
+        return list2.filter( l => !list1_ids.hasOwnProperty(unique_id(l)) )
+    }
+
+    /**
+     * Escape a string for use in an XML (or HTML) file
+     *
+     * @param {string} string - unescaped string
+     * @return {string}
+     * @public
+     *
+     * @example
+     *   let escaped = DiaryBase.escape("&lt;foo>");
+     *   -> "&amp;#60;foo&amp;#62;"
+     */
+    static ["escape_xml"]( string ) {
+        return string.replace( /[&amp;&lt;>"']/g, c => `&amp;#${c.charCodeAt(0)};` );
+    }
+
+    /**
+     * Create a DateTime object with timezone support
+     *
+     * @param {number|string} date - the date to parse
+     * @param {string=} timezone - timezone (e.g. "Europe/London")
+     * @public
+     *
+     * @example
+     *   let date = DiaryBase.date(123456789,"Etc/GMT");
+     */
+    static ["date"]( date, timezone ) {
+        let tc;
+        try {
+            tc = window["tc"];
+            if ( !tc ) throw "";
+        } catch (e) {
+            tc = require("timezonecomplete");
+        }
+        const ret = new tc["DateTime"](date||0,tc["zone"]("Etc/UTC"));
+        return timezone ? ret["toZone"](tc["zone"](timezone)) : ret;
+    }
+
+    /**
+     * Array of status strings and associated regular expressions
+     */
+    static ["status_matches"]() {
+        return [
+            /* status       must match                 style */
+            [ "awake"     , "w.ke"                    , ""                    ],
+            [ "asleep"    , "sle*p(?!.*aid)"          , "#FFFFFF00,#FF0000FF" ],
+            [ "snack"     , "snack"                   , "#FFFF7FFF,#FF7FFF7F" ],
+            [ "meal"      , "meal|eat"                , "#FFFF00FF,#FF00FF00" ],
+            [ "alcohol"   , "alco"                    , "#FF1FAFEF,#FFE05010" ],
+            [ "chocolate" , "choc"                    , "#FF84C0FF,#FF7B3F00" ],
+            [ "caffeine"  , "caffeine|coffee|tea|cola", "#FF0B3B8B,#FFF4C474" ],
+            [ "drink"     , "drink"                   , "#FFDF8F5F,#FF2070a0" ],
+            [ "sleep aid" , "sle*p.*aid|pill|tranq"   , "#FFAFFF7F,#FF500080" ],
+            [ "exercise"  , "exercise"                , "#FF00C0C0,#FFFF3F3F" ],
+            [ "toilet"    , "toilet|bathroom|loo"     , "#FF363636,#FFC9C9C9" ],
+            [ "noise"     , "noise"                   , "#FF8F8F8F,#FF707070" ],
+            [ "alarm"     , "alarm"                   , "#FF000000,#FFFF0000" ],
+            [ "in bed"    , "down|(in|to).*bed"       , "#FFA0A000,#FF5f5fff" ],
+            [ "out of bed", "up|out.*bed"             , "#FF0000FF,#FFFFFF00" ],
+        ];
+    }
+
+}
+
+/**
+ * Low-level reader interface
+ *
+ * @public
+ *
+ * @throws Will throw an error for unrecognised documents
+ *
+ * @param {string|Object} file - file contents, or filename/contents pairs (for archive files)
+ * @param {Function=} serialiser - function to serialise output
+ *
+ * @return {Object|null} diary, or null if the document could not be parsed
+ *
+ * @example
+ *   let diary = new_sleep_diary(contents_of_my_file));
+ */
+function new_sleep_diary(file,serialiser) {
+
+    let error = new Error("This does not appear to be a sleep diary");
+
+    let file_format = file["file_format"];
+
+    if ( typeof(file) == "string" ) {
+
+        file_format = "string";
+        file = { "file_format": () => "string", "contents": file };
+
+    } else if ( file_format ) {
+
+        if ( typeof(file_format) == "string" ) {
+            file["file_format"] = () => file_format;
+        } else {
+            file_format = file_format();
+        }
+
+        if ( file_format == "url" ) {
+            file["contents"] = JSON.parse(decodeURIComponent(file["contents"].substr(12)));
+        }
+
+    } else {
+
+        throw error;
+
+    }
+
+    if ( file_format == "string" ) {
+        Object.assign(file,Spreadsheet["parse_csv"](file["contents"]));
+    }
+
+    for ( let n=0; n!=sleep_diary_formats.length; ++n ) {
+        try {
+            return new sleep_diary_formats[n]["constructor"](file,serialiser);
+        } catch (e) {
+            if ( e ) { // SleepDiary.invalid() throws null to indicate the file is in the wrong format
+                if ( ENABLE_DEBUG ) console.error(e);
+                error = e;
+            }
+        }
+    }
+
+    console.error( "Failed to read sleep diary", file );
+    throw error;
+
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DiaryBase.html">DiaryBase</a></li><li><a href="DiaryLoader.html">DiaryLoader</a></li><li><a href="DiaryPleesTracker.html">DiaryPleesTracker</a></li><li><a href="DiarySleepAsAndroid.html">DiarySleepAsAndroid</a></li><li><a href="DiarySleepmeter.html">DiarySleepmeter</a></li><li><a href="DiarySpreadsheetGraph.html">DiarySpreadsheetGraph</a></li><li><a href="DiarySpreadsheetTable.html">DiarySpreadsheetTable</a></li><li><a href="DiaryStandard.html">DiaryStandard</a></li><li><a href="Spreadsheet.html">Spreadsheet</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-Graph your day lengths.html">Graph your day lengths</a></li><li><a href="tutorial-List supported formats.html">List supported formats</a></li><li><a href="tutorial-Using diary objects.html">Using diary objects</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DiaryStandardRecordStatus">DiaryStandardRecordStatus</a></li><li><a href="global.html#new_sleep_diary">new_sleep_diary</a></li><li><a href="global.html#sleep_diary_formats">sleep_diary_formats</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Sun Apr 11 2021 12:49:33 GMT+0000 (Coordinated Universal Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
