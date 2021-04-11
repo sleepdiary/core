@@ -46,6 +46,15 @@ git diff --exit-code || {
     fail "Please commit the above changes"
 }
 
+kramdown -v | grep -q . || fail "Please install the 'kramdown' parser"
+for DEMO in src/*/demo.md
+do
+    if kramdown "$DEMO" 2>&1 >/dev/null | grep -q .
+    then
+        kramdown "$DEMO" >/dev/null
+        fail "Please fix markdown issues in $DEMO"
+    fi
+done
 
 git diff @{u} -- . ':!src/Example' | grep -i '^\+.*todo' && fail "Please remove 'TODO' messages in your code"
 
