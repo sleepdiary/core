@@ -42,7 +42,7 @@ doc/index.html: doc/README.md $(DIARY_FILES) doc/tutorials/*.md
 
 test: spec/support/jasmine.json test.js sleep-diary-formats.js
 	jasmine $<
-	PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-no-sandbox node puppeteer-test.js
+	PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-no-sandbox node bin/puppeteer-test.js
 
 clean:
 	rm -rf README.html doc/*.html sleep-diary-formats.js* test.js doc/*/README.html doc/*/demo.html doc/fonts doc/scripts doc/styles
