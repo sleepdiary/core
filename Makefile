@@ -37,7 +37,7 @@ test.js: src/test-harness.js src/test-spreadsheet.js $(patsubst %,src/%/test.js,
 	cat $^ > $@
 
 doc/index.html: doc/README.md $(DIARY_FILES) doc/tutorials/*.md
-	faketime "1970-01-01 00:00:00 +0000" jsdoc -d doc --readme $< $(DIARY_FILES) -u doc/tutorials
+	/tmp/libfaketime/src/faketime "1970-01-01 00:00:00 +0000" jsdoc -d doc --readme $< $(DIARY_FILES) -u doc/tutorials
 	sed -i -e "s/Thu Jan 01 1970 ..:..:.. GMT+0000 (Coordinated Universal Time)/$(shell node -e "console.log(new Date('$(shell git log -1 --format="%ci" doc/README.md $(DIARY_FILES) doc/tutorials )').toString())" )/g" doc/*.html
 
 test: spec/support/jasmine.json test.js sleep-diary-formats.js

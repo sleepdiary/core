@@ -14,7 +14,7 @@ set -m # enable background jobs
 npm install -g jsdoc jasmine google-closure-compiler xmldom timezonecomplete exceljs &
 
 git clone --depth 1 https://github.com/wolfcw/libfaketime.git /tmp/libfaketime
-make -j -C /tmp/libfaketime/src install
+make -j -C /tmp/libfaketime/src
 
 fg
 
