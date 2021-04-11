@@ -23,7 +23,7 @@ ln -s src /tmp/libfaketime/faketime
 # Merge changes from main
 #
 
-git merge --strategy-option=theirs --no-edit main
+git merge --strategy-option=theirs --no-edit origin/main
 
 #
 # Finish initialisation
@@ -35,7 +35,6 @@ fg
 # Run the build itself
 #
 
-git merge --strategy-option=theirs origin/main
 make -j -B gh-pages
 git add .
 
