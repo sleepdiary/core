@@ -11,10 +11,23 @@ set -m # enable background jobs
 # Initialise the build environment
 #
 
-npm install -g jsdoc jasmine google-closure-compiler xmldom timezonecomplete exceljs &
+npm install -g jsdoc google-closure-compiler &
 
 git clone --depth 1 https://github.com/wolfcw/libfaketime.git /tmp/libfaketime
-make -j -C /tmp/libfaketime/src install
+sed -i -e 's/\/usr\/local/\/tmp\/libfaketime/' /tmp/libfaketime/Makefile /tmp/libfaketime/*/Makefile
+make -j -C /tmp/libfaketime/src
+ln -s . /tmp/libfaketime/lib
+ln -s src /tmp/libfaketime/faketime
+
+#
+# Merge changes from main
+#
+
+git merge --strategy-option=theirs --no-edit main
+
+#
+# Finish initialisation
+#
 
 fg
 
