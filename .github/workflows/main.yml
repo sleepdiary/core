@@ -26,3 +26,5 @@ jobs:
         env:
           GIT_AUTHOR_NAME: "Documentation updater [bot]"
           GIT_AUTHOR_EMAIL: "bot-github.com@pileofstuff.org"
+          GIT_COMMITTER_NAME: "Documentation updater [bot]"
+          GIT_COMMITTER_EMAIL: "bot-github.com@pileofstuff.org"
