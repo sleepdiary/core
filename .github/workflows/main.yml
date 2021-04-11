@@ -1,5 +1,4 @@
 name: build-docs
-description: 'Build the documentation for the public site'
 on:
   push:
     branches:
