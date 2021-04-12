@@ -28,12 +28,17 @@ git merge --strategy-option=theirs --no-edit origin/main
 # Run the build itself
 #
 
-make -j -B gh-pages
+make -B gh-pages
 git add .
 
 #
 # Commit/push changes
 #
 
-git diff -q || git commit -a -m "Update documentation"
+if git diff --quiet HEAD
+then
+    echo "No changes to commit"
+else
+    git commit -a -m "Update documentation"
+fi
 git push
