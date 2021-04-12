@@ -4,6 +4,7 @@
 #
 # Called from .github/workflows/gh-pages
 
+set -v # verbose mode - print commands to stderr
 set -e # exit if any of the commands below return non-zero
 
 #
