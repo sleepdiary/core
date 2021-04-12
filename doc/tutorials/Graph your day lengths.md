@@ -4,7 +4,7 @@ In this tutorial, we will use the [the summarise_days() function]{@link DiarySta
 
 ## Step one: create your folder and HTML
 
-Create a new folder called `day-length-graph` and download [sleep-diary-formats.js](../sleep-diary-formats.js) into it.  This is where all our code will go.
+Create a new folder called `day-length-graph`.  This is where all our code will go.
 
 Now open a text editor and create a file called `index.html` in your `day-length-graph` folder.  Paste this HTML into the file:
 
@@ -28,14 +28,14 @@ Now open a text editor and create a file called `index.html` in your `day-length
     </svg>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.3.1/d3.min.js"></script>
-    <script src="./sleep-diary-formats.js"></script>
+    <script src="https://sleep-diary-formats.github.io/sleep-diary-formats.js"></script>
     <script src="index.js"></script>
 
   </body>
 </html>
 ```
 
-When you open the file in your browser, you should see a page with a file input and a light grey rectangle with the text &ldquo;(graph goes here)&rdquo;.
+When you open the file in your browser, you should see a page with a file input and a light grey rectangle with the text &ldquo;(graph goes here)&rdquo;.  The input doesn't do anything just yet - we'll add that next.
 
 ## Step two: load your sleep diary
 
@@ -61,7 +61,7 @@ document.getElementById("diary-input")
     .addEventListener( "change", event => diary_loader.load(event) );
 ```
 
-Now refresh the page and load a diary with the file input.  You should see the first few records from your diary.  You can also examine the data  by pressing _ctrl + shift + C_ (_Apple + shift + C_ on Mac), and clicking _Console_.
+Now refresh the page and click on the file input to load your diary.  The grey box should show the first few records.  You can examine the whole diary by pressing _ctrl + shift + C_ (_Apple + shift + C_ on Mac), and clicking _Console_.
 
 ## Step three: analyse your sleep diary
 
