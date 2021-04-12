@@ -10,7 +10,7 @@ RUN \
     cd /usr/local/lib/node_modules/puppeteer && PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true node install.js && \
     \
     apt update && \
-    apt install -y chromium kramdown && \
+    apt install -y chromium ruby-kramdown && \
     apt clean && \
     rm -rf /var/lib/apt/lists/* && \
     { echo '#!/bin/sh' ; echo '/usr/bin/chromium --no-sandbox "$@"' ; } > /usr/bin/chromium-no-sandbox && \
