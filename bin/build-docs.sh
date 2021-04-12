@@ -8,6 +8,16 @@ set -v # verbose mode - print commands to stderr
 set -e # exit if any of the commands below return non-zero
 
 #
+# Check if there's anything to do
+#
+
+if ! git rev-list gh-pages..main | grep -q .
+then
+    echo "'main' has already been merged into 'gh-pages' - stopping"
+    exit 0
+fi
+
+#
 # Initialise the build environment
 #
 
