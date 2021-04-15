@@ -7,9 +7,11 @@ register_roundtrip_modifier("Example",function(our_diary,roundtripped_diary,othe
      * 1. your format                                  -> Standard
      * 2. your format -> another format -> your format -> Standard
      *
-     * It's normal to lose data in the conversion to Standard format,
-     * any other data loss suggests a bug in either your format,
-     * the standard format, or the target format.
+     * Information loss during the roundtrip often leads to a bug in your format,
+     * the standard format, or the target format.  But it can also be normal
+     * limitation of the conversion process.  For example, formats that support
+     * tags will lose information when converting to a format that doesn't
+     * support tags.
      *
      * Whenever possible, you should treat these errors as bugs.
      * But if data loss is inevitable, this function lets you
