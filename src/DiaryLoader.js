@@ -178,15 +178,29 @@ class DiaryLoader {
                             },
 
                             () => {
-                                // not a zip file - try processing it as plain text:
-                                file_reader.onload = () => this["load"](
-                                    {
-                                        "file_format": "string",
-                                        "contents"   : file_reader.result,
-                                    },
-                                    source
-                                );
-                                file_reader.readAsText(file);
+                                const real_error_callback = this["error_callback"];
+                                try {
+                                    this["error_callback"] = () => {};
+                                    this["load"](
+                                        {
+                                            "file_format": "array",
+                                            "contents"   : file_reader.result,
+                                        },
+                                        source
+                                    );
+                                    this["error_callback"] = real_error_callback;
+                                } catch (e) {
+                                    this["error_callback"] = real_error_callback;
+                                    // not a zip file - try processing it as plain text:
+                                    file_reader.onload = () => this["load"](
+                                        {
+                                            "file_format": "string",
+                                            "contents"   : file_reader.result,
+                                        },
+                                        source
+                                    );
+                                    file_reader.readAsText(file);
+                                }
                             }
 
                         )

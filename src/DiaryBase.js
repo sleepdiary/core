@@ -286,6 +286,7 @@ class DiaryBase {
             // FALL THROUGH
 
         case "archive":
+        case "array":
             this.invalid(file);
 
         }
@@ -484,7 +485,11 @@ function new_sleep_diary(file,serialiser) {
         }
     }
 
-    console.error( "Failed to read sleep diary", file );
+    if ( ENABLE_DEBUG ) {
+        // this can cause false positives when e.g. DiaryLoader calls it on an ArrayBuffer,
+        // before converting the file to text
+        console.error( "Failed to read sleep diary", file, error );
+    }
     throw error;
 
 };
