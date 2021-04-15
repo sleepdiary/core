@@ -26,7 +26,7 @@ This page should show the contents of a document.  If you do not see a document,
 </dd>
 
 <dt>Duration (not including gaps)</dt>
-<dd class="diary-element" name="duration"></dd>
+<dd class="diary-element diary-duration" name="duration"></dd>
 
 </dl>
 
@@ -67,8 +67,8 @@ This page should show the contents of a document.  If you do not see a document,
 ## Settings
 
 <table>
-<tr><th>Minimum day duration</th><td class="diary-element" name="minimum_day_duration"></td></tr>
-<tr><th>Maximum day duration</th><td class="diary-element" name="maximum_day_duration"></td></tr>
+<tr><th>Minimum day duration</th><td class="diary-element diary-duration" name="minimum_day_duration"></td></tr>
+<tr><th>Maximum day duration</th><td class="diary-element diary-duration" name="maximum_day_duration"></td></tr>
 </table>
 
 <script src="../../sleep-diary-formats.js"></script>
