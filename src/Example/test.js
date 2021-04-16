@@ -48,6 +48,7 @@ describe("Example format", () => {
         input: empty_diary,
         //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
         //output: 'disable', // uncomment if this format contains information that can't be output
+        //debug: true, // uncomment to get console.log() messages about this test
         expected: {
             records: [],
             ...
@@ -61,6 +62,7 @@ describe("Example format", () => {
         input: "... string containing a valid record ...",
         //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
         //output: 'disable', // uncomment if this format contains information that can't be output
+        //debug: true, // uncomment to get console.log() messages about this test
         expected: {
             ...
         }
@@ -71,6 +73,7 @@ describe("Example format", () => {
         input: { ... object containing a valid record ... },
         //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
         //output: 'disable', // uncomment if this format contains information that can't be output
+        //debug: true, // uncomment to get console.log() messages about this test
         expected: {
             ...
         }
@@ -89,6 +92,7 @@ describe("Example format", () => {
         },
         //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
         //output: 'disable', // uncomment if this format contains information that can't be output
+        //debug: true, // uncomment to get console.log() messages about this test
         expected: {
             records: [
                 {
