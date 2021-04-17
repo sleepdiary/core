@@ -16,5 +16,5 @@ Every format has different requirements, so there aren't many specific requireme
 You may find the following useful:
 
 * [JavaScript example code](format.js)
-* [Test cases](tests/)
+* [Test cases](test.js)
 * [Examples](examples/)

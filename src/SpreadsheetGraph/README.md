@@ -9,7 +9,7 @@ There is no formal definition for a spreadsheet graph, but people often independ
 You may find the following useful:
 
 * [JavaScript example code](format.js)
-* [Test cases](tests/)
+* [Test cases](test.js)
 * [Examples](examples/)
 
 # Creation process
