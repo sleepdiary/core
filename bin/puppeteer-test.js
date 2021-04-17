@@ -6,6 +6,7 @@ const puppeteer = require("puppeteer");
 
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
+    await page.setDefaultNavigationTimeout(60000);
     await page.goto("file:///app/browser_test.html");
 
     await page.waitForFunction("jsApiReporter.finished");
