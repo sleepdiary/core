@@ -123,7 +123,7 @@ var diary_loader = new DiaryLoader(
                     diary.to_async("output").then(function(output) {
                         var a = document.createElement('a');
                         a.setAttribute( 'href', DiaryLoader.to_url(output) );
-                        a.setAttribute('download', "diary" + diary.format_info().extension());
+                        a.setAttribute('download', "diary" + diary.format_info().extension);
                         a.click();
                     })
                 });
