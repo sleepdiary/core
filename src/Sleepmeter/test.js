@@ -39,7 +39,7 @@ describe("Sleepmeter format", () => {
 
     test_parse({
         file_format: "Sleepmeter",
-        "name": "simple example from README.md",
+        "name": "simple diary from README.md",
         "input": "wake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:14+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         "expected": {
             "custom_aids": [],
@@ -93,7 +93,7 @@ describe("Sleepmeter format", () => {
 
     test_parse({
         file_format: "Sleepmeter",
-        name: "complex example from README.md",
+        name: "complex diary from README.md",
         input: "custom_aid_id,class,name\nCUSTOM_0002,RELAXATION,\"custom aid 2\"\nCUSTOM_0003,EXERTION,\"custom aid 3\"\nCUSTOM_0001,HERBAL,\"custom aid 1\"\n\ncustom_hindrance_id,class,name\nCUSTOM_0003,OBLIGATION,\"custom hindrance 3\"\nCUSTOM_0002,MENTAL,\"custom hindrance 2\"\nCUSTOM_0001,NOISE,\"custom hindrance 1\"\n\ncustom_tag_id,name\nCUSTOM_0001,\"custom tag 1\"\nCUSTOM_0002,\"custom tag 2\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2099-12-31 23:59+1000\",\"2099-12-31 23:58+1000\",\"2099-12-31 23:57+1000\",,NIGHT_SLEEP,NONE,CUSTOM_0001,CUSTOM_0001,CUSTOM_0001,5,\"\"\n\"1900-01-02 00:00+0000\",\"1900-01-01 00:02+0000\",\"1900-01-01 00:01+0000\",1-57|1436-1437,NAP,NONE,NONE,NONE,NONE,5,\"comment\"\n",
         expected: {
             "custom_aids": [

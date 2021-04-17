@@ -49,7 +49,7 @@ describe("SleepChart1 format", () => {
 
     test_parse({
         file_format: "SleepChart1",
-        name: "Simple example 1",
+        name: "Simple diary 1",
         input: wrap_input(create_diary([[1,2,true,true]])),
         expected: {
             records: [
@@ -65,7 +65,7 @@ describe("SleepChart1 format", () => {
 
     test_parse({
         file_format: "SleepChart1",
-        name: "Simple example 2",
+        name: "Simple diary 2",
         input: wrap_input(create_diary([[2,3,true,false]])),
         expected: {
             records: [
@@ -81,7 +81,7 @@ describe("SleepChart1 format", () => {
 
     test_parse({
         file_format: "SleepChart1",
-        name: "Simple example 3",
+        name: "Simple diary 3",
         input: wrap_input(create_diary([[100,200,false,true]])),
         expected: {
             records: [

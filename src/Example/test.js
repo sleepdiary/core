@@ -58,7 +58,7 @@ describe("Example format", () => {
     // TODO: test one or both ways to create a simple non-empty object:
     test_parse({
         file_format: "Example",
-        name: "Simple example",
+        name: "Simple diary",
         input: "... string containing a valid record ...",
         //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
         //output: 'disable', // uncomment if this format contains information that can't be output
@@ -69,7 +69,7 @@ describe("Example format", () => {
     });
     test_parse({
         file_format: "Example",
-        name: "Object example",
+        name: "Object diary",
         input: { ... object containing a valid record ... },
         //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
         //output: 'disable', // uncomment if this format contains information that can't be output
@@ -82,7 +82,7 @@ describe("Example format", () => {
     // TODO: test a hard-to-parse comment:
     test_parse({
         file_format: "Example",
-        name: "Object example",
+        name: "Object diary",
         input: {
             records: [
                 {

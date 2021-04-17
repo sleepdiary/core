@@ -84,7 +84,7 @@ describe("Standard format", () => {
     }
 
     test_parse({
-        name: "simple example",
+        name: "simple diary",
         file_format:"Standard",
         input: "{\"file_format\":\"Standard\",\"records\":[]}",
         expected: {
