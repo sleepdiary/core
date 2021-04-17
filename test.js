@@ -10,10 +10,14 @@ var serialiser      = ( sleep_diary_exports.DiaryLoader || {} ).serialiser;
 
 var roundtrip_modifiers = {};
 function register_roundtrip_modifier(format,callback) {
-    roundtrip_modifiers[format] = callback;
+    if ( format == "Example" ) {
+        console.error("register_roundtrip_modifier() called with format == 'Example' - please set the format");
+    } else {
+        roundtrip_modifiers[format] = callback;
+    }
 }
 
-function compare_diaries(observed,expected) {
+function compare_diaries(observed,expected,debug) {
     var clone_observed = Object.assign({},observed);
     var clone_expected = Object.assign({},expected);
     delete clone_observed.spreadsheet;
@@ -24,7 +28,9 @@ function compare_diaries(observed,expected) {
     Object.keys(clone_expected).forEach( function(key) {
         if ( clone_expected[key] == serialiser ) delete clone_expected[key];
     });
-    //console.error("Observed and expected objects should have been equal:\n",observed,expected);
+    if ( debug ) {
+        console.error("Observed and expected objects should be equal:\n",observed,expected);
+    }
     return expect(clone_observed).toEqual(clone_expected);
 }
 
@@ -44,7 +50,7 @@ function test_constructor(test,serialiser) {
             diary = new_sleep_diary({ "file_format": function() { return "archive" }, "contents": test.input },serialiser);
         }
     } catch (e) {
-        if ( !test.error ) console.warn(e);
+        if ( !test.error ) console_error("Unexpected error constructing object:",e);
         error = true;
     }
     if ( test.quiet ) console.error = console_error;
@@ -68,9 +74,8 @@ function test_parse(test) {
     if ( !test.name ) test.name = "format's 'parse' test";
 
     var debug = (
-        false
-        // || test.name == "my test"
-        // || true
+        test.debug
+        // || true // enable debugging for all tests
     );
 
     var spreadsheetify = (test.spreadsheetify||'') != "disable";
@@ -81,7 +86,7 @@ function test_parse(test) {
     if ( diary ) {
 
         it(`reads test "${test.name}" correctly`, function() {
-            compare_diaries(diary,test.expected);
+            compare_diaries(diary,test.expected,debug);
         });
 
         it(`produces a file of the correct format for "${test.name||"format's 'parse' test"}"`, function() {
@@ -94,7 +99,7 @@ function test_parse(test) {
                 "file_format": "url",
                 "contents": url,
             },serialiser);
-            compare_diaries(observed,diary);
+            compare_diaries(observed,diary,debug);
         });
 
         /*
@@ -111,22 +116,22 @@ function test_parse(test) {
         sleep_diary_formats.forEach( function(format) {
             it(`converts "${test.name||"format's 'parse' test"}" to ${format.name} correctly`, function() {
                 return new Promise(function(resolve, reject) {
-                    diary.to_async(format.name)
-                        .then(
+                    try {
+                        diary.to_async(format.name).then(
                             function(formatted) {
-                                formatted.to_async(diary.file_format())
-                                    .then(
+                                try {
+                                    formatted.to_async(diary.file_format()).then(
                                         function(roundtripped) {
                                             var observed = Object.assign({},roundtripped.to("Standard"));
                                             var expected = Object.assign({},diary       .to("Standard"));
                                             if ( debug ) console.log({
-                                                "original": diary,
-                                                "original to Standard": diary.to("Standard"),
-                                                "original to formatted": formatted,
-                                                "original to formatted to Standard": formatted.to("Standard"),
-                                                "original to formatted and back again": roundtripped,
-                                                "observed": observed,
-                                                "expected": expected,
+                                                "1. original": diary,
+                                                "2. original to Standard": diary.to("Standard"),
+                                                "3. original to formatted": formatted,
+                                                "4. original to formatted to Standard": formatted.to("Standard"),
+                                                "5. original to formatted and back again": roundtripped,
+                                                "6. observed": observed,
+                                                "7. expected": expected,
                                             });
                                             [observed,expected].forEach(
                                                 diary => diary.records = diary.records.map(
@@ -153,14 +158,28 @@ function test_parse(test) {
                                                     );
                                                 }
                                             }
-                                            compare_diaries(observed,expected);
+                                            compare_diaries(observed,expected,debug);
                                             resolve();
                                         },
-                                        reject
+                                        function(error) {
+                                            console.error("formatted.to_async() failed:",diary,formatted,error);
+                                            reject(error);
+                                        }
                                     );
+                                } catch (error) {
+                                    console.error("formatted.to_async() failed:",diary,formatted,error);
+                                    reject(error);
+                                }
                             },
-                            reject
+                            function(error) {
+                                console.error("diary.to_async() failed:",diary,error);
+                                reject(error);
+                            }
                         );
+                    } catch (error) {
+                        console.error("diary.to_async() failed:",diary,error);
+                        reject(error);
+                    }
                 });
             });
         });
@@ -170,24 +189,31 @@ function test_parse(test) {
             if ( output ) {
                 it(`outputs "${test.name||"format's 'parse' test"}" correctly`, function() {
                     return new Promise(function(resolve, reject) {
-                        diary.to_async("output")
-                            .then( function(output) {
+                        try {
+                            diary.to_async("output").then( function(output) {
                                 var diary_loader = new DiaryLoader(
                                     function(observed,source) {
                                         if ( debug ) {
                                             console.log({
-                                                original: diary,
-                                                observed: observed,
-                                                source: source,
+                                                "1. original": diary,
+                                                "2. observed": observed,
+                                                "3. source": source,
                                             });
                                         }
-                                        compare_diaries(observed,diary);
+                                        compare_diaries(observed,diary,debug);
                                         resolve();
                                     },
-                                    reject
+                                    function(error) {
+                                        console.error("DiaryLoader failed:",diary,output,error);
+                                        reject(error);
+                                    }
                                 );
                                 diary_loader.load( DiaryLoader.to_url(output) );
                             });
+                        } catch (error) {
+                            console.error("diary.to_async() failed:",diary,error);
+                            reject(error);
+                        }
                     });
                 });
             }
@@ -201,26 +227,34 @@ function test_parse(test) {
                         })
                     ;
                     return new Promise(function(resolve, reject) {
-                        diary.to_async("spreadsheet")
-                            .then( function(raw) {
-                                return Spreadsheet.buffer_to_spreadsheet(raw).then(
-                                    function(spreadsheet) {
-                                        var diary_loader = new DiaryLoader(
-                                            function(diary,source) {
-                                                var clone2 = Object.assign({},diary);
-                                                Object.keys(clone2)
-                                                    .forEach( function(key) {
-                                                        if ( (typeof(clone2[key])).toLocaleLowerCase() == "function" ) { delete clone2[key] }
-                                                    })
-                                                ;
-                                                compare_diaries(clone2,clone1);
-                                                resolve();
-                                            },
-                                            reject
-                                        );
-                                        diary_loader.load( spreadsheet );
-                                    })
-                            })
+                        try {
+                            diary.to_async("spreadsheet")
+                                .then( function(raw) {
+                                    return Spreadsheet.buffer_to_spreadsheet(raw).then(
+                                        function(spreadsheet) {
+                                            var diary_loader = new DiaryLoader(
+                                                function(diary,source) {
+                                                    var clone2 = Object.assign({},diary);
+                                                    Object.keys(clone2)
+                                                        .forEach( function(key) {
+                                                            if ( (typeof(clone2[key])).toLocaleLowerCase() == "function" ) { delete clone2[key] }
+                                                        })
+                                                    ;
+                                                    compare_diaries(clone2,clone1,debug);
+                                                    resolve();
+                                                },
+                                                function(error) {
+                                                    console.error("DiaryLoader failed:",diary,spreadsheet,error);
+                                                    reject(error);
+                                                }
+                                            );
+                                            diary_loader.load( spreadsheet );
+                                        })
+                                })
+                        } catch (error) {
+                            console.error("diary.to_async() failed:",diary,error);
+                            reject(error);
+                        }
                     });
                 });
             }
@@ -232,6 +266,11 @@ function test_parse(test) {
 }
 
 function test_from_standard(test) {
+
+    var debug = (
+        test.debug
+        // || true // enable debugging for all tests
+    );
 
     if ( !test.name ) test.name = "format's 'from standard' test";
 
@@ -252,7 +291,7 @@ function test_from_standard(test) {
         expect( !!expected_diary ).toEqual( true );
 
         if ( diary && expected_diary ) {
-            compare_diaries(diary.to(test.format),expected_diary);
+            compare_diaries(diary.to(test.format),expected_diary,debug);
         }
 
     });
@@ -261,20 +300,34 @@ function test_from_standard(test) {
 
 function test_to(test) {
 
+    var debug = (
+        test.debug
+        // || true // enable debugging for all tests
+    );
+
     if ( !test.name ) test.name = "format's 'to' test";
 
     var diary = test_constructor(test);
 
     if ( diary ) {
         it(`converts "${test.name}" to "${test.format}" correctly`, function() {
-            return diary.to_async(test.format).then(
-                function(converted) {
-                    return expect(
-                        ( test.format == "Standard" )
-                        ? converted.records
-                        : converted.contents
-                    ).toEqual( test.expected )
-                });
+            try {
+                return diary.to_async(test.format).then(
+                    function(converted) {
+                        var observed = (
+                            ( test.format == "Standard" )
+                            ? converted.records
+                            : converted.contents
+                        );
+                        if ( debug ) {
+                            console.error("Observed and expected objects should be equal:\n",observed,test.expected);
+                        }
+                        return expect(observed).toEqual( test.expected )
+                    });
+            } catch (error) {
+                console.error("diary.to_async() failed:",diary,error);
+                throw error;
+            }
         });
     }
 
@@ -426,6 +479,7 @@ register_roundtrip_modifier("Standard",function(our_diary,roundtripped_diary,oth
     case "SpreadsheetGraph":
     case "SpreadsheetTable":
     case "PleesTracker":
+    case "SleepChart1":
         [our_diary,roundtripped_diary].forEach(function(diary) {
             diary.records.forEach( function(record) {
                 /*
@@ -483,7 +537,7 @@ describe("Standard format", () => {
     }
 
     test_parse({
-        name: "simple example",
+        name: "simple diary",
         file_format:"Standard",
         input: "{\"file_format\":\"Standard\",\"records\":[]}",
         expected: {
@@ -1360,6 +1414,7 @@ describe("Standard format", () => {
 });
 register_roundtrip_modifier("Sleepmeter",function(our_diary,roundtripped_diary,other_format) {
     switch ( other_format.name ) {
+    case "SleepChart1":
     case "PleesTracker":
     case "SpreadsheetGraph":
     case "SpreadsheetTable":
@@ -1377,6 +1432,7 @@ register_roundtrip_modifier("Sleepmeter",function(our_diary,roundtripped_diary,o
         });
     }
     switch ( other_format.name ) {
+    case "SleepChart1":
     case "PleesTracker":
         [our_diary,roundtripped_diary].forEach(function(diary) {
             diary.records.forEach( function(record) {
@@ -1397,7 +1453,7 @@ describe("Sleepmeter format", () => {
 
     test_parse({
         file_format: "Sleepmeter",
-        "name": "simple example from README.md",
+        "name": "simple diary from README.md",
         "input": "wake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:14+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         "expected": {
             "custom_aids": [],
@@ -1451,7 +1507,7 @@ describe("Sleepmeter format", () => {
 
     test_parse({
         file_format: "Sleepmeter",
-        name: "complex example from README.md",
+        name: "complex diary from README.md",
         input: "custom_aid_id,class,name\nCUSTOM_0002,RELAXATION,\"custom aid 2\"\nCUSTOM_0003,EXERTION,\"custom aid 3\"\nCUSTOM_0001,HERBAL,\"custom aid 1\"\n\ncustom_hindrance_id,class,name\nCUSTOM_0003,OBLIGATION,\"custom hindrance 3\"\nCUSTOM_0002,MENTAL,\"custom hindrance 2\"\nCUSTOM_0001,NOISE,\"custom hindrance 1\"\n\ncustom_tag_id,name\nCUSTOM_0001,\"custom tag 1\"\nCUSTOM_0002,\"custom tag 2\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2099-12-31 23:59+1000\",\"2099-12-31 23:58+1000\",\"2099-12-31 23:57+1000\",,NIGHT_SLEEP,NONE,CUSTOM_0001,CUSTOM_0001,CUSTOM_0001,5,\"\"\n\"1900-01-02 00:00+0000\",\"1900-01-01 00:02+0000\",\"1900-01-01 00:01+0000\",1-57|1436-1437,NAP,NONE,NONE,NONE,NONE,5,\"comment\"\n",
         expected: {
             "custom_aids": [
@@ -2694,6 +2750,7 @@ describe("Sleepmeter format", () => {
 });
 register_roundtrip_modifier("SleepAsAndroid",function(our_diary,roundtripped_diary,other_format) {
     switch ( other_format.name ) {
+    case "SleepChart1":
     case "PleesTracker":
         [our_diary,roundtripped_diary].forEach(function(diary) {
             diary.records.forEach( function(record) {
@@ -2773,7 +2830,7 @@ describe("SleepAsAndroid format", () => {
 
     test_parse({
         file_format: "SleepAsAndroid",
-        name: "string example",
+        name: "string diary",
         input:
             "Id,Tz,From,To,Sched,Hours,Rating,Comment,Framerate,Snore,Noise,Cycles,DeepSleep,LenAdjust,Geo\n" +
             '"1044072300000","Europe/London","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
@@ -2836,7 +2893,7 @@ describe("SleepAsAndroid format", () => {
 
     test_parse({
         file_format: "SleepAsAndroid",
-        name: "object example",
+        name: "object diary",
         input: wrap_input({
             "alarms.json": alarms_json_input,
             "prefs.xml": prefs_xml_input,
@@ -3387,7 +3444,7 @@ describe("PleesTracker format", () => {
 
     test_parse({
         file_format: "PleesTracker",
-        name: "simple example",
+        name: "simple diary",
         input: normal_diary,
         expected: {
             records: normal_records,
@@ -3544,6 +3601,313 @@ describe("PleesTracker format", () => {
                 },
             ]),
         },
+    });
+
+});
+register_roundtrip_modifier("SleepChart1",function(our_diary,roundtripped_diary,other_format) {
+    switch ( other_format.name ) {
+    case "PleesTracker":
+    case "SpreadsheetGraph":
+    case "SpreadsheetTable":
+        [our_diary,roundtripped_diary].forEach(function(diary) {
+            diary.records.forEach( function(record) {
+                ["tags"].forEach(function(key) {
+                    delete record[key];
+                });
+            });
+        });
+    }
+});
+
+
+describe("SleepChart1 format", () => {
+
+    function wrap_input(contents) {
+        return {
+            "file_format": () => "array",
+            "contents": contents,
+        }
+    }
+
+    function create_diary(records) {
+        let float_data = new Float32Array(records.length*3);
+        let uint8_data = new Uint8Array(float_data.buffer);
+        for ( var n=0; n!=records.length; ++n ) {
+            var record = records[n];
+            float_data[n* 3+0] = record[0];
+            float_data[n* 3+1] = record[1];
+            uint8_data[n*12+8] = record[2];
+            uint8_data[n*12+9] = record[3];
+        }
+        return float_data.buffer;
+    }
+
+    var empty_diary = wrap_input(create_diary([]));
+
+    test_parse({
+        file_format: "SleepChart1",
+        name: "Empty diary",
+        input: empty_diary,
+        expected: {
+            records: [],
+        }
+    });
+
+    test_parse({
+        file_format: "SleepChart1",
+        name: "Simple diary 1",
+        input: wrap_input(create_diary([[1,2,true,true]])),
+        expected: {
+            records: [
+                {
+                    start: 946684800000,
+                    end  : 946771200000,
+                    "delayed retirement": false,
+                    "forced awakening": false,
+                },
+            ],
+        }
+    });
+
+    test_parse({
+        file_format: "SleepChart1",
+        name: "Simple diary 2",
+        input: wrap_input(create_diary([[2,3,true,false]])),
+        expected: {
+            records: [
+                {
+                    start: 946771200000,
+                    end  : 946857600000,
+                    "delayed retirement": true,
+                    "forced awakening": false,
+                },
+            ],
+        }
+    });
+
+    test_parse({
+        file_format: "SleepChart1",
+        name: "Simple diary 3",
+        input: wrap_input(create_diary([[100,200,false,true]])),
+        expected: {
+            records: [
+                {
+                    start: 955238400000,
+                    end  : 963878400000,
+                    "delayed retirement": false,
+                    "forced awakening": true,
+                },
+            ],
+        }
+    });
+
+    test_parse({
+        file_format: "SleepChart1",
+        name: "Multiple records",
+        input: wrap_input(create_diary([
+            [1,2,true,true],
+            [2,3,true,false],
+            [100,200,false,true],
+        ])),
+        expected: {
+            records: [
+                {
+                    start: 946684800000,
+                    end  : 946771200000,
+                    "delayed retirement": false,
+                    "forced awakening": false,
+                },
+                {
+                    start: 946771200000,
+                    end  : 946857600000,
+                    "delayed retirement": true,
+                    "forced awakening": false,
+                },
+                {
+                    start: 955238400000,
+                    end  : 963878400000,
+                    "delayed retirement": false,
+                    "forced awakening": true,
+                },
+            ],
+        }
+    });
+
+    test_to({
+        name: "Output test",
+        format: "output",
+        input: wrap_input(create_diary([
+            [1,2,true,true],
+            [2,3,true,false],
+            [100,200,false,true],
+        ])),
+        expected: create_diary([
+            [1,2,true,true],
+            [2,3,true,false],
+            [100,200,false,true],
+        ]),
+    });
+
+    test_to({
+        name: "Standard Format test",
+        format: "Standard",
+        input: wrap_input(create_diary([
+            [1,2,true,true],
+            [2,3,true,false],
+            [100,200,false,true],
+        ])),
+        expected: [
+            {
+                status: 'asleep',
+                start: 946684800000,
+                end: 946771200000,
+                duration: 86400000,
+                start_of_new_day: true,
+                day_number: 2,
+                missing_record_after: true,
+                is_primary_sleep: true
+            },
+            {
+                status: 'asleep',
+                start: 946771200000,
+                end: 946857600000,
+                tags: [ 'delayed retirement' ],
+                duration: 86400000,
+                start_of_new_day: true,
+                day_number: 3,
+                missing_record_after: true,
+                is_primary_sleep: true
+            },
+            {
+                status: 'asleep',
+                start: 955238400000,
+                end: 963878400000,
+                tags: [ 'forced awakening' ],
+                duration: 8640000000,
+                start_of_new_day: true,
+                day_number: 5,
+                is_primary_sleep: true
+            }
+        ],
+    });
+
+    test_from_standard({
+        name: "Standard Format test",
+        format: "SleepChart1",
+        input: [
+            {
+                status: 'asleep',
+                start: 946684800000,
+                end: 946771200000,
+                duration: 86400000,
+                start_of_new_day: true,
+                day_number: 2,
+                missing_record_after: true,
+                is_primary_sleep: true
+            },
+            {
+                status: 'asleep',
+                start: 946771200000,
+                end: 946857600000,
+                tags: [ 'delayed retirement' ],
+                duration: 86400000,
+                start_of_new_day: true,
+                day_number: 3,
+                missing_record_after: true,
+                is_primary_sleep: true
+            },
+            {
+                status: 'asleep',
+                start: 955238400000,
+                end: 963878400000,
+                tags: [ 'forced awakening' ],
+                duration: 8640000000,
+                start_of_new_day: true,
+                day_number: 5,
+                is_primary_sleep: true
+            }
+        ],
+        expected: wrap_input(create_diary([
+            [1,2,true,true],
+            [2,3,true,false],
+            [100,200,false,true],
+        ])),
+    });
+
+    test_merge({
+        name    : "Two identical diaries",
+        left    : wrap_input(create_diary([[1,2,true,true]])),
+        right   : wrap_input(create_diary([[1,2,true,true]])),
+        expected: {
+            records: [
+                {
+                    start: 946684800000,
+                    end  : 946771200000,
+                    "delayed retirement": false,
+                    "forced awakening": false,
+                },
+            ],
+        }
+    });
+
+    test_merge({
+        name : "Two different diaries",
+        left : wrap_input(create_diary([[1,2,true,true]])),
+        right: wrap_input(create_diary([[100,200,false,true]])),
+        expected: {
+            records: [
+                {
+                    start: 946684800000,
+                    end  : 946771200000,
+                    "delayed retirement": false,
+                    "forced awakening": false,
+                },
+                {
+                    start: 955238400000,
+                    end  : 963878400000,
+                    "delayed retirement": false,
+                    "forced awakening": true,
+                },
+            ],
+        }
+    });
+
+    test_merge({
+        name : "Two different diaries (reverse order)",
+        left : wrap_input(create_diary([[100,200,false,true]])),
+        right: wrap_input(create_diary([[1,2,true,true]])),
+        expected: {
+            records: [
+                {
+                    start: 946684800000,
+                    end  : 946771200000,
+                    "delayed retirement": false,
+                    "forced awakening": false,
+                },
+                {
+                    start: 955238400000,
+                    end  : 963878400000,
+                    "delayed retirement": false,
+                    "forced awakening": true,
+                },
+            ],
+        }
+    });
+
+    test_merge({
+        name : "Two different diaries (overlapping)",
+        left : wrap_input(create_diary([[1,3,true,true]])),
+        right: wrap_input(create_diary([[2,4,true,true]])),
+        expected: {
+            records: [
+                {
+                    start: 946684800000,
+                    end  : 946857600000,
+                    "delayed retirement": false,
+                    "forced awakening": false,
+                },
+            ],
+        }
     });
 
 });

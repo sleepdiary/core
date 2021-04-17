@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: DiarySleepmeter</title>
+    <title>JSDoc: Class: DiarySleepChart1</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: DiarySleepmeter</h1>
+    <h1 class="page-title">Class: DiarySleepChart1</h1>
 
     
 
@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>DiarySleepmeter<span class="signature">(file, serialiser<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>DiarySleepChart1<span class="signature">(file, serialiser<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
         
     
 </header>
@@ -41,7 +41,7 @@
     
 
     
-    <h4 class="name" id="DiarySleepmeter"><span class="type-signature"></span>new DiarySleepmeter<span class="signature">(file, serialiser<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="DiarySleepChart1"><span class="type-signature"></span>new DiarySleepChart1<span class="signature">(file, serialiser<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
     
 
     
@@ -181,7 +181,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Sleepmeter_format.js.html">Sleepmeter/format.js</a>, <a href="Sleepmeter_format.js.html#line105">line 105</a>
+        <a href="SleepChart1_format.js.html">SleepChart1/format.js</a>, <a href="SleepChart1_format.js.html#line46">line 46</a>
     </li></ul></dd>
     
 
@@ -214,71 +214,13 @@
     
     <pre class="prettyprint"><code>let diary = new_sleep_diary(contents_of_my_file));
 
-console.log( diary.custom_aids );
--> [
-     { "custom_aid_id": "CUSTOM_0001", "class": "READING", "name": "The Cat in the Hat" },
-     ...
-   ]
-
-console.log( diary.custom_hindrances );
--> [
-     { "custom_hindrance_id": "CUSTOM_0001", "class": "OBLIGATION", "name": "Appointment" },
-     ...
-   ]
-
-console.log( diary.custom_tags );
--> [
-     { "custom_tag_id": "CUSTOM_0001", "name": "ate cheese before bed" },
-     ...
-   ]
-
-// Print the complete list of records
 console.log(diary.records);
 -> [
      {
-
-       // normalised event times - use these where possible:
-       "start" : 12345678, // based on "bedtime"
-       "end" : 23456789, // based on "wake"
-       "duration" : 11111111, // "wake" minus "sleep" and minus "holes"
-
-       "wake" : {
-         "string": "2001-02-03 04:05+0600",
-         "year"  : 2001,
-         "month" : 2,
-         "day"   : 3,
-         "hour"  : 4,
-         "minute": 5,
-         "offset": 6
-       },
-       "sleep" : {
-         "string": "2001-02-03 04:04+0600",
-         "year"  : 2001,
-         "month" : 2,
-         "day"   : 3,
-         "hour"  : 4,
-         "minute": 4,
-         "offset": 6
-       },
-       "bedtime" : {
-         "string": "2001-02-03 04:00+0600",
-         "year"  : 2001,
-         "month" : 2,
-         "day"   : 3,
-         "hour"  : 4,
-         "minute": 0,
-         "offset": 6
-       },
-       "holes" : [ { "wake": 0, "sleep": 1 } ],
-       "type" : "NAP",
-       "dreams" : [
-         { "type": "GOOD", "mood": 5, "themes": [ "PRECOGNITIVE", "LUCID" ] }
-       ],
-       "aids" : [ "CPAP", "CUSTOM_0001" ],
-       "hindrances" : [ "ALARM_CLOCK", "CUSTOM_0001" ],
-       "tags" : [ "OUT_OF_TOWN", "CUSTOM_0001" ],
-       "quality" : 5,
-       "notes" : "sleep notes"
+       start: 12345678,
+       end: 23456789,
+       "forced awakening": true,
+       "delayed retirement": false,
      },
      ...
    ]</code></pre>
@@ -316,193 +258,7 @@ console.log(diary.records);
 
         
             
-<h4 class="name" id="%22custom_aids%22"><span class="type-signature"></span>"custom_aids"<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Things that aid sleep
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Sleepmeter_format.js.html">Sleepmeter/format.js</a>, <a href="Sleepmeter_format.js.html#line981">line 981</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="%22custom_hindrances%22"><span class="type-signature"></span>"custom_hindrances"<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Things that hinder sleep
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Sleepmeter_format.js.html">Sleepmeter/format.js</a>, <a href="Sleepmeter_format.js.html#line986">line 986</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="%22custom_tags%22"><span class="type-signature"></span>"custom_tags"<span class="type-signature"></span></h4>
-
-
-
-
-<div class="description">
-    Arbitrary tags describing the sleep experience
-</div>
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Sleepmeter_format.js.html">Sleepmeter/format.js</a>, <a href="Sleepmeter_format.js.html#line991">line 991</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="%22records%22"><span class="type-signature"></span>"records"<span class="type-signature"></span></h4>
+<h4 class="name" id="%22records%22"><span class="type-signature"></span>"records"<span class="type-signature"> :Array</span></h4>
 
 
 
@@ -513,6 +269,16 @@ console.log(diary.records);
 
 
 
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Array</span>
+
+
+        </li>
+    </ul>
+
 
 
 
@@ -546,7 +312,7 @@ console.log(diary.records);
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Sleepmeter_format.js.html">Sleepmeter/format.js</a>, <a href="Sleepmeter_format.js.html#line996">line 996</a>
+        <a href="SleepChart1_format.js.html">SleepChart1/format.js</a>, <a href="SleepChart1_format.js.html#line162">line 162</a>
     </li></ul></dd>
     
 
@@ -618,7 +384,7 @@ console.log(diary.records);
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Sleepmeter_format.js.html">Sleepmeter/format.js</a>, <a href="Sleepmeter_format.js.html#line708">line 708</a>
+        <a href="SleepChart1_format.js.html">SleepChart1/format.js</a>, <a href="SleepChart1_format.js.html#line67">line 67</a>
     </li></ul></dd>
     
 
