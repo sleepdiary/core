@@ -115,6 +115,11 @@ var diary_loader = new DiaryLoader(
             '</tr>'
         );
 
+        var summary = standardised.summarise_days( r => r.start > cutoff );
+        if ( summary ) {
+            diary_output += '<tr><th>Recent day lengths</th><td><svg id="recent-day-lengths" style="cursor:pointer;width:180px;height:150px" viewBox="0 0 600 500"></svg></tr>';
+        }
+
         document.getElementById('diary-output').innerHTML = diary_output + "</tbody></table>";
 
         document.getElementById('convert-format').addEventListener( 'change', function(event) {
@@ -123,7 +128,7 @@ var diary_loader = new DiaryLoader(
                     diary.to_async("output").then(function(output) {
                         var a = document.createElement('a');
                         a.setAttribute( 'href', DiaryLoader.to_url(output) );
-                        a.setAttribute('download', "diary" + diary.format_info().extension());
+                        a.setAttribute('download', "diary" + diary.format_info().extension);
                         a.click();
                     })
                 });
@@ -144,6 +149,71 @@ var diary_loader = new DiaryLoader(
                     a.click();
                 })
         });
+
+        if ( summary ) {
+            var bars = summary.durations
+                .map( (height,n) => [height,'day ' + n] )
+                .filter( r => r[0] ),
+                heights = bars.map( d => d[0] ),
+                labels = bars.map( d => d[1] ),
+                svg = d3.select("svg"),
+                width = 550,
+                height = 460,
+                xScale = d3.scaleBand().range ([0, width]).padding(0.4),
+                yScale = d3.scaleLinear().range ([height, 0]),
+                g = svg.append("g")
+                    .attr("transform", "translate(49,15)")
+            ;
+
+            // define the size of the X and Y axes:
+            xScale.domain(labels);
+            yScale.domain([d3.min(heights) * 0.95, d3.max(heights) * 1.05]);
+
+            // populate the graph:
+            g.selectAll(".bar")
+                .data(bars)
+                .enter().append("rect")
+                .attr("x", d => xScale(d[1]) )
+                .attr("y", d => yScale(d[0]) )
+                .attr("width", xScale.bandwidth())
+                .attr("height", d => height - yScale(d[0]) )
+                .style("fill", "steelblue")
+            ;
+
+            g.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(xScale))
+            ;
+
+            g.append("g")
+                .call(d3.axisLeft(yScale).tickFormat(
+                    t => {
+                        var hours   = Math.floor( t / (60*60*1000) ),
+                            minutes = Math.floor( t /    (60*1000) ) % 60
+                        ;
+                        return hours + ( minutes < 10 ? ':0' : ':' ) + minutes;
+                    }).ticks(10))
+                .append("text")
+                .attr("y", 6)
+                .attr("dy", "0.71em")
+                .attr("text-anchor", "end")
+                .text("value")
+            ;
+
+            document.getElementById("recent-day-lengths").addEventListener(
+                "click",
+                function(event) {
+                    var svg = event.target;
+                    while ( svg.tagName != 'svg' ) svg = svg.parentNode;
+                    if ( svg.getAttribute("style") == "cursor:pointer;width:180px;height:150px" ) {
+                        svg.setAttribute("style","cursor:pointer;width:600;height:500px");
+                    } else {
+                        svg.setAttribute("style","cursor:pointer;width:180px;height:150px");
+                    }
+                    event.preventDefault();
+                }
+            );
+        }
 
     },
     (raw,source) => {

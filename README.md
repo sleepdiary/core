@@ -35,5 +35,6 @@ Please [create a new GitHub issue](https://github.com/sleep-diary-formats/sleep-
 
 Please get in touch if you would like to add a new format!
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.3.1/d3.min.js"></script>
 <script src="sleep-diary-formats.js"></script>
 <script src="index.js"></script>
