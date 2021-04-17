@@ -7,9 +7,11 @@ register_roundtrip_modifier("Example",function(our_diary,roundtripped_diary,othe
      * 1. your format                                  -> Standard
      * 2. your format -> another format -> your format -> Standard
      *
-     * It's normal to lose data in the conversion to Standard format,
-     * any other data loss suggests a bug in either your format,
-     * the standard format, or the target format.
+     * Information loss during the roundtrip often leads to a bug in your format,
+     * the standard format, or the target format.  But it can also be normal
+     * limitation of the conversion process.  For example, formats that support
+     * tags will lose information when converting to a format that doesn't
+     * support tags.
      *
      * Whenever possible, you should treat these errors as bugs.
      * But if data loss is inevitable, this function lets you
@@ -46,6 +48,7 @@ describe("Example format", () => {
         input: empty_diary,
         //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
         //output: 'disable', // uncomment if this format contains information that can't be output
+        //debug: true, // uncomment to get console.log() messages about this test
         expected: {
             records: [],
             ...
@@ -55,20 +58,22 @@ describe("Example format", () => {
     // TODO: test one or both ways to create a simple non-empty object:
     test_parse({
         file_format: "Example",
-        name: "Simple example",
+        name: "Simple diary",
         input: "... string containing a valid record ...",
         //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
         //output: 'disable', // uncomment if this format contains information that can't be output
+        //debug: true, // uncomment to get console.log() messages about this test
         expected: {
             ...
         }
     });
     test_parse({
         file_format: "Example",
-        name: "Object example",
+        name: "Object diary",
         input: { ... object containing a valid record ... },
         //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
         //output: 'disable', // uncomment if this format contains information that can't be output
+        //debug: true, // uncomment to get console.log() messages about this test
         expected: {
             ...
         }
@@ -77,7 +82,7 @@ describe("Example format", () => {
     // TODO: test a hard-to-parse comment:
     test_parse({
         file_format: "Example",
-        name: "Object example",
+        name: "Object diary",
         input: {
             records: [
                 {
@@ -87,6 +92,7 @@ describe("Example format", () => {
         },
         //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
         //output: 'disable', // uncomment if this format contains information that can't be output
+        //debug: true, // uncomment to get console.log() messages about this test
         expected: {
             records: [
                 {

@@ -95,6 +95,7 @@ var diary_loader = new DiaryLoader(
         case "PleesTracker":
         case "SpreadsheetTable":
         case "SpreadsheetGraph":
+        case "SleepChart1":
             diary_output += '<tr><th>Overview</th><td><a href="src/' + diary.file_format() + '/demo.html#' + diary.to("url") + '">view</a></td></tr>';
             break;
         default:
@@ -107,11 +108,9 @@ var diary_loader = new DiaryLoader(
               '<th>Convert</th>' +
               '<td><select id="convert-format">' +
                 '<option>Choose a format...</option>' +
-                '<option value="SleepAsAndroid">Sleep as Android</option>' +
-                '<option value="Sleepmeter">Sleepmeter</option>' +
-                '<option value="PleesTracker">PleesTracker</option>' +
-                '<option value="SpreadsheetGraph">Spreadsheet graph</option>' +
-                '<option value="SpreadsheetTable">Spreadsheet table</option>' +
+                sleep_diary_formats.map(function(format) {
+                    return '<option value="' + format.name + '">' + format.title + '</option>';
+                }).join('') +
               '</select></td>' +
             '</tr>'
         );

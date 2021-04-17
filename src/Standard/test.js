@@ -26,6 +26,7 @@ register_roundtrip_modifier("Standard",function(our_diary,roundtripped_diary,oth
     case "SpreadsheetGraph":
     case "SpreadsheetTable":
     case "PleesTracker":
+    case "SleepChart1":
         [our_diary,roundtripped_diary].forEach(function(diary) {
             diary.records.forEach( function(record) {
                 /*
@@ -83,7 +84,7 @@ describe("Standard format", () => {
     }
 
     test_parse({
-        name: "simple example",
+        name: "simple diary",
         file_format:"Standard",
         input: "{\"file_format\":\"Standard\",\"records\":[]}",
         expected: {

@@ -57,7 +57,7 @@ You can also see <a id="diary-standard-link">this document in standard format</a
 <h3>Other</h3>
 <dl>
 <dt>Amount of time spent awake</dt>
-<dd class="diary-element" name="LenAdjust"></dd>
+<dd class="diary-element duration" name="LenAdjust"></dd>
 <dt>Geolocation</dt>
 <dd class="diary-element" name="Geo"></dd>
 </dl>

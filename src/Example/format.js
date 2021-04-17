@@ -28,7 +28,7 @@
  * Steps to create your code:
  *
  * 1. Search and replace "Example" to "YourFormat" (camel case, no space)
- * 2. Fix the "title" in the DiaryBase.register() function at the bottom
+ * 2. Fix everything in the format_info() function at the bottom
  * 2. Fill in all the other "TODO" blocks in this file
  * 3. Add unit tests in test.js
  * 4. Add documentation in README.md
@@ -245,7 +245,7 @@ class DiaryExample extends DiaryBase {
 
         case "string":
 
-            // TODO: construct from string
+            // TODO: construct from string (if this is a text format)
             //return this.invalid(file); // uncomment if this type can't be read from a string
 
             /*
@@ -274,6 +274,15 @@ class DiaryExample extends DiaryBase {
                 ...
 
             }
+            break;
+
+        case "array":
+
+            // TODO: construct from ArrayBuffer (if this is a binary format)
+            //return this.invalid(file); // uncomment if this type can't be read from a string
+
+            ...
+
             break;
 
         /*
@@ -336,7 +345,9 @@ class DiaryExample extends DiaryBase {
         case "Standard":
 
             return new DiaryStandard({
-                "records": this["records"].map(function(record) {
+                "records": this["records"].map( record => {
+
+                    let ret = {};
 
                     /*
                      * TODO: convert each record to the Standard format
@@ -361,6 +372,8 @@ class DiaryExample extends DiaryBase {
                      * Values other than the above can be calculated
                      * automatically by DiaryStandard()
                      */
+
+                    return ret;
 
                 })
             }, this.serialiser);
@@ -402,7 +415,9 @@ class DiaryExample extends DiaryBase {
 
         this["records"] = this["records"].concat(
             other["records"].filter( r => !existing_ids.hasOwnProperty(create_id(r)) )
-        );
+        )
+            //.sort( (a,b) => a["start"] - b["start"] ) // if your format expects records to be sorted
+        ;
 
         return this;
 

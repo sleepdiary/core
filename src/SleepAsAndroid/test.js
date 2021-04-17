@@ -1,5 +1,6 @@
 register_roundtrip_modifier("SleepAsAndroid",function(our_diary,roundtripped_diary,other_format) {
     switch ( other_format.name ) {
+    case "SleepChart1":
     case "PleesTracker":
         [our_diary,roundtripped_diary].forEach(function(diary) {
             diary.records.forEach( function(record) {
@@ -79,7 +80,7 @@ describe("SleepAsAndroid format", () => {
 
     test_parse({
         file_format: "SleepAsAndroid",
-        name: "string example",
+        name: "string diary",
         input:
             "Id,Tz,From,To,Sched,Hours,Rating,Comment,Framerate,Snore,Noise,Cycles,DeepSleep,LenAdjust,Geo\n" +
             '"1044072300000","Europe/London","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
@@ -142,7 +143,7 @@ describe("SleepAsAndroid format", () => {
 
     test_parse({
         file_format: "SleepAsAndroid",
-        name: "object example",
+        name: "object diary",
         input: wrap_input({
             "alarms.json": alarms_json_input,
             "prefs.xml": prefs_xml_input,

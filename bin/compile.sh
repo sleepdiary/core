@@ -58,9 +58,9 @@ done
 
 git diff @{u} -- . ':!src/Example' | grep -i '^\+.*todo' && fail "Please remove 'TODO' messages in your code"
 
-git diff @{u} -- . ':!src/Example' | grep -i '^\+.*[^@]example' && fail "Please fix 'example' messages in your code"
+git diff @{u} -- . ':!src/Example' | grep -i '^\+.*[^@\/]example[^s]' | grep -vF 'example code' && fail "Please fix 'example' messages in your code"
 
-git diff @{u} -- . ':!src/Example' | grep -i '^\+.*\.\.\.' && fail "Please fix '...' messages in your code"
+git diff @{u} -- . ':!src/Example' | grep -i '^\+[^\*]*\.\.\.' && fail "Please fix '...' messages in your code"
 
 git ls-files src/\*/format.js \
     | sed -e 's/^src\///' -e 's/\/format.js$//' -e '/^Example$/ d' \

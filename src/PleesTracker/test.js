@@ -41,7 +41,7 @@ describe("PleesTracker format", () => {
 
     test_parse({
         file_format: "PleesTracker",
-        name: "simple example",
+        name: "simple diary",
         input: normal_diary,
         expected: {
             records: normal_records,

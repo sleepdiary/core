@@ -120,6 +120,18 @@ var diary_loader = new DiaryLoader(
                 if ( DEBUG>2 ) console.log( "Setting date element", elem, value );
                 elem.textContent = new Date(value);
 
+            } else if ( elem.className.search(/\bdiary-duration\b/) != -1 ) {
+
+                if ( DEBUG>2 ) console.log( "Setting duration element", elem, value );
+                let seconds = (value/1000)%60;
+                elem.textContent = (
+                    Math.floor(value/60000)
+                        + ':'
+                        + ( ( seconds < 10 ) ? '0' : '' )
+                        + seconds
+                        + ' minutes'
+                );
+
             } else {
 
                 if ( DEBUG>2 ) console.log( "Setting text element", elem, value );
