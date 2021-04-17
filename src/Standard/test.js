@@ -26,6 +26,7 @@ register_roundtrip_modifier("Standard",function(our_diary,roundtripped_diary,oth
     case "SpreadsheetGraph":
     case "SpreadsheetTable":
     case "PleesTracker":
+    case "SleepChart1":
         [our_diary,roundtripped_diary].forEach(function(diary) {
             diary.records.forEach( function(record) {
                 /*

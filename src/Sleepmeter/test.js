@@ -1,5 +1,6 @@
 register_roundtrip_modifier("Sleepmeter",function(our_diary,roundtripped_diary,other_format) {
     switch ( other_format.name ) {
+    case "SleepChart1":
     case "PleesTracker":
     case "SpreadsheetGraph":
     case "SpreadsheetTable":
@@ -17,6 +18,7 @@ register_roundtrip_modifier("Sleepmeter",function(our_diary,roundtripped_diary,o
         });
     }
     switch ( other_format.name ) {
+    case "SleepChart1":
     case "PleesTracker":
         [our_diary,roundtripped_diary].forEach(function(diary) {
             diary.records.forEach( function(record) {

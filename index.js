@@ -95,6 +95,7 @@ var diary_loader = new DiaryLoader(
         case "PleesTracker":
         case "SpreadsheetTable":
         case "SpreadsheetGraph":
+        case "SleepChart1":
             diary_output += '<tr><th>Overview</th><td><a href="src/' + diary.file_format() + '/demo.html#' + diary.to("url") + '">view</a></td></tr>';
             break;
         default:

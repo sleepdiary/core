@@ -36,6 +36,10 @@ var diary_loader = new DiaryLoader(
             console.log( "Extras for Sleep as Android", diary );
             break;
 
+        case "SleepChart1":
+            console.log( "Extras for SleepChart 1.0", diary );
+            break;
+
         case "SpreadsheetTable":
             console.log( "Extras for tables created in spreadsheets", diary );
             break;
