@@ -59,7 +59,7 @@ class DiaryLoader {
             if ( window["tc"] ) {
                 window.addEventListener('hashchange', () =>
                     location.hash.replace(
-                        /(^|[?&])(sleep-diary=[^&]*)/g,
+                        /(?:^#|[?&])(sleep-diary=[^&]*)/g,
                         (_,diary) => self["load"]({
                             "file_format": "url",
                             "contents": diary
@@ -68,8 +68,8 @@ class DiaryLoader {
                     false
                 );
                 location.hash.replace(
-                    /(^#|[?&])(sleep-diary=[^&]*)/g,
-                    (a,b,diary) => self["load"]({
+                    /(?:^#|[?&])(sleep-diary=[^&]*)/g,
+                    (_,diary) => self["load"]({
                         "file_format": "url",
                         "contents": diary
                     }, "hash" )
