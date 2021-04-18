@@ -67,6 +67,7 @@ class DiarySpreadsheetTable extends DiaryBase {
 
         const status_rule = member => ({
             "type": "text",
+            "member": "status",
             "regexp": new RegExp(
                 status_matches
                     .map( m => `(${m[1]})` )
