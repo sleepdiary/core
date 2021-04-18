@@ -809,7 +809,11 @@ class Spreadsheet {
                 raw_row["commit"]();
             });
 
-            ( sheet["widths"] || [] ).forEach( (w,n) => raw_sheet["columns"][n]["width"] = w );
+            if ( sheet["widths"] ) {
+                sheet["widths"].forEach( (w,n) => raw_sheet["columns"][n]["width"] = w );
+            } else {
+                raw_sheet["columns"].forEach( col => col["width"] = 18 );
+            }
 
             sheet["number_formats"].forEach (
                 (format,n) => raw_sheet["getColumn"](n+1)["numFmt"] = format
