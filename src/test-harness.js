@@ -68,10 +68,18 @@ function test_constructor(test,serialiser) {
     return error == !!test.error ? diary : null;
 }
 
+// disable all but the test(s) you care about:
+function test_is_runnable(test) {
+    //return test.name == 'my test';
+    return true;
+}
 
 function test_parse(test) {
 
     if ( !test.name ) test.name = "format's 'parse' test";
+
+    // disable all but the test you care about:
+    if ( !test_is_runnable(test) ) return;
 
     var debug = (
         test.debug
@@ -274,6 +282,8 @@ function test_from_standard(test) {
 
     if ( !test.name ) test.name = "format's 'from standard' test";
 
+    if ( !test_is_runnable(test) ) return;
+
     var diary = test_constructor({
         name: test.name,
         input: {
@@ -307,6 +317,8 @@ function test_to(test) {
 
     if ( !test.name ) test.name = "format's 'to' test";
 
+    if ( !test_is_runnable(test) ) return;
+
     var diary = test_constructor(test);
 
     if ( diary ) {
@@ -336,6 +348,8 @@ function test_to(test) {
 function test_merge(test) {
 
     if ( !test.name ) test.name = "format's 'merge' test";
+
+    if ( !test_is_runnable(test) ) return;
 
     it(`merges "${test.name}" correctly`, function() {
         var clone = Object.assign(
