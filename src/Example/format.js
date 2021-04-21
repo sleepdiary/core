@@ -232,8 +232,8 @@ class DiaryExample extends DiaryBase {
                                 array_element["member2"] = row[offset+1]["value"];
                             },
                         },
-                    ]
-                }
+                    ],
+                },
             ]
         );
 
