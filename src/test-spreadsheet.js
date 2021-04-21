@@ -3,7 +3,7 @@ describe("Spreadsheet", () => {
     [
         [        null, NaN ],
         [          0 ,   0 ],
-        [          1 ,   1 ],
+        [          1 ,   1000000000000 ],
         [ new Date(0),   0 ],
         [ new Date(1),   1 ],
         [         "0",   0 ],

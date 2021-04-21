@@ -28,8 +28,8 @@ describe("SpreadsheetTable format", () => {
         expected: {
             records: [
                 {
-                    "start" : 123456789000,
-                    "end"   : 123456789000,
+                    "start" : 1234567890000,
+                    "end"   : 1234567890000,
                     "status": "asleep",
                 },
             ],
@@ -44,8 +44,8 @@ describe("SpreadsheetTable format", () => {
         expected: {
             records: [
                 {
-                    "Sleep" : 123456789000,
-                    "Wake"  : 123456789000,
+                    "Sleep" : 1234567890000,
+                    "Wake"  : 1234567890000,
                     "status": "asleep",
                 },
                 {
@@ -65,8 +65,8 @@ describe("SpreadsheetTable format", () => {
         expected: {
             records: [
                 {
-                    "SleepStart" : 123456789000,
-                    "SleepEnd"  : 123456789000,
+                    "SleepStart" : 1234567890000,
+                    "SleepEnd"  : 1234567890000,
                     "sTaTe": "asleep",
                     "comments": [],
                 },
@@ -86,7 +86,7 @@ describe("SpreadsheetTable format", () => {
         name: "output test",
         format: "output",
         input: non_empty_diary,
-        expected: "SleepStart,SleepEnd,sTaTe,comments,NOTES\n123456789000,123456789000,asleep\n1577844060000,1580601720000,awake,comment 1,comment 2\n",
+        expected: "SleepStart,SleepEnd,sTaTe,comments,NOTES\n1234567890000,1234567890000,asleep\n1577844060000,1580601720000,awake,comment 1,comment 2\n",
     });
 
     test_to({
@@ -96,8 +96,8 @@ describe("SpreadsheetTable format", () => {
         expected: [
             {
                 status: "asleep",
-                start: 123456789000,
-                end: 123456789000,
+                start: 1234567890000,
+                end: 1234567890000,
                 duration: 0,
                 start_of_new_day: true,
                 day_number: 2,
@@ -148,8 +148,8 @@ describe("SpreadsheetTable format", () => {
         expected: {
             records: [
                 {
-                    start: 123456789000,
-                    end: 123456789000,
+                    start: 1234567890000,
+                    end: 1234567890000,
                 },
                 {
                     start: 1577844060000,
@@ -167,8 +167,8 @@ describe("SpreadsheetTable format", () => {
         expected: {
             records: [
                 {
-                    SleepStart: 123456789000,
-                    SleepEnd: 123456789000,
+                    SleepStart: 1234567890000,
+                    SleepEnd: 1234567890000,
                     sTaTe: "asleep",
                     comments: [],
                 },
@@ -190,8 +190,8 @@ describe("SpreadsheetTable format", () => {
         expected: {
             records: [
                 {
-                    SleepStart: 123456789000,
-                    SleepEnd: 123456789000,
+                    SleepStart: 1234567890000,
+                    SleepEnd: 1234567890000,
                     sTaTe: "asleep",
                     comments: [],
                 },
@@ -213,8 +213,8 @@ describe("SpreadsheetTable format", () => {
         expected: {
             records: [
                 {
-                    SleepStart: 123456789000,
-                    SleepEnd: 123456789000,
+                    SleepStart: 1234567890000,
+                    SleepEnd: 1234567890000,
                     sTaTe: "asleep",
                     comments: [],
                 },
@@ -225,8 +225,8 @@ describe("SpreadsheetTable format", () => {
                     comments: [ "comment 1", "comment 2" ],
                 },
                 {
-                    SleepStart: 12346000,
-                    SleepEnd: 12346000,
+                    SleepStart: 1234600000000,
+                    SleepEnd: 1234600000000,
                     sTaTe: "asleep",
                 },
                 {

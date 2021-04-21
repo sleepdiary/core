@@ -370,10 +370,8 @@ class Spreadsheet {
      * @return {number} Unix timestamp (if parseable)
      */
     static ["parse_timestamp"](value,raw_spreadsheet) {
-
-        const hours_to_milliseconds = 60 * 60 * 1000;
-
-        const epoch_offset = (
+        return DiaryBase.parse_timestamp(
+            (value||{}).hasOwnProperty("value") ? value["value"] : value,
             raw_spreadsheet
             ? (
                 ( raw_spreadsheet["properties"] || {} ) ["date1904"]
@@ -382,68 +380,6 @@ class Spreadsheet {
             )
             : 0
         );
-
-
-        if ( value === null || value === undefined || ( typeof(value) == "number" && isNaN(value) ) ) return NaN;
-
-        // value is actually a cell:
-        if ( value.hasOwnProperty("value") ) value = value["value"];
-
-        // try to find the timestamp based on the type:
-        if ( value === null || value === undefined || ( typeof(value) == "number" && isNaN(value) ) ) return NaN;
-        if ( value["getTime"] ) {
-            let time = value["getTime"]();
-            if ( time <= 24*hours_to_milliseconds ) time += epoch_offset;
-            return time;
-        }
-        if ( typeof(value) == "number" ) return value;
-        if ( !value || !value.search ) return NaN;
-        if ( !value.search(/^[0-9]{4,}$/) ) {
-            // string looks like a large number
-            const ret = parseInt(value,10);
-            return ret * (
-                ( ret < new Date().getTime()/100 )
-                ? 1000 // assume the time is in seconds
-                : 1
-            );
-        }
-
-        // treat e.g. "MidNight - 01:00" as "midnight", but leave "2010-11-12T13:14Z" alone:
-        let cleaned_value = (
-          ( value.search( /[a-su-y]/i ) == -1 && value.search( /-.*-/ ) != -1 )
-          ? value
-          : value.replace( /\s*(-|to).*/, "" )
-        ).replace(/([ap])\s*(m)/i, "$1$2").toLowerCase();
-
-        // common strings that don't match any pattern:
-        if ( cleaned_value.search(/midnight/i) != -1 ) return 0;
-        if ( cleaned_value.search(/midd?ay|noon|12pm/i) != -1 ) return 12*hours_to_milliseconds;
-
-        // the value is e.g. "1am" or "2pm":
-        let hour_match = cleaned_value.match(/^([0-9]*)(:([0-9]*))?\s*([ap])m$/);
-        if ( hour_match ) {
-            return (
-                parseInt(hour_match[1],10) +
-                parseInt(hour_match[3]||'0',10)/60 +
-                ( hour_match[4] == 'p' ? 12 : 0 )
-            ) * hours_to_milliseconds;
-        }
-
-        // the value is e.g. "00:00" or "14:30":
-        let hhmm_match = cleaned_value.match(/^([0-9]*)(:([0-9]*))?$/);
-        if ( hhmm_match ) {
-            return (
-                parseInt(hhmm_match[1],10) +
-                    parseInt(hhmm_match[3]||'0',10)/60
-            ) * hours_to_milliseconds
-        }
-
-        // try to parse this as a date string:
-        try { return new Date(cleaned_value).getTime(); } catch (e) {};
-        try { return new Date(        value).getTime(); } catch (e) {};
-
-        return NaN;
-
     }
 
     /**

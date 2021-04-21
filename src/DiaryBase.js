@@ -345,6 +345,112 @@ class DiaryBase {
     }
 
     /**
+     * parse a timestamp in various formats
+     *
+     * @param {Object|number} value - value to analyse
+     * @param {number=} epoch_offset - milliseconds between the unix epoch and the native offset
+     * @return {number} Unix timestamp in milliseconds, or NaN if not parseable
+     * @public
+     *
+     * @example
+     *   let xml = DiaryBase.parse_xml("<foo>");
+     */
+    static parse_timestamp(value,epoch_offset) {
+
+        const hours_to_milliseconds = 60 * 60 * 1000;
+
+        if ( value === null ||
+             value === undefined
+           ) {
+            return NaN;
+        }
+
+        if ( value["getTime"] ) {
+            let time = value["getTime"]();
+            if ( time <= 24*hours_to_milliseconds ) time += (epoch_offset||0);
+            return time;
+        }
+
+        if ( value.match ) {
+
+            const match = value.match(
+                /^((19|20)[0-9]{2})[-.]?([0-9]{2})[-.]?([0-9]{2})[T ]?([0-9]{2})[.:]?([0-9]{2})(?:[.:]?([0-9]{2}))?Z?$/
+            );
+            if ( match ) {
+                // YYYY-MM-DDThh:mm:ss
+                return new Date(
+                    parseInt(match[1],10),
+                    parseInt(match[3],10)-1,
+                    parseInt(match[4],10),
+                    parseInt(match[5],10),
+                    parseInt(match[6],10),
+                    parseInt(match[7]||0,10)
+                ).getTime();
+            }
+
+            if ( !value.search(/^[0-9]{4,}$/) ) {
+                // string looks like a large number
+                value = parseInt(value,10);
+            }
+
+        }
+
+        if ( typeof(value) == "number" ) {
+            // convert the number to milliseconds:
+            const power_correction = 12 - Math.floor(Math.log10(/** @type {number} */(value)));
+            return (
+                value
+                    * Math.pow(
+                        10,
+                        ( value && Math.abs(power_correction) > 2 )
+                        ? power_correction
+                        : 0
+                    )
+            );
+        }
+
+        // only string manipulation allowed beyond this point:
+        if ( !value || !value.search ) return NaN;
+
+        // treat e.g. "MidNight - 01:00" as "midnight", but leave "2010-11-12T13:14Z" alone:
+        let cleaned_value = (
+          ( value.search( /[a-su-y]/i ) == -1 && value.search( /-.*-/ ) != -1 )
+          ? value
+          : value.replace( /\s*(-|to).*/, "" )
+        ).replace(/([ap])\s*(m)/i, "$1$2").toLowerCase();
+
+        // common strings that don't match any pattern:
+        if ( cleaned_value.search(/midnight/i) != -1 ) return 0;
+        if ( cleaned_value.search(/midd?ay|noon|12pm/i) != -1 ) return 12*hours_to_milliseconds;
+
+        // the value is e.g. "1am" or "2pm":
+        let hour_match = cleaned_value.match(/^([0-9]*)(:([0-9]*))?\s*([ap])m$/);
+        if ( hour_match ) {
+            return (
+                parseInt(hour_match[1],10) +
+                parseInt(hour_match[3]||'0',10)/60 +
+                ( hour_match[4] == 'p' ? 12 : 0 )
+            ) * hours_to_milliseconds;
+        }
+
+        // the value is e.g. "00:00" or "14:30":
+        let hhmm_match = cleaned_value.match(/^([0-9]*)(:([0-9]*))?$/);
+        if ( hhmm_match ) {
+            return (
+                parseInt(hhmm_match[1],10) +
+                    parseInt(hhmm_match[3]||'0',10)/60
+            ) * hours_to_milliseconds
+        }
+
+        // try to parse this as a date string:
+        return (
+            Date.parse(cleaned_value) ||
+            Date.parse(        value)
+        );
+
+    }
+
+    /**
      * return values that exist in the second argument but not the first
      *
      * @param {Array} list1 - first list of values
