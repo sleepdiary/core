@@ -63,7 +63,7 @@ class DiarySpreadsheetTable extends DiaryBase {
 
         let member_map = {};
 
-        const status_matches = DiaryBase["status_matches"]();
+        const status_matches = DiaryBase.status_matches();
 
         const status_rule = member => ({
             "type": "text",

@@ -54,7 +54,7 @@ class DiarySpreadsheetGraph extends DiaryBase {
 
         super(file,serialiser);
 
-        const status_matches = DiaryBase["status_matches"]();
+        const status_matches = DiaryBase.status_matches();
 
         let records;
         let status_map = {};

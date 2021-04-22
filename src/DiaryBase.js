@@ -302,8 +302,6 @@ class DiaryBase {
     /**
      * Convert a string to a number with leading zeros
      *
-     * @public
-     *
      * @param {number} n - number to pad
      * @param {number=} [length=2] - length of the output string
      *
@@ -311,7 +309,7 @@ class DiaryBase {
      * DiaryBase.zero_pad( 1    ) // ->   "01"
      * DiaryBase.zero_pad( 1, 4 ) // -> "0001"
      */
-    static ["zero_pad"]( n, length ) {
+    static zero_pad( n, length ) {
         let zeros = '';
         if ( n ) {
             for ( let m=Math.pow( 10, (length||2)-1 ); m>n; m/=10 ) zeros += '0';
@@ -325,12 +323,12 @@ class DiaryBase {
      * parse an XML string to a DOM
      *
      * @param {string} string - XML string to parse
-     * @public
+     * @protected
      *
      * @example
      *   let xml = DiaryBase.parse_xml("<foo>");
      */
-    static ["parse_xml"]( string ) {
+    static parse_xml( string ) {
 
         let dom_parser;
         try {
@@ -457,31 +455,16 @@ class DiaryBase {
      * @param {Array} list2 - second list of values
      * @param {function(*)} unique_id - function that returns the unique ID for a list item
      * @return {Array}
-     * @public
+     * @protected
      *
      * @example
      *   let filtered = DiaryBase.unique(["a","b"],["b","c"],l=>l);
      *   -> ["c"]
      */
-    static ["unique"]( list1, list2, unique_id ) {
+    static unique( list1, list2, unique_id ) {
         let list1_ids = {};
         list1.forEach( l => list1_ids[unique_id(l)] = 1 );
         return list2.filter( l => !list1_ids.hasOwnProperty(unique_id(l)) )
-    }
-
-    /**
-     * Escape a string for use in an XML (or HTML) file
-     *
-     * @param {string} string - unescaped string
-     * @return {string}
-     * @public
-     *
-     * @example
-     *   let escaped = DiaryBase.escape("<foo>");
-     *   -> "&#60;foo&#62;"
-     */
-    static ["escape_xml"]( string ) {
-        return string.replace( /[&<>"']/g, c => `&#${c.charCodeAt(0)};` );
     }
 
     /**
@@ -494,7 +477,7 @@ class DiaryBase {
      * @example
      *   let date = DiaryBase.date(123456789,"Etc/GMT");
      */
-    static ["date"]( date, timezone ) {
+    static date( date, timezone ) {
         let tc;
         try {
             tc = window["tc"];
@@ -508,8 +491,9 @@ class DiaryBase {
 
     /**
      * Array of status strings and associated regular expressions
+     * @protected
      */
-    static ["status_matches"]() {
+    static status_matches() {
         return [
             /* status       must match                 style */
             [ "awake"     , "w.ke"                    , ""                    ],

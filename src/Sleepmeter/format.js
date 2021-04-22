@@ -426,7 +426,7 @@ class DiarySleepmeter extends DiaryBase {
         }
 
         function parse_timestamp(timestamp,timezone) {
-            const date = DiaryBase["date"](timestamp,timezone),
+            const date = DiaryBase.date(timestamp,timezone),
                   offset = date.offset()
             ;
             return {
@@ -434,16 +434,16 @@ class DiarySleepmeter extends DiaryBase {
                     '"' +
                         date["year"]() +
                         '-' +
-                        DiaryBase["zero_pad"]( date["month"]() ) +
+                        DiaryBase.zero_pad( date["month"]() ) +
                         '-' +
-                        DiaryBase["zero_pad"]( date["day"  ] () ) +
+                        DiaryBase.zero_pad( date["day"  ] () ) +
                         ' ' +
-                        DiaryBase["zero_pad"]( date["hour"]() ) +
+                        DiaryBase.zero_pad( date["hour"]() ) +
                         ':' +
-                        DiaryBase["zero_pad"]( date["minute"]() ) +
+                        DiaryBase.zero_pad( date["minute"]() ) +
                         ( offset < 0 ? '-' : '+' ) +
-                        DiaryBase["zero_pad"](Math.abs(Math.round(offset/60))) +
-                        DiaryBase["zero_pad"](Math.abs(           offset%60 )) +
+                        DiaryBase.zero_pad(Math.abs(Math.round(offset/60))) +
+                        DiaryBase.zero_pad(Math.abs(           offset%60 )) +
                         '"'
                 ),
                 "year"     : date["year"](),
@@ -468,16 +468,16 @@ class DiarySleepmeter extends DiaryBase {
                     '"' +
                         date["getUTCFullYear"]() +
                         '-' +
-                        DiaryBase["zero_pad"]( date["getUTCMonth"]()+1 ) +
+                        DiaryBase.zero_pad( date["getUTCMonth"]()+1 ) +
                         '-' +
-                        DiaryBase["zero_pad"]( date["getUTCDate" ] () ) +
+                        DiaryBase.zero_pad( date["getUTCDate" ] () ) +
                         ' ' +
-                        DiaryBase["zero_pad"]( date["getUTCHours"]() ) +
+                        DiaryBase.zero_pad( date["getUTCHours"]() ) +
                         ':' +
-                        DiaryBase["zero_pad"]( date["getUTCMinutes"]() ) +
+                        DiaryBase.zero_pad( date["getUTCMinutes"]() ) +
                         ( offset[0] == '-' ? '' : '+' ) +
-                        DiaryBase["zero_pad"](Math.floor(offset/60),2) +
-                        DiaryBase["zero_pad"](Math.floor(offset%60),2) +
+                        DiaryBase.zero_pad(Math.floor(offset/60),2) +
+                        DiaryBase.zero_pad(Math.floor(offset%60),2) +
                     '"'
                 ),
                 "year"     : date["getUTCFullYear"](),
@@ -939,7 +939,7 @@ class DiarySleepmeter extends DiaryBase {
                                     if ( our_tag ) {
                                         tags[2].push(our_tag["custom_tag_id"]);
                                     } else {
-                                        const id = "CUSTOM_" + DiaryBase["zero_pad"](custom_tags.length+1,4);
+                                        const id = "CUSTOM_" + DiaryBase.zero_pad(custom_tags.length+1,4);
                                         custom_tags.push({
                                             "custom_tag_id": id,
                                             "name"         : tag,
@@ -1156,7 +1156,7 @@ class DiarySleepmeter extends DiaryBase {
                             this["custom_aids"].some( aid => aid["custom_aid_id"] == id );
                             ++n
                         ) {
-                            id = "CUSTOM_" + DiaryBase["zero_pad"](n,4);
+                            id = "CUSTOM_" + DiaryBase.zero_pad(n,4);
                         }
                         our_aid = {
                             "custom_aid_id": id,
@@ -1192,7 +1192,7 @@ class DiarySleepmeter extends DiaryBase {
                             this["custom_hindrances"].some( hindrance => hindrance["custom_hindrance_id"] == id );
                             ++n
                         ) {
-                            id = "CUSTOM_" + DiaryBase["zero_pad"](n,4);
+                            id = "CUSTOM_" + DiaryBase.zero_pad(n,4);
                         }
                         our_hindrance = {
                             "custom_hindrance_id": id,
@@ -1225,7 +1225,7 @@ class DiarySleepmeter extends DiaryBase {
                             this["custom_tags"].some( tag => tag["custom_tag_id"] == id );
                             ++n
                         ) {
-                            id = "CUSTOM_" + DiaryBase["zero_pad"](n,4);
+                            id = "CUSTOM_" + DiaryBase.zero_pad(n,4);
                         }
                         our_tag = {
                             "custom_tag_id": id,
@@ -1245,7 +1245,7 @@ class DiarySleepmeter extends DiaryBase {
         // merge records:
 
         this["records"] = this["records"].concat(
-            DiaryBase["unique"](
+            DiaryBase.unique(
                 this["records"],
                 other["records"],
                 r => [ r["wake"]["string"], r["sleep"]["string"], r["bedtime"]["string"] ].join()
