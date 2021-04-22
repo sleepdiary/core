@@ -75,7 +75,7 @@ class DiarySpreadsheetTable extends DiaryBase {
                 'i'
             ),
             "export": (array_element,row,offset) => (
-                row[offset] = Spreadsheet["create_cell"](array_element[member])
+                row[offset] = Spreadsheet.create_cell(array_element[member])
             ),
             "import": (array_element,row,offset) => (
                 status_matches.some(
@@ -99,7 +99,7 @@ class DiarySpreadsheetTable extends DiaryBase {
             return {
                 "export": (array_element,row,offset) => {
                     array_element[member].forEach(
-                        comment => row[offset++] = Spreadsheet["create_cell"]( comment )
+                        comment => row[offset++] = Spreadsheet.create_cell( comment )
                     );
                     return true;
                 },
@@ -160,7 +160,7 @@ class DiarySpreadsheetTable extends DiaryBase {
                 status_rule("status"),
                 {
                     "members": ["comments"],
-                    "export": (array_element,row,offset) => row[offset] = Spreadsheet["create_cell"](
+                    "export": (array_element,row,offset) => row[offset] = Spreadsheet.create_cell(
                         (array_element["comments"]||[]).join("; ")
                     ),
                     "import": (array_element,row,offset) => {
@@ -392,9 +392,9 @@ class DiarySpreadsheetTable extends DiaryBase {
                             members.forEach( c => {
                                 const value = r[c];
                                 if ( Array.isArray(value) ) {
-                                    ret = ret.concat(value.map(Spreadsheet["escape_csv_component"]));
+                                    ret = ret.concat(value.map(Spreadsheet.escape_csv_component));
                                 } else {
-                                    ret.push(Spreadsheet["escape_csv_component"](value));
+                                    ret.push(Spreadsheet.escape_csv_component(value));
                                 }
                             });
                             return ret.join() + "\n";

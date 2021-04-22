@@ -1011,7 +1011,7 @@ class DiarySleepAsAndroid extends DiaryBase {
                                     record["times" ].map( time => ( time["hours"]*60 + time["minutes"] ) / (60*24) ),
                                     record["events"].map( event => "Event"              ),
                                 )
-                                .map( c => Spreadsheet["create_cell"](c,"#FFEEEEEE,#FFEEEEEE") )
+                                .map( c => Spreadsheet.create_cell(c,"#FFEEEEEE,#FFEEEEEE") )
                         );
 
                         // line 2:
@@ -1040,7 +1040,7 @@ class DiarySleepAsAndroid extends DiaryBase {
                                     record["times" ].map( time => time["actigraphy"] ),
                                     record["events"].map( event => `${event["label"]}-${event["timestamp"]}${event.hasOwnProperty("value")?'-'+event["value"]:''}` ),
                                 )
-                                .map( c => Spreadsheet["create_cell"](c) )
+                                .map( c => Spreadsheet.create_cell(c) )
                         );
 
                         // line 3:
@@ -1050,7 +1050,7 @@ class DiarySleepAsAndroid extends DiaryBase {
                                     Array(13).fill(''),
                                     record["times"].map( time => time["noise"] )
                                 )
-                                    .map( c => Spreadsheet["create_cell"](c) )
+                                    .map( c => Spreadsheet.create_cell(c) )
                             );
                         }
 
@@ -1075,7 +1075,7 @@ class DiarySleepAsAndroid extends DiaryBase {
                 const cells = sheet["cells"];
                 cells.splice(1);
 
-                this["alarms"].forEach( alarm => cells.push([ Spreadsheet["create_cell"](JSON.stringify(alarm)) ]) );
+                this["alarms"].forEach( alarm => cells.push([ Spreadsheet.create_cell(JSON.stringify(alarm)) ]) );
                 if ( added ) spreadsheet["sheets"].push(sheet);
 
             }
@@ -1091,7 +1091,7 @@ class DiarySleepAsAndroid extends DiaryBase {
                 const sheet = added_sheet[1];
                 const cells = sheet["cells"];
                 cells.splice(1);
-                cells.push([ Spreadsheet["create_cell"](JSON.stringify(this["prefs"])) ]);
+                cells.push([ Spreadsheet.create_cell(JSON.stringify(this["prefs"])) ]);
                 if ( added ) spreadsheet["sheets"].push(sheet);
 
             }

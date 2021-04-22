@@ -565,7 +565,7 @@ function new_sleep_diary(file,serialiser) {
     }
 
     if ( file_format == "string" ) {
-        Object.assign(file,Spreadsheet["parse_csv"](file["contents"]));
+        Object.assign(file,Spreadsheet.parse_csv(file["contents"]));
     }
 
     for ( let n=0; n!=sleep_diary_formats.length; ++n ) {

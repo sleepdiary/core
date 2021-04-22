@@ -138,7 +138,11 @@ const SpreadsheetNumberFormats = {
  */
 class Spreadsheet {
 
-    static ["create_cell"](value,style) {
+    /**
+     * @param {*=} value - contents of the cell
+     * @param {string=} style - cell formatting
+     */
+    static create_cell(value,style) {
         return { "value": value, "style": style || "" };
     }
 
@@ -175,8 +179,8 @@ class Spreadsheet {
      *           "members": [ "foo", "bar" ], // names of members that will be returned by the read
      *           "formats": [ null , "duration" ], // how numbers are formatted in this member (see above)
      *           "export": (array_element,row,offset) => { // append cells to the current row
-     *             row[offset  ] = Spreadsheet["create_cell"](array_element["foo"]);
-     *             row[offset+1] = Spreadsheet["create_cell"](array_element["foo"]+array_element["bar"]);
+     *             row[offset  ] = Spreadsheet.create_cell(array_element["foo"]);
+     *             row[offset+1] = Spreadsheet.create_cell(array_element["foo"]+array_element["bar"]);
      *             return false; // indicates this value cannot be serialised
      *           },
      *           "import": (array_element,row,offset) => {
@@ -202,19 +206,19 @@ class Spreadsheet {
 
         function exporter(cell) {
 
-            const create_cell = Spreadsheet["create_cell"];
+            const create_cell = Spreadsheet.create_cell;
             const member = cell["member"];
 
             let ret;
             switch ( cell["type"] ) {
             case "time"    : ret = (elem,row,offset) =>
-                row[offset] = create_cell( ( elem[member] === undefined ) ? undefined : new Date( elem[member] ));
+                row[offset] = Spreadsheet.create_cell( ( elem[member] === undefined ) ? undefined : new Date( elem[member] ));
                 break;
             case "duration": ret = (elem,row,offset) =>
-                row[offset] = create_cell( ( elem[member] === undefined ) ? undefined : elem[member] / (1000*60*60*24) );
+                row[offset] = Spreadsheet.create_cell( ( elem[member] === undefined ) ? undefined : elem[member] / (1000*60*60*24) );
                 break;
             default        : ret = (elem,row,offset) =>
-                row[offset] = create_cell(elem[member]);
+                row[offset] = Spreadsheet.create_cell(elem[member]);
             }
 
             if ( cell["optional"] ) {
@@ -240,7 +244,7 @@ class Spreadsheet {
 
             let ret;
             switch ( cell["type"] ) {
-            case "time"    : ret = (elem,row,offset) => !isNaN( elem[member] = Spreadsheet["parse_timestamp"](row[offset]["value"]) ); break;
+            case "time"    : ret = (elem,row,offset) => !isNaN( elem[member] = Spreadsheet.parse_timestamp(row[offset]["value"]) ); break;
             case "duration": ret = (elem,row,offset) => !isNaN( elem[member] = row[offset]["value"].getTime() + self["epoch_offset"] ); break;
             case "number"  : ret = (elem,row,offset) => !isNaN( elem[member] = parseFloat(row[offset]["value"]) ); break;
             case "boolean" : ret = (elem,row,offset) => !isNaN( elem[member] = !!row[offset]["value"] ); break;
@@ -354,7 +358,7 @@ class Spreadsheet {
                 "name": name,
                 "number_formats": number_formats.map( type => type ? SpreadsheetNumberFormats[ type ] || type : "General" ),
                 "cells": [
-                    headers.map( header => Spreadsheet["create_cell"](header,"#FFEEEEEE,#FFEEEEEE") )
+                    headers.map( header => Spreadsheet.create_cell(header,"#FFEEEEEE,#FFEEEEEE") )
                 ],
             };
             return [ true, ret ];
@@ -369,7 +373,7 @@ class Spreadsheet {
      * @param {Object=} raw_spreadsheet - raw spreadsheet object from which the value was taken
      * @return {number} Unix timestamp (if parseable)
      */
-    static ["parse_timestamp"](value,raw_spreadsheet) {
+    static parse_timestamp(value,raw_spreadsheet) {
         return DiaryBase.parse_timestamp(
             (value||{}).hasOwnProperty("value") ? value["value"] : value,
             raw_spreadsheet
@@ -385,7 +389,7 @@ class Spreadsheet {
     /**
      * Read data from a buffer (e.g. a file input)
      */
-    static ["buffer_to_spreadsheet"](buffer) {
+    static buffer_to_spreadsheet(buffer) {
 
         function encode_style(style) {
             if      ( style.hasOwnProperty("argb"   ) ) return '#' + style["argb"];
@@ -430,7 +434,7 @@ class Spreadsheet {
                                         cell["value"] = new Date( time+1 );
                                     }
                                 }
-                                row[col_number-1] = Spreadsheet["create_cell"](cell["value"],style);
+                                row[col_number-1] = Spreadsheet.create_cell(cell["value"],style);
                             })
                         });
                     });
@@ -454,7 +458,7 @@ class Spreadsheet {
      * @param {string} contents - CSV file to load from
      * @return {Object|undefined} spreadsheet information
      */
-    static ["parse_csv"](contents) {
+    static parse_csv(contents) {
 
         const value = "([^\",\\n]*|\"\([^\"]|\"\")*\")";
 
@@ -492,7 +496,7 @@ class Spreadsheet {
                         } else {
                             raw_cell["value"] = value.substr(0,value.length-1);
                         }
-                        row.push(Spreadsheet["create_cell"](raw_cell["value"]));
+                        row.push(Spreadsheet.create_cell(raw_cell["value"]));
                     });
             }
         );
@@ -504,7 +508,7 @@ class Spreadsheet {
 
     }
 
-    static ["escape_csv_component"]( value ) {
+    static escape_csv_component( value ) {
         return (
             ( value === undefined )
             ? ''
@@ -624,7 +628,7 @@ class Spreadsheet {
             const added = added_sheet[0];
             const sheet = added_sheet[1];
             let cells = sheet["cells"] = [
-                headers.map(header => Spreadsheet["create_cell"](header,"#FFEEEEEE,#FFEEEEEE"))
+                headers.map(header => Spreadsheet.create_cell(header,"#FFEEEEEE,#FFEEEEEE"))
             ];
 
             const associated = this.associated[sheet_rule["member"] || sheet_rule["sheet"]];

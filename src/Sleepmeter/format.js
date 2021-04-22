@@ -715,8 +715,8 @@ class DiarySleepmeter extends DiaryBase {
                         "members": [ "start", "start_offset" ],
                         "formats": [ "time", null ],
                         "export": (array_element,row,offset) => {
-                            row[offset  ] = Spreadsheet["create_cell"]( new Date( array_element["start"] ) );
-                            row[offset+1] = Spreadsheet["create_cell"]( array_element["bedtime"]["offset"] );
+                            row[offset  ] = Spreadsheet.create_cell( new Date( array_element["start"] ) );
+                            row[offset+1] = Spreadsheet.create_cell( array_element["bedtime"]["offset"] );
                             return true;
                         },
                         "import": (array_element,row,offset) => {
@@ -731,8 +731,8 @@ class DiarySleepmeter extends DiaryBase {
                         "members": [ "end", "end_offset" ],
                         "formats": [ "time", null ],
                         "export": (array_element,row,offset) => {
-                            row[offset  ] = Spreadsheet["create_cell"]( new Date( array_element["end"] ) );
-                            row[offset+1] = Spreadsheet["create_cell"]( array_element["wake"]["offset"] );
+                            row[offset  ] = Spreadsheet.create_cell( new Date( array_element["end"] ) );
+                            row[offset+1] = Spreadsheet.create_cell( array_element["wake"]["offset"] );
                             return true;
                         },
                         "import": (array_element,row,offset) => {
@@ -751,8 +751,8 @@ class DiarySleepmeter extends DiaryBase {
                         "members": [ "sleep", "sleep_offset" ],
                         "formats": [ "time", null ],
                         "export": (array_element,row,offset) => {
-                            row[offset  ] = Spreadsheet["create_cell"]( new Date( array_element["sleep"]["string"].substr( 1, array_element["sleep"]["string"].length-2 ) ) );
-                            row[offset+1] = Spreadsheet["create_cell"]( array_element["sleep"]["offset"] );
+                            row[offset  ] = Spreadsheet.create_cell( new Date( array_element["sleep"]["string"].substr( 1, array_element["sleep"]["string"].length-2 ) ) );
+                            row[offset+1] = Spreadsheet.create_cell( array_element["sleep"]["offset"] );
                             return true;
                         },
                         "import": (array_element,row,offset) =>
@@ -765,7 +765,7 @@ class DiarySleepmeter extends DiaryBase {
                         "members": [ "holes" ],
                         "regexp" : /^([0-9]*-[0-9]*)*$/,
                         "export": (array_element,row,offset) => {
-                            row[offset] = Spreadsheet["create_cell"]( array_element["holes"].map( hole => hole["wake"]+'-'+hole["sleep"] ).join('|') );
+                            row[offset] = Spreadsheet.create_cell( array_element["holes"].map( hole => hole["wake"]+'-'+hole["sleep"] ).join('|') );
                             return true;
                         },
                         "import": (array_element,row,offset) => {
@@ -780,7 +780,7 @@ class DiarySleepmeter extends DiaryBase {
                     {
                         "members": [ "dreams" ],
                         "export": (array_element,row,offset) => {
-                            row[offset] = Spreadsheet["create_cell"](
+                            row[offset] = Spreadsheet.create_cell(
                                 array_element["dreams"]
                                     .map(
                                         dream => [ dream["type"], dream["mood"] ].concat(dream["themes"]).join(':')
@@ -793,7 +793,7 @@ class DiarySleepmeter extends DiaryBase {
                     {
                         "members": [ "aids" ],
                         "export": (array_element,row,offset) => {
-                            row[offset] = Spreadsheet["create_cell"]( array_element["aids"].join("|") )
+                            row[offset] = Spreadsheet.create_cell( array_element["aids"].join("|") )
                             return true;
                         },
                         "import": (array_element,row,offset) => {
@@ -804,7 +804,7 @@ class DiarySleepmeter extends DiaryBase {
                     {
                         "members": [ "hindrances" ],
                         "export": (array_element,row,offset) => {
-                            row[offset] = Spreadsheet["create_cell"]( array_element["hindrances"].join("|") );
+                            row[offset] = Spreadsheet.create_cell( array_element["hindrances"].join("|") );
                             return true;
                         },
                         "import": (array_element,row,offset) => {
@@ -815,7 +815,7 @@ class DiarySleepmeter extends DiaryBase {
                     {
                         "members": [ "tags" ],
                         "export": (array_element,row,offset) => {
-                            row[offset] = Spreadsheet["create_cell"](array_element["tags"].join("|"))
+                            row[offset] = Spreadsheet.create_cell(array_element["tags"].join("|"))
                             return true;
                         },
                         "import": (array_element,row,offset) => {

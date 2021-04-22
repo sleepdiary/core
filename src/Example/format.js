@@ -221,8 +221,8 @@ class DiaryExample extends DiaryBase {
                             "members": ["member1", "member2"],
                             "export": (array_element,row,offset) => {
                                 // put data into the spreadsheet:
-                                row[offset  ] = Spreadsheet["create_cell"]( new Date( array_element["member1"] ) );
-                                row[offset+1] = Spreadsheet["create_cell"](           array_element["member2"]   );
+                                row[offset  ] = Spreadsheet.create_cell( new Date( array_element["member1"] ) );
+                                row[offset+1] = Spreadsheet.create_cell(           array_element["member2"]   );
                                 // indicates the export was successful:
                                 return true;
                             },

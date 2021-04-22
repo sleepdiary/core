@@ -320,7 +320,7 @@ class DiaryStandard extends DiaryBase {
                     },
                     {
                         "members": ["tags"],
-                        "export": (array_element,row,offset) => row[offset] = Spreadsheet["create_cell"]( (array_element["tags"]||[]).join("; ") ),
+                        "export": (array_element,row,offset) => row[offset] = Spreadsheet.create_cell( (array_element["tags"]||[]).join("; ") ),
                         "import": (array_element,row,offset) => {
                             if ( row[offset]["value"] ) {
                                 const tags = row[offset]["value"].split(/ *; */);
@@ -331,7 +331,7 @@ class DiaryStandard extends DiaryBase {
                     },
                     {
                         "members": ["comments"],
-                        "export": (array_element,row,offset) => row[offset] = Spreadsheet["create_cell"](
+                        "export": (array_element,row,offset) => row[offset] = Spreadsheet.create_cell(
                             (array_element["comments"]||[])
                                 .map( c => c["time"] ? `TIME=${c["time"]} ${c["text"]}` : c )
                                 .join("; ")

@@ -85,7 +85,7 @@ class DiarySpreadsheetGraph extends DiaryBase {
                         },
                         {
                             "members": [ "comments" ],
-                            "export": (array_element,row,offset) => row[offset] = Spreadsheet["create_cell"]( array_element["comments"].join("; ") ),
+                            "export": (array_element,row,offset) => row[offset] = Spreadsheet.create_cell( array_element["comments"].join("; ") ),
                             "import": (array_element,row,offset) => array_element["comments"] = row[offset]["value"].split(/\s*;\s*/),
                         },
                     ],
@@ -109,10 +109,10 @@ class DiarySpreadsheetGraph extends DiaryBase {
             };
 
             const first_row = cells[0].map(
-                value => Spreadsheet["parse_timestamp"](value,file["spreadsheet"])
+                value => Spreadsheet.parse_timestamp(value,file["spreadsheet"])
             );
             const first_col = cells.map(
-                value => Spreadsheet["parse_timestamp"](value[0],file["spreadsheet"])
+                value => Spreadsheet.parse_timestamp(value[0],file["spreadsheet"])
             );
 
             let first_styled_col = Infinity,
@@ -509,19 +509,19 @@ class DiarySpreadsheetGraph extends DiaryBase {
             min_day -= min_day % twenty_four_hours;
             max_day -= max_day % twenty_four_hours;
 
-            const cells = [ [Spreadsheet["create_cell"]()] ];
+            const cells = [ [Spreadsheet.create_cell()] ];
             let number_formats = [ "YYYY-MM-DD" ];
             let widths = [ 11.5 ];
 
             // Add headers
             for ( let n=0; n!=twenty_four_hours; n += cell_duration ) {
-                cells[0].push( Spreadsheet["create_cell"](new Date(n),"#FFEEEEEE,#FFEEEEEE") )
+                cells[0].push( Spreadsheet.create_cell(new Date(n),"#FFEEEEEE,#FFEEEEEE") )
                 number_formats.push("H:MM");
                 widths.push(5.9);
 
             };
             for ( let n=min_day; n<=max_day; n += twenty_four_hours ) {
-                cells.push( [Spreadsheet["create_cell"](new Date(n),"#FFEEEEEE,#FFEEEEEE")] )
+                cells.push( [Spreadsheet.create_cell(new Date(n),"#FFEEEEEE,#FFEEEEEE")] )
             };
 
             // Add body:
@@ -542,7 +542,7 @@ class DiarySpreadsheetGraph extends DiaryBase {
                     cells
                         [ ( date - min_day ) / twenty_four_hours + 1 ]
                         [ Math.floor( time / cell_duration ) + 1 ]
-                        = Spreadsheet["create_cell"](
+                        = Spreadsheet.create_cell(
                             comments.splice( 0, comments_per_cell ).join("; "),
                             style
                         );
@@ -565,8 +565,8 @@ class DiarySpreadsheetGraph extends DiaryBase {
                 .sort( (a,b) => b[0] - a[0] )
                 .forEach( (item,n) => {
                     let row = cells[ n + 1 ] = cells[ n + 1 ] || [];
-                    row[ cells[0].length + 2 ] = Spreadsheet["create_cell"](undefined,item[1]);
-                    row[ cells[0].length + 3 ] = Spreadsheet["create_cell"](item[2]);
+                    row[ cells[0].length + 2 ] = Spreadsheet.create_cell(undefined,item[1]);
+                    row[ cells[0].length + 3 ] = Spreadsheet.create_cell(item[2]);
                 });
 
             this["spreadsheet"]["sheets"][0] = {
