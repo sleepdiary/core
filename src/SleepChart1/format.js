@@ -212,17 +212,6 @@ class DiarySleepChart1 extends DiaryBase {
 
         other = other["to"](this["file_format"]());
 
-        function create_id(record) {
-            return (
-                [ "start", "end" ]
-                .map( member => record[member] )
-                .join()
-            );
-        }
-
-        let existing_ids = {};
-        this["records"].forEach( r => existing_ids[create_id(r)] = 1 );
-
         let prev_end = 1.0;
         this["records"] = this["records"]
             .concat( other["records"] )

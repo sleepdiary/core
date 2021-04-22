@@ -151,11 +151,12 @@ class DiaryPleesTracker extends DiaryBase {
 
         other = other["to"](this["file_format"]());
 
-        let existing_ids = {};
-        this["records"].forEach( record => existing_ids[record["start"] + ' ' + record["stop"]] = 1 );
-
         this["records"] = this["records"].concat(
-            other["records"].filter( record => !existing_ids.hasOwnProperty(record["start"] + ' ' + record["stop"]) )
+            DiaryBase.unique(
+                this["records"],
+                other["records"],
+                ["start","stop"]
+            )
         );
 
         this["records"].forEach( (record,n) => record["sid"]=n+1 );

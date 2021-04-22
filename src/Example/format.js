@@ -410,13 +410,14 @@ class DiaryExample extends DiaryBase {
             );
         }
 
-        let existing_ids = {};
-        this["records"].forEach( r => existing_ids[create_id(r)] = 1 );
-
         this["records"] = this["records"].concat(
-            other["records"].filter( r => !existing_ids.hasOwnProperty(create_id(r)) )
+            DiaryBase.unique(
+                this["records"],
+                other["records"],
+                ["Id"] // or record => record["something"].map( ... )
+            )
         )
-            //.sort( (a,b) => a["start"] - b["start"] ) // if your format expects records to be sorted
+        //.sort( (a,b) => a["start"] - b["start"] ) // if your format expects records to be sorted
         ;
 
         return this;

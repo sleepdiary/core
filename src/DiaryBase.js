@@ -453,7 +453,7 @@ class DiaryBase {
      *
      * @param {Array} list1 - first list of values
      * @param {Array} list2 - second list of values
-     * @param {function(*)} unique_id - function that returns the unique ID for a list item
+     * @param {Array|function(*)} unique_id - function that returns the unique ID for a list item
      * @return {Array}
      * @protected
      *
@@ -462,9 +462,13 @@ class DiaryBase {
      *   -> ["c"]
      */
     static unique( list1, list2, unique_id ) {
+        if ( typeof(unique_id) != "function" ) {
+            const keys = unique_id;
+            unique_id = r => keys.map( k => r[k] ).join("\uE000")
+        }
         let list1_ids = {};
-        list1.forEach( l => list1_ids[unique_id(l)] = 1 );
-        return list2.filter( l => !list1_ids.hasOwnProperty(unique_id(l)) )
+        list1.forEach( l => list1_ids[/** @type (function(*)) */(unique_id)(l)] = 1 );
+        return list2.filter( l => !list1_ids.hasOwnProperty(/** @type (function(*)) */(unique_id)(l)) )
     }
 
     /**

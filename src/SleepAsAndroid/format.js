@@ -1114,7 +1114,7 @@ class DiarySleepAsAndroid extends DiaryBase {
             DiaryBase.unique(
                 this["records"],
                 other["records"],
-                record => record["Id"]
+                ["Id"]
             )
         );
 
