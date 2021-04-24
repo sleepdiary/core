@@ -4,7 +4,7 @@ register_roundtrip_modifier("SleepChart1",function(our_diary,roundtripped_diary,
     case "SpreadsheetGraph":
     case "SpreadsheetTable":
         [our_diary,roundtripped_diary].forEach(function(diary) {
-            diary.records.forEach( function(record) {
+            diary["records"].forEach( function(record) {
                 ["tags"].forEach(function(key) {
                     delete record[key];
                 });
@@ -43,7 +43,7 @@ describe("SleepChart1 format", () => {
         name: "Empty diary",
         input: empty_diary,
         expected: {
-            records: [],
+            "records": [],
         }
     });
 
@@ -52,10 +52,10 @@ describe("SleepChart1 format", () => {
         name: "Simple diary 1",
         input: wrap_input(create_diary([[1,2,true,true]])),
         expected: {
-            records: [
+            "records": [
                 {
-                    start: 946684800000,
-                    end  : 946771200000,
+                    "start": 946684800000,
+                    "end"  : 946771200000,
                     "delayed retirement": false,
                     "forced awakening": false,
                 },
@@ -68,10 +68,10 @@ describe("SleepChart1 format", () => {
         name: "Simple diary 2",
         input: wrap_input(create_diary([[2,3,true,false]])),
         expected: {
-            records: [
+            "records": [
                 {
-                    start: 946771200000,
-                    end  : 946857600000,
+                    "start": 946771200000,
+                    "end"  : 946857600000,
                     "delayed retirement": true,
                     "forced awakening": false,
                 },
@@ -84,10 +84,10 @@ describe("SleepChart1 format", () => {
         name: "Simple diary 3",
         input: wrap_input(create_diary([[100,200,false,true]])),
         expected: {
-            records: [
+            "records": [
                 {
-                    start: 955238400000,
-                    end  : 963878400000,
+                    "start": 955238400000,
+                    "end"  : 963878400000,
                     "delayed retirement": false,
                     "forced awakening": true,
                 },
@@ -104,22 +104,22 @@ describe("SleepChart1 format", () => {
             [100,200,false,true],
         ])),
         expected: {
-            records: [
+            "records": [
                 {
-                    start: 946684800000,
-                    end  : 946771200000,
+                    "start": 946684800000,
+                    "end"  : 946771200000,
                     "delayed retirement": false,
                     "forced awakening": false,
                 },
                 {
-                    start: 946771200000,
-                    end  : 946857600000,
+                    "start": 946771200000,
+                    "end"  : 946857600000,
                     "delayed retirement": true,
                     "forced awakening": false,
                 },
                 {
-                    start: 955238400000,
-                    end  : 963878400000,
+                    "start": 955238400000,
+                    "end"  : 963878400000,
                     "delayed retirement": false,
                     "forced awakening": true,
                 },
@@ -152,35 +152,35 @@ describe("SleepChart1 format", () => {
         ])),
         expected: [
             {
-                status: 'asleep',
-                start: 946684800000,
-                end: 946771200000,
-                duration: 86400000,
-                start_of_new_day: true,
-                day_number: 2,
-                missing_record_after: true,
-                is_primary_sleep: true
+                "status": 'asleep',
+                "start": 946684800000,
+                "end": 946771200000,
+                "duration": 86400000,
+                "start_of_new_day": true,
+                "day_number": 2,
+                "missing_record_after": true,
+                "is_primary_sleep": true
             },
             {
-                status: 'asleep',
-                start: 946771200000,
-                end: 946857600000,
-                tags: [ 'delayed retirement' ],
-                duration: 86400000,
-                start_of_new_day: true,
-                day_number: 3,
-                missing_record_after: true,
-                is_primary_sleep: true
+                "status": 'asleep',
+                "start": 946771200000,
+                "end": 946857600000,
+                "tags": [ 'delayed retirement' ],
+                "duration": 86400000,
+                "start_of_new_day": true,
+                "day_number": 3,
+                "missing_record_after": true,
+                "is_primary_sleep": true
             },
             {
-                status: 'asleep',
-                start: 955238400000,
-                end: 963878400000,
-                tags: [ 'forced awakening' ],
-                duration: 8640000000,
-                start_of_new_day: true,
-                day_number: 5,
-                is_primary_sleep: true
+                "status": 'asleep',
+                "start": 955238400000,
+                "end": 963878400000,
+                "tags": [ 'forced awakening' ],
+                "duration": 8640000000,
+                "start_of_new_day": true,
+                "day_number": 5,
+                "is_primary_sleep": true
             }
         ],
     });
@@ -190,35 +190,35 @@ describe("SleepChart1 format", () => {
         format: "SleepChart1",
         input: [
             {
-                status: 'asleep',
-                start: 946684800000,
-                end: 946771200000,
-                duration: 86400000,
-                start_of_new_day: true,
-                day_number: 2,
-                missing_record_after: true,
-                is_primary_sleep: true
+                "status": 'asleep',
+                "start": 946684800000,
+                "end": 946771200000,
+                "duration": 86400000,
+                "start_of_new_day": true,
+                "day_number": 2,
+                "missing_record_after": true,
+                "is_primary_sleep": true
             },
             {
-                status: 'asleep',
-                start: 946771200000,
-                end: 946857600000,
-                tags: [ 'delayed retirement' ],
-                duration: 86400000,
-                start_of_new_day: true,
-                day_number: 3,
-                missing_record_after: true,
-                is_primary_sleep: true
+                "status": 'asleep',
+                "start": 946771200000,
+                "end": 946857600000,
+                "tags": [ 'delayed retirement' ],
+                "duration": 86400000,
+                "start_of_new_day": true,
+                "day_number": 3,
+                "missing_record_after": true,
+                "is_primary_sleep": true
             },
             {
-                status: 'asleep',
-                start: 955238400000,
-                end: 963878400000,
-                tags: [ 'forced awakening' ],
-                duration: 8640000000,
-                start_of_new_day: true,
-                day_number: 5,
-                is_primary_sleep: true
+                "status": 'asleep',
+                "start": 955238400000,
+                "end": 963878400000,
+                "tags": [ 'forced awakening' ],
+                "duration": 8640000000,
+                "start_of_new_day": true,
+                "day_number": 5,
+                "is_primary_sleep": true
             }
         ],
         expected: wrap_input(create_diary([
@@ -233,10 +233,10 @@ describe("SleepChart1 format", () => {
         left    : wrap_input(create_diary([[1,2,true,true]])),
         right   : wrap_input(create_diary([[1,2,true,true]])),
         expected: {
-            records: [
+            "records": [
                 {
-                    start: 946684800000,
-                    end  : 946771200000,
+                    "start": 946684800000,
+                    "end"  : 946771200000,
                     "delayed retirement": false,
                     "forced awakening": false,
                 },
@@ -249,16 +249,16 @@ describe("SleepChart1 format", () => {
         left : wrap_input(create_diary([[1,2,true,true]])),
         right: wrap_input(create_diary([[100,200,false,true]])),
         expected: {
-            records: [
+            "records": [
                 {
-                    start: 946684800000,
-                    end  : 946771200000,
+                    "start": 946684800000,
+                    "end"  : 946771200000,
                     "delayed retirement": false,
                     "forced awakening": false,
                 },
                 {
-                    start: 955238400000,
-                    end  : 963878400000,
+                    "start": 955238400000,
+                    "end"  : 963878400000,
                     "delayed retirement": false,
                     "forced awakening": true,
                 },
@@ -271,16 +271,16 @@ describe("SleepChart1 format", () => {
         left : wrap_input(create_diary([[100,200,false,true]])),
         right: wrap_input(create_diary([[1,2,true,true]])),
         expected: {
-            records: [
+            "records": [
                 {
-                    start: 946684800000,
-                    end  : 946771200000,
+                    "start": 946684800000,
+                    "end"  : 946771200000,
                     "delayed retirement": false,
                     "forced awakening": false,
                 },
                 {
-                    start: 955238400000,
-                    end  : 963878400000,
+                    "start": 955238400000,
+                    "end"  : 963878400000,
                     "delayed retirement": false,
                     "forced awakening": true,
                 },
@@ -293,10 +293,10 @@ describe("SleepChart1 format", () => {
         left : wrap_input(create_diary([[1,3,true,true]])),
         right: wrap_input(create_diary([[2,4,true,true]])),
         expected: {
-            records: [
+            "records": [
                 {
-                    start: 946684800000,
-                    end  : 946857600000,
+                    "start": 946684800000,
+                    "end"  : 946857600000,
                     "delayed retirement": false,
                     "forced awakening": false,
                 },

@@ -23,28 +23,32 @@ CLOSURE_OPTIONS= \
 		--compilation_level ADVANCED_OPTIMIZATIONS \
 		--language_in ECMASCRIPT_NEXT_IN \
 		--language_out ECMASCRIPT5 \
-		--js_output_file $@ \
 
-sleep-diary-formats.js: src/closure-externs.js src/closure.js $(DIARY_FILES)
-	@echo "(closure)" $^ -\> $@
+SLEEP_DIARY_FORMATS_EXTERNS=src/closure-externs.js
+SLEEP_DIARY_FORMATS_INPUT=src/closure.js $(DIARY_FILES)
+TEST_INPUT=src/test-harness.js src/test-spreadsheet.js $(patsubst %,src/%/test.js,$(FORMATS))
+
+sleep-diary-formats.js: $(SLEEP_DIARY_FORMATS_EXTERNS) $(SLEEP_DIARY_FORMATS_INPUT) $(TEST_INPUT)
 	google-closure-compiler \
 		$(CLOSURE_OPTIONS) \
-		--create_source_map $@.map \
-		--externs $^
-	echo "//# sourceMappingURL="$@.map >> $@
-
-test.js: src/test-harness.js src/test-spreadsheet.js $(patsubst %,src/%/test.js,$(FORMATS))
-	cat $^ > $@
+		--create_source_map "%outname%.map" \
+		--externs $(SLEEP_DIARY_FORMATS_EXTERNS) \
+		$(SLEEP_DIARY_FORMATS_INPUT) \
+		--chunk sleep-diary-formats:$(words $(SLEEP_DIARY_FORMATS_INPUT)) \
+		$(TEST_INPUT) \
+		--chunk test:$(words $(TEST_INPUT)):sleep-diary-formats
+	echo "//# sourceMappingURL="sleep-diary-formats.js.map >> sleep-diary-formats.js
+	echo "//# sourceMappingURL="test.js.map >> test.js
 
 doc/index.html: doc/README.md $(DIARY_FILES) doc/tutorials/*.md
 	/tmp/libfaketime/src/faketime "1970-01-01 00:00:00 +0000" jsdoc -d doc --readme $< $(DIARY_FILES) -u doc/tutorials
 	sed -i -e "s/Thu Jan 01 1970 ..:..:.. GMT+0000 (Coordinated Universal Time)/$(shell node -e "console.log(new Date('$(shell git log -1 --format="%ci" doc/README.md $(DIARY_FILES) doc/tutorials )').toString())" )/g" doc/*.html
 
-test: spec/support/jasmine.json test.js sleep-diary-formats.js
+test: spec/support/jasmine.json sleep-diary-formats.js
 	jasmine $<
 	PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-no-sandbox node bin/puppeteer-test.js
 
 clean:
-	rm -rf README.html doc/*.html sleep-diary-formats.js* test.js doc/*/README.html doc/fonts doc/scripts doc/styles
+	rm -rf README.html doc/*.html sleep-diary-formats.js* test.js* doc/*/README.html doc/fonts doc/scripts doc/styles
 
-gh-pages: sleep-diary-formats.js test.js doc/index.html
+gh-pages: sleep-diary-formats.js doc/index.html

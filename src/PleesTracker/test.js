@@ -35,7 +35,7 @@ describe("PleesTracker format", () => {
         name: "empty diary",
         input: empty_diary,
         expected: {
-            records: [],
+            "records": [],
         }
     });
 
@@ -44,7 +44,7 @@ describe("PleesTracker format", () => {
         name: "simple diary",
         input: normal_diary,
         expected: {
-            records: normal_records,
+            "records": normal_records,
         }
     });
 
@@ -61,31 +61,31 @@ describe("PleesTracker format", () => {
         input: normal_diary,
         expected: [
             {
-                status: 'asleep',
-                start: 1608323029380,
-                end: 1608323057541,
-                duration: 28161,
-                start_of_new_day: true,
-                day_number: 2,
-                missing_record_after: true,
-                is_primary_sleep: true,
+                "status": 'asleep',
+                "start": 1608323029380,
+                "end": 1608323057541,
+                "duration": 28161,
+                "start_of_new_day": true,
+                "day_number": 2,
+                "missing_record_after": true,
+                "is_primary_sleep": true,
             },
             {
-                status: 'asleep',
-                start: 1608323062156,
-                end: 1608323063678,
-                duration: 1522,
-                start_of_new_day: false,
-                day_number: 2,
-                missing_record_after: true
+                "status": 'asleep',
+                "start": 1608323062156,
+                "end": 1608323063678,
+                "duration": 1522,
+                "start_of_new_day": false,
+                "day_number": 2,
+                "missing_record_after": true
             },
             {
-                status: 'asleep',
-                start: 1608323066387,
-                end: 1608323067794,
-                duration: 1407,
-                start_of_new_day: false,
-                day_number: 2,
+                "status": 'asleep',
+                "start": 1608323066387,
+                "end": 1608323067794,
+                "duration": 1407,
+                "start_of_new_day": false,
+                "day_number": 2,
             }
         ],
     });
@@ -96,31 +96,31 @@ describe("PleesTracker format", () => {
         input: [
 
             {
-                status: 'asleep',
-                start: 1608323029380,
-                end: 1608323057541,
-                duration: 28161,
-                start_of_new_day: true,
-                day_number: 2,
-                missing_record_after: true,
-                is_primary_sleep: true,
+                "status": 'asleep',
+                "start": 1608323029380,
+                "end": 1608323057541,
+                "duration": 28161,
+                "start_of_new_day": true,
+                "day_number": 2,
+                "missing_record_after": true,
+                "is_primary_sleep": true,
             },
             {
-                status: 'asleep',
-                start: 1608323062156,
-                end: 1608323063678,
-                duration: 1522,
-                start_of_new_day: false,
-                day_number: 2,
-                missing_record_after: true
+                "status": 'asleep',
+                "start": 1608323062156,
+                "end": 1608323063678,
+                "duration": 1522,
+                "start_of_new_day": false,
+                "day_number": 2,
+                "missing_record_after": true
             },
             {
-                status: 'asleep',
-                start: 1608323066387,
-                end: 1608323067794,
-                duration: 1407,
-                start_of_new_day: false,
-                day_number: 2,
+                "status": 'asleep',
+                "start": 1608323066387,
+                "end": 1608323067794,
+                "duration": 1407,
+                "start_of_new_day": false,
+                "day_number": 2,
             }
         ],
         expected: (
@@ -136,7 +136,7 @@ describe("PleesTracker format", () => {
         left: empty_diary,
         right: empty_diary,
         expected: {
-            records: [],
+            "records": [],
         }
     });
 
@@ -145,7 +145,7 @@ describe("PleesTracker format", () => {
         left: empty_diary,
         right: normal_diary,
         expected: {
-            records: normal_records,
+            "records": normal_records,
         },
     });
 
@@ -154,7 +154,7 @@ describe("PleesTracker format", () => {
         left: normal_diary,
         right: empty_diary,
         expected: {
-            records: normal_records,
+            "records": normal_records,
         },
     });
 
@@ -163,7 +163,7 @@ describe("PleesTracker format", () => {
         left: normal_diary,
         right: normal_diary,
         expected: {
-            records: normal_records,
+            "records": normal_records,
         },
     });
 
@@ -177,24 +177,24 @@ describe("PleesTracker format", () => {
             "3,608323066387,608323067794,3\n"
         ),
         expected: {
-            records: normal_records.concat([
+            "records": normal_records.concat([
                 {
-                    start: 608323029380,
-                    stop: 608323057541,
-                    sid: 4,
-                    rating: 0
+                    "start": 608323029380,
+                    "stop": 608323057541,
+                    "sid": 4,
+                    "rating": 0
                 },
                 {
-                    start: 608323062156,
-                    stop: 608323063678,
-                    sid: 5,
-                    rating: 5
+                    "start": 608323062156,
+                    "stop": 608323063678,
+                    "sid": 5,
+                    "rating": 5
                 },
                 {
-                    start: 608323066387,
-                    stop: 608323067794,
-                    sid: 6,
-                    rating: 3
+                    "start": 608323066387,
+                    "stop": 608323067794,
+                    "sid": 6,
+                    "rating": 3
                 },
             ]),
         },

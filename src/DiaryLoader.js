@@ -146,7 +146,7 @@ class DiaryLoader {
 
                 // extract the file contents:
                 file_reader.onload =
-                    () => Spreadsheet["buffer_to_spreadsheet"](file_reader.result).then(
+                    () => Spreadsheet.buffer_to_spreadsheet(file_reader.result).then(
 
                         spreadsheet => this["load"]( spreadsheet, source ),
 

@@ -18,7 +18,7 @@ describe("Spreadsheet", () => {
     ].forEach(
         function(test) {
             it(`parses "${test[0]}" correctly`, function() {
-                expect(Spreadsheet.parse_timestamp(test[0])).toEqual(test[1]);
+                expect(sleep_diary_exports["_Spreadsheet_parse_timestamp"](test[0]))["toEqual"](test[1]);
             });
         }
     );
@@ -27,16 +27,16 @@ describe("Spreadsheet", () => {
 
         let associated = {};
 
-        var spreadsheet = new Spreadsheet(associated,[
+        var spreadsheet = new sleep_diary_exports["Spreadsheet"](associated,[
             {
                 sheet: "records",
                 cells: [
-                    { member: "test_time", type: "time", },
-                    { member: "test_duration", type: "duration", },
-                    { member: "test_number", type: "number", },
-                    { member: "test_text", type: "text", },
+                    { "member": "test_time", "type": "time", },
+                    { "member": "test_duration", "type": "duration", },
+                    { "member": "test_number", "type": "number", },
+                    { "member": "test_text", "type": "text", },
                     {
-                        members: [ "test_low_level_1", "test_low_level_2" ],
+                        "members": [ "test_low_level_1", "test_low_level_2" ],
                         "export": (array_element,row,offset) => {
                             row[offset+0] = { "value": array_element["test_low_level_1"] * 2, "style": "" };
                             row[offset+1] = { "value": 'a' + array_element["test_low_level_2"], "style": "" };
@@ -94,9 +94,9 @@ describe("Spreadsheet", () => {
                 }
             ]
         };
-        expect( spreadsheet.load(input) ).toBeTrue();
-        expect( spreadsheet.synchronise() ).toBeTrue();
-        expect( associated ).toEqual(expected);
+        expect( spreadsheet["load"](input) )["toBeTrue"]();
+        expect( spreadsheet["synchronise"]() )["toBeTrue"]();
+        expect( associated )["toEqual"](expected);
 
     });
 

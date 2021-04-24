@@ -24,16 +24,19 @@
 
 "use strict";
 
+const _sleep_diary_exports = {
+    "new_sleep_diary"    : new_sleep_diary,
+    "sleep_diary_formats": sleep_diary_formats,
+    "DiaryLoader"        : DiaryLoader,
+    "Spreadsheet"        : Spreadsheet,
+    // Debugging use only:
+    "_Spreadsheet_parse_csv": Spreadsheet.parse_csv,
+    "_Spreadsheet_parse_timestamp": Spreadsheet.parse_timestamp,
+    "_Spreadsheet_buffer_to_spreadsheet": Spreadsheet.buffer_to_spreadsheet,
+};
+
 if ( typeof module !== "undefined" && module.exports ) {
-    module.exports = {
-        "new_sleep_diary"    : new_sleep_diary,
-        "sleep_diary_formats": sleep_diary_formats,
-        "DiaryLoader"        : DiaryLoader,
-        "Spreadsheet"        : Spreadsheet,
-    };
+    module.exports = _sleep_diary_exports;
 } else {
-    window["new_sleep_diary"    ] = new_sleep_diary;
-    window["sleep_diary_formats"] = sleep_diary_formats;
-    window["DiaryLoader"        ] = DiaryLoader;
-    window["Spreadsheet"        ] = Spreadsheet;
+    Object.keys(_sleep_diary_exports).forEach( e => window[e] = _sleep_diary_exports[e] );
 }
