@@ -460,15 +460,15 @@ class Spreadsheet {
      */
     static parse_csv(contents) {
 
-        const value = "([^\",\\n]*|\"\([^\"]|\"\")*\")";
+        const value = "([^\",\\r\\n]*|\"\([^\"]|\"\")*\")";
 
         // Excel requires a byte order mark, which we ignore:
         if ( contents[0] == "\u{FEFF}" ) contents = contents.substr(1);
-        // reduce the complexity of the regexp by guaranteeing a trailing newline:
-        if ( contents.search(/\n$/) == -1 ) contents += "\n";
+        // reduce the complexity of the regexps by guaranteeing a trailing newline:
+        if ( contents.search(/[\r\n]$/) == -1 ) contents += "\n";
 
         // does this look like a valid CSV file?
-        if ( contents.search(new RegExp(`^(${value}(,${value})*\n)*$`) ) ) return;
+        if ( contents.search(new RegExp(`^(${value}(,${value})*(?:\r\n|\r|\n))*$`) ) ) return;
 
         let spreadsheet;
         try {
@@ -477,20 +477,35 @@ class Spreadsheet {
             spreadsheet = new ( require("exceljs")["Workbook"] )();
         }
 
-        let raw_sheet = spreadsheet["addWorksheet"]("Records");
-        let sheet = [];
+        let raw_records  = spreadsheet["addWorksheet"]("Records"),
+            raw_settings = spreadsheet["addWorksheet"]("Settings"),
+            records = [],
+            row_number=0,
+            settings = [ [ Spreadsheet.create_cell("Setting"), Spreadsheet.create_cell("Value") ] ]
+        ;
+        // CSV can start with key=value lines...
+        while ( !contents.search(/^([A-Za-z_][A-Za-z0-9_]*)=[^,]*\n/) ) {
+            contents = contents.replace(
+                /([^=]*?)=(.*)\n/,
+                (_,key,value) => {
+                    settings.push([key,value].map( v => Spreadsheet.create_cell(v) ));
+                    raw_settings["addRow"]([ key, value ]);
+                    return '';
+                }
+            );
+        }
 
-        let row_number=0;
         contents.replace(
-            new RegExp(`${value}(,${value})*\n`, 'g'),
+            new RegExp(`${value}(,${value})*(?:\r\n|\r|\n)`, 'g'),
             line_str => {
-                let raw_row = raw_sheet["getRow"](row_number+1);
-                let row = [];
-                sheet.push(row);
-                let n=0;
+                let raw_row = raw_records["getRow"](++row_number),
+                    row = [],
+                    n=0
+                ;
+                records.push(row);
                 line_str
-                    .replace( new RegExp(value+'[,\n]','g'), value => {
-                        let raw_cell = raw_row["getCell"](n+1);
+                    .replace( new RegExp(value+'[,\r\n]','g'), value => {
+                        let raw_cell = raw_row["getCell"](++n);
                         if ( value[0] == '"' ) {
                             raw_cell["value"] = value.substr(1,value.length-3).replace( /""/g, '"' );
                         } else {
@@ -503,7 +518,10 @@ class Spreadsheet {
 
         return {
             "spreadsheet": spreadsheet,
-            "sheets": [{ "name": "Records", "cells": sheet }],
+            "sheets": [
+                { "name": "Records" , "cells": records  },
+                { "name": "Settings", "cells": settings }
+            ],
         }
 
     }
