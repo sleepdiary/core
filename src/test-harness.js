@@ -73,6 +73,7 @@ function test_constructor(test,serialiser) {
 // disable all but the test(s) you care about:
 function test_is_runnable(test) {
     //return test.name == 'my test';
+    //return test.debug;
     return true;
 }
 
@@ -135,7 +136,7 @@ function test_parse(test) {
                                             var observed = Object.assign({},roundtripped["to"]("Standard"));
                                             var expected = Object.assign({},diary       ["to"]("Standard"));
                                             if ( debug ) console.log({
-                                                "0. test": test,
+                                                "0. test and format": [ test, format ],
                                                 "1. original": diary,
                                                 "2. original to Standard": diary["to"]("Standard"),
                                                 "3. original to formatted": formatted,

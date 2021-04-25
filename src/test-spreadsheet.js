@@ -1,5 +1,7 @@
 describe("Spreadsheet", () => {
 
+    if ( !test_is_runnable({ name: "Spreadsheet" }) ) return;
+
     [
         [        null, NaN ],
         [          0 ,   0 ],
