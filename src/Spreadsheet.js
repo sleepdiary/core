@@ -553,11 +553,10 @@ class Spreadsheet {
 
                 // ensure that all headers are present:
                 const header_row = cells[0].slice(0);
-                const header_length = header_row.length;
 
                 if (
                     !sheet_rule["cells"].every(
-                        cell => cell["members"].every( member => member == header_row.shift()["value"] )
+                        cell => cell["members"].every( member => member == (header_row.shift()||{"value":NaN})["value"] )
                     )
                 ) {
                     return false;
@@ -755,7 +754,7 @@ class Spreadsheet {
                 raw_sheet["columns"].forEach( col => col["width"] = 18 );
             }
 
-            sheet["number_formats"].forEach (
+            (sheet["number_formats"]||[]).forEach (
                 (format,n) => raw_sheet["getColumn"](n+1)["numFmt"] = format
             );
 
