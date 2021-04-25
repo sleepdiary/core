@@ -530,6 +530,8 @@ class Spreadsheet {
         return (
             ( value === undefined )
             ? ''
+            : ( value["getTime"] )
+            ? DiaryBase.date(value.getTime())["format"]("yyyy-MM-ddTHH:mm:ss.SSS")+'Z'
             : ( value.toString().search(/[",\n]/) == -1 )
             ? value
             : '"'+value.replace(/"/g, '""')+'"'
@@ -779,6 +781,37 @@ class Spreadsheet {
         });
 
         return this.raw["xlsx"]["writeBuffer"]();
+
+    }
+
+    output_csv() {
+
+        const sheet_rule = this.rules[0];
+
+        return (
+
+            // Settings:
+            (this.associated["settings"]||[])
+            .map( row => row["Setting"] + "=" + row["Value"] + "\n" )
+            .concat(
+
+                // header:
+                [sheet_rule["cells"].map( cell => cell["members"].join(',') ).join(',') + "\n"],
+
+                // Records:
+                this.associated[sheet_rule["member"]].map(
+                    r => {
+                        let row = [], offset = 0;
+                        sheet_rule["cells"].forEach(
+                            cell => cell["export"]( r, row, ( offset += cell["members"].length ) - cell["members"].length )
+                        );
+                        return row.map( v => Spreadsheet.escape_csv_component( v["value"] )).join(',') + "\n"
+                    }
+                )
+
+            ).join("")
+
+        );
 
     }
 

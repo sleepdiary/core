@@ -114,6 +114,7 @@ class DiaryPleesTracker extends DiaryBase {
             return this.serialise({
                 "file_format": () => "string",
                 "contents": (
+                    // can't use output_csv() here, because PleesTracker requires numeric times
                     "sid,start,stop,rating\n" +
                         this["records"]
                         .map(
