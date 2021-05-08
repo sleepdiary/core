@@ -1,5 +1,6 @@
 register_roundtrip_modifier("SleepChart1",function(our_diary,roundtripped_diary,other_format) {
     switch ( other_format.name ) {
+    case "ActivityLog":
     case "PleesTracker":
     case "SpreadsheetGraph":
     case "SpreadsheetTable":

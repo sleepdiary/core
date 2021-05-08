@@ -48,6 +48,10 @@ var diary_loader = new DiaryLoader(
             console.log( "Extras for graphs created in spreadsheets", diary );
             break;
 
+        case "ActivityLog":
+            console.log( "Extras for activity logs", diary );
+            break;
+
         }
 
     },

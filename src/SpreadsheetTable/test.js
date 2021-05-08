@@ -1,3 +1,22 @@
+register_roundtrip_modifier("SpreadsheetTable",function(our_diary,roundtripped_diary,other_format) {
+    switch ( other_format.name ) {
+    case "ActivityLog":
+    case "SleepChart1":
+    case "PleesTracker":
+        [our_diary,roundtripped_diary].forEach(function(diary) {
+            diary["records"].forEach( function(record) {
+                /*
+                 * Sleep As Android requires exactly one string comment.
+                 * PleesTracker does not support comments.
+                 * Therefore, roundtripping necessarily breaks comments.
+                 */
+                ["comments"].forEach(function(key) {
+                    delete record[key];
+                });
+            });
+        });
+    }
+});
 describe("SpreadsheetTable format", () => {
 
     var empty_diary = "start,end\n";

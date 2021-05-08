@@ -23,6 +23,7 @@ register_roundtrip_modifier("Standard",function(our_diary,roundtripped_diary,oth
         });
     }
     switch ( other_format.name ) {
+    case "ActivityLog":
     case "SpreadsheetGraph":
     case "SpreadsheetTable":
     case "PleesTracker":
@@ -66,6 +67,18 @@ register_roundtrip_modifier("Standard",function(our_diary,roundtripped_diary,oth
                     delete r[key];
                     delete roundtripped_diary["records"][n][key];
                 }
+            });
+        });
+    }
+    switch ( other_format.name ) {
+    case "ActivityLog":
+    case "SleepChart1":
+    case "PleesTracker":
+        [our_diary,roundtripped_diary].forEach(function(diary) {
+            diary["records"].forEach( function(record) {
+                ["comments"].forEach(function(key) {
+                    delete record[key];
+                });
             });
         });
     }

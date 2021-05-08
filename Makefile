@@ -6,7 +6,7 @@ FULL: DEFAULT_GOAL doc/index.html
 all-test: DEFAULT_GOAL test
 
 # Add your formats to the following line:
-FORMATS = Standard Sleepmeter SleepAsAndroid PleesTracker SleepChart1
+FORMATS = Standard Sleepmeter SleepAsAndroid PleesTracker SleepChart1 ActivityLog
 # Low priority formats:
 FORMATS += SpreadsheetTable SpreadsheetGraph
 
