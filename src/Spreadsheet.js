@@ -587,6 +587,7 @@ class Spreadsheet {
                 // calculate array and check the values actually match:
                 let array = [];
                 if ( !cells.slice(1).every( row => {
+                    if ( !row.length ) return true;
                     let offset = 0;
                     let array_element = {};
                     array.push(array_element);
