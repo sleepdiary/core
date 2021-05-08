@@ -240,6 +240,8 @@ class Spreadsheet {
 
         function importer(cell,self) {
 
+            const debug = false;
+
             const member = cell["member"];
 
             let ret;
