@@ -52,7 +52,7 @@ var diary_loader = new DiaryLoader(
 
     },
     (raw,source) => {
-        console.log( "Failed to load", raw, source );
+        console.error( "Failed to load", raw, source );
     }
 );
 
