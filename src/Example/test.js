@@ -120,16 +120,6 @@ describe("Example format", () => {
         ],
     });
 
-    // TODO: test initialisation from Standard format:
-    test_from_standard({
-        name: "Standard Format test",
-        format: "Example",
-        input: [
-            ...
-        ],
-        expected: ...,
-    });
-
     // TODO: two empty diaries:
     test_merge({
         name: "Two empty diaries",
