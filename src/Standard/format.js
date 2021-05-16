@@ -257,6 +257,34 @@ let MaybeDiaryStandardStatistics;
  *        interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
  *      },
  *    }
+
+ * // Print the user's daily schedule on a 25-hour clock, defaulting to Cairo's timezone:
+ * console.log( diary.summarise_schedule( null, 25*60*60*1000, "Africa/Cairo" ) );
+ * -> {
+ *      sleep: { // time (Cairo) when the user falls asleep:
+ *                      average           : 12345.678,
+ *                      mean              : 12356.789,
+ *        interquartile_mean              : 12345.678,
+ *                      standard_deviation: 12.56,
+ *        interquartile_standard_deviation: 12.45,
+ *                      median            : 12345,
+ *        interquartile_range             : 12,
+ *                      durations         : [ undefined, 12345, undefined, ... ],
+ *        interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
+ *      },
+ *      wake: { // time (Cairo) when the user wakes up:
+ *                      average           : 12345.678,
+ *                      mean              : 12356.789,
+ *        interquartile_mean              : 12345.678,
+ *                      standard_deviation: 12.56,
+ *        interquartile_standard_deviation: 12.45,
+ *                      median            : 12345,
+ *        interquartile_range             : 12,
+ *                      durations         : [ undefined, 12345, undefined, ... ],
+ *        interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
+ *      },
+ *    }
+
  */
 class DiaryStandard extends DiaryBase {
 
@@ -771,12 +799,22 @@ class DiaryStandard extends DiaryBase {
      * beginning/end time for each day's primary sleep, although this
      * may change in future.</p>
      *
+     * <p>Times are calculated according to the associated timezone.
+     * For example, say you woke up in New York at 8am, flew to Los
+     * Angeles, went to bed and woke up again at 8am local time.  You
+     * would be counted as waking up at 8am both days, even though 27
+     * hours had passed between wake events.</p>
+     *
+     * <p>Records without a timezone are treated as if they had the
+     * environment's default timezone</p>
+     *
      * @public
      *
      * @see [summarise_records]{@link DiaryStandard#summarise_records}
      *
-     * @param {function(*)=} filter - only examine records that match this filter
-     * @param {number} [day_length=86400000] - times of day are calculated relative to this amount of time
+     * @param {function(*)=} [filter=null] - only examine records that match this filter
+     * @param {number=} [day_length=86400000] - times of day are calculated relative to this amount of time
+     * @param {string=} timezone - default timezone for records without one
      *
      * @return {{
      *   sleep : MaybeDiaryStandardStatistics,
@@ -786,7 +824,7 @@ class DiaryStandard extends DiaryBase {
      * @example
      * console.log( diary.summarise_schedule();
      * -> {
-     *      sleep: { // time (GMT) when the user falls asleep:
+     *      sleep: { // time when the user falls asleep:
      *                      average           : 12345.678,
      *                      mean              : 12356.789,
      *        interquartile_mean              : 12345.678,
@@ -797,7 +835,7 @@ class DiaryStandard extends DiaryBase {
      *                      durations         : [ undefined, 12345, undefined, ... ],
      *        interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
      *      },
-     *      wake: { // time (GMT) when the user wakes up:
+     *      wake: { // time when the user wakes up:
      *                      average           : 12345.678,
      *                      mean              : 12356.789,
      *        interquartile_mean              : 12345.678,
@@ -810,17 +848,17 @@ class DiaryStandard extends DiaryBase {
      *      },
      *    }
      */
-    ["summarise_schedule"](filter,day_length) {
+    ["summarise_schedule"](filter,day_length,timezone) {
 
         /*
          * Note: this function needs to work around a weird issue.
          *
-         * If a user went to sleep at 11:50pm one day and 00:10am the
-         * next, a naive algorithm might calculate the user's mean
-         * sleep time to be noon.  To avoid this problem, we calculate
-         * values twice - once normally and once with all numbers
-         * rotated by half the day length.  Then we use whichever
-         * one has the lowest standard deviation.
+         * If a user went to sleep at 00:10am then at 11:50pm, a naive
+         * algorithm might calculate the user's mean sleep time to be
+         * midday instead of midnight.  To avoid this problem, we
+         * calculate values twice - once normally and once with all
+         * numbers rotated by half the day length.  Then we use
+         * whichever one has the lowest standard deviation.
          */
 
         const hours = 60*60*1000;
@@ -839,12 +877,26 @@ class DiaryStandard extends DiaryBase {
             .forEach( r => {
                 if ( r["is_primary_sleep"] ) {
                     if ( r["start"] ) {
-                        sleep_early.push( r["start"]                 %day_length);
-                        sleep_late .push((r["start"]+half_day_length)%day_length);
+                        let time = r["start"],
+                            tz = r["start_timezone"]||timezone;
+                        time += (
+                            tz
+                                ? DiaryBase.date(time,tz)["offset"]()
+                                : - new Date(time).getTimezoneOffset()
+                        ) * 60000;
+                        sleep_early.push( time                 %day_length);
+                        sleep_late .push((time+half_day_length)%day_length);
                     }
                     if ( r["end"] ) {
-                        wake_early .push( r["end"  ]                 %day_length);
-                        wake_late  .push((r["end"  ]+half_day_length)%day_length);
+                        let time = r["end"],
+                            tz = r["end_timezone"]||timezone;
+                        time += (
+                            tz
+                                ? DiaryBase.date(time,tz)["offset"]()
+                                : - new Date(time).getTimezoneOffset()
+                        ) * 60000;
+                        wake_early .push( time                 %day_length);
+                        wake_late  .push((time+half_day_length)%day_length);
                     }
                 }
             });

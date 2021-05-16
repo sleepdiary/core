@@ -808,8 +808,10 @@ describe("Standard format", () => {
 
 
         var tests = [
+
             {
                 "records": [],
+                "args": [],
                 "expected": {
                     "wake": null,
                     "sleep": null,
@@ -818,8 +820,9 @@ describe("Standard format", () => {
 
             {
                 "records": [
-                    { "is_primary_sleep": true, "start": 1 },
+                    { "start_timezone": "Etc/GMT", "is_primary_sleep": true, "start": 1 },
                 ],
+                "args": [],
                 "expected": {
                     "wake": null,
                     "sleep": {
@@ -838,8 +841,9 @@ describe("Standard format", () => {
 
             {
                 "records": [
-                    { "is_primary_sleep": true, "end": 1 },
+                    { "start_timezone": "Etc/GMT", "is_primary_sleep": true, "end": 1 },
                 ],
+                "args": [],
                 "expected": {
                     "wake": {
                         "average": 1,
@@ -858,8 +862,9 @@ describe("Standard format", () => {
 
             {
                 "records": [
-                    { "is_primary_sleep": true, "start": 1, "end": 1 },
+                    { "start_timezone": "Etc/GMT", "is_primary_sleep": true, "start": 1, "end": 1 },
                 ],
+                "args": [],
                 "expected": {
                     "wake": {
                         "average": 1,
@@ -888,8 +893,15 @@ describe("Standard format", () => {
 
             {
                 "records": [
-                    { "is_primary_sleep": true, "start": 1, "end": 24*60*60*1000-1 },
+                    {
+                        "start_timezone": "Etc/GMT",
+                        "end_timezone": "Etc/GMT",
+                        "is_primary_sleep": true,
+                        "start": 1,
+                        "end": 24*60*60*1000-1
+                    },
                 ],
+                "args": [],
                 "expected": {
                     "wake": {
                         "average": 24*60*60*1000-1,
@@ -918,9 +930,10 @@ describe("Standard format", () => {
 
             {
                 "records": [
-                    { "is_primary_sleep": true, "start": 1 },
-                    { "is_primary_sleep": true, "start": 3 },
+                    { "start_timezone": "Etc/GMT", "is_primary_sleep": true, "start": 1 },
+                    { "start_timezone": "Etc/GMT", "is_primary_sleep": true, "start": 3 },
                 ],
+                "args": [],
                 "expected": {
                     "wake": null,
                     "sleep": {
@@ -939,9 +952,10 @@ describe("Standard format", () => {
 
             {
                 "records": [
-                    { "is_primary_sleep": true, "start": 24*60*60*1000-1 },
-                    { "is_primary_sleep": true, "start": 1 },
+                    { "start_timezone": "Etc/GMT", "is_primary_sleep": true, "start": 24*60*60*1000-1 },
+                    { "start_timezone": "Etc/GMT", "is_primary_sleep": true, "start": 1 },
                 ],
+                "args": [],
                 "expected": {
                     "wake": null,
                     "sleep": {
@@ -958,6 +972,41 @@ describe("Standard format", () => {
                 },
             },
 
+            {
+                "records": [
+                    // date --date='TZ="Europe/London" March 29 2020' +%s000
+                    { "is_primary_sleep": true, "start": 1585440000000, "start_timezone": "Europe/London" },
+                    // date --date='TZ="Europe/London" March 30 2020' +%s000
+                    { "is_primary_sleep": true, "start": 1585522800000, "start_timezone": "Europe/London" },
+
+                    // date --date='TZ="Europe/Prague" March 29 2020' +%s000
+                    { "is_primary_sleep": true, "start": 1585436400000, "start_timezone": "Europe/Prague" },
+                    // date --date='TZ="Europe/Prague" March 30 2020' +%s000
+                    { "is_primary_sleep": true, "start": 1585519200000, "start_timezone": "Europe/Prague" },
+
+                    // date --date='TZ="Asia/Seoul" March 29 2020' +%s000 - note: Seoul does not have DST
+                    { "is_primary_sleep": true, "start": 1585407600000, "start_timezone": "Asia/Seoul" },
+                    // date --date='TZ="Asia/Seoul" March 30 2020' +%s000 - note: Seoul does not have DST
+                    { "is_primary_sleep": true, "start": 1585494000000, "start_timezone": "Asia/Seoul" },
+
+                ],
+                "args": [null,null,/*"Asia/Seoul"*/], //
+                "expected": {
+                    "wake": null,
+                    "sleep": {
+                        "average": 0,
+                        "mean": 0,
+                        "interquartile_mean": 0,
+                        "median": 0,
+                        "interquartile_range": 0,
+                        "durations": [ 0, 0, 0, 0, 0, 0 ],
+                        "interquartile_durations": [ 0, 0, 0 ],
+                        "standard_deviation": 0,
+                        "interquartile_standard_deviation": 0,
+                    },
+                },
+            },
+
         ];
 
         tests.forEach(function(test) {
@@ -965,7 +1014,7 @@ describe("Standard format", () => {
                 sleep_diary_exports["new_sleep_diary"](wrap_input({
                     "file_format": "Standard",
                     "records": test["records"],
-                }))["summarise_schedule"]()
+                }))["summarise_schedule"](...test["args"])
             )["toEqual"](test["expected"]);
         });
 
