@@ -937,6 +937,407 @@ class DiaryStandard extends DiaryBase {
     }
 
     /**
+     * List of activities, grouped by day
+     *
+     * <p>It can be useful to display a diary as a series of columns
+     * or rows, each containing the activities for that day.  This
+     * function returns a structure that accounts for the following
+     * issues:</p>
+     *
+     * <p><strong>Multi-day records</strong> - the function returns a
+     * list of <em>days</em>, which contain <em>activities</em> -
+     * parts of a record confined within that day.</p>
+     *
+     * <p><strong>Daylight savings time</strong> - if the timezone
+     * observes daylight savings time (e.g. `Europe/London` instead of
+     * `Etc/GMT`), the function will modify days to account for DST
+     * changes (so a 24-hour diary will start at the same time
+     * every day, even if that means having a 23- or 25-hour day).</p>
+     *
+     * <p><strong>Missing days</strong> - if a user skips a day, or
+     * stops recording altogether for months or even years, the
+     * function will leave a gap in the array for each missing
+     * day.</p>
+     *
+     * <p>Not including workarounds for a few edge cases, the start
+     * and end times for days are calculated like this:</p>
+     *
+     * <ol>
+     *  <li>Find the start of the first day:
+     *   <ol>
+     *    <li>find the earliest date in the list of records
+     *    <li>find the last time at or before that date
+     *     where the time equals `day_start` in `timezone`
+     *    <li>if that date would be invalid (because a DST change
+     *     causes that time to be skipped), move backwards by the DST
+     *     change duration.
+     *   </ol>
+     *  </li>
+     *  <li>Find the start of the next day:
+     *   <ol>
+     *    <li>move forwards in time by `day_stride`
+     *    <li>move backwards by the difference between the start and end timezone offsets<br>
+     *     (so a 24-hour `day_stride` will always start at the same time of day)
+     *   </ol>
+     *  </li>
+     *  <li>Create a new day object with the start of the current and next day</li>
+     *  <li>Continue moving forward one day at a time until we reach the final record
+     * </ul>
+     *
+     * <p>An activity represents the fraction of a record that exists
+     * within the current day.  For example, a record that lasted two
+     * days would have two associated records.  Activity times are
+     * decided like this:</p>
+     *
+     * <ul>
+     *  <li>if a record has neither a `start` nor `end` time, no activities are created
+     *  <li>if a record has exactly one `start` or `end` time, one activity is created.
+     *   The activity has a `time` equal to whichever was defined.
+     *  <li>if a record has both `start` and `end`, and both are within the same day,
+     *   one activity is created. The activity has a `time` halfway between the two.
+     *  <li>if a record has both `start` and `end` that span multiple days,
+     *   one activity is created for each day the record is active.  The first
+     *   activity has a `time` halfway between `start` and the end of that day.
+     *   middle activities have a `time` equal to the middle of the day.  The final
+     *   activity has a `time` halfway between the start of that day and `end`
+     * </ul>
+     *
+     * <p>Each activity includes a `type`, which is one of:</p>
+     *
+     * <ul>
+     *  <li>`start-end` - complete duration of an event
+     *  <li>`start-mid` - start of an event that spans multiple days
+     *  <li>`mid-mid` - middle of an event that spans multiple days
+     *  <li>`mid-end` - end of an event that spans multiple days
+     *  <li>`start-unknown` - start of an event with an undefined end time
+     *  <li>`unknown-end` - end of an event with an undefined start time
+     * </ul>
+     *
+     * <p>If a `segment_stride` argument is passed, segments for a day
+     * are calculated like this:</p>
+     *
+     * <ol>
+     *  <li>create a segment that starts at the `start` time
+     *  <li>check whether the DST offset is the same at the start and end of the day
+     *  <ul>
+     *   <li>if not, create segments `segment_stride` apart
+     *   <li>otherwise...
+     *    <ul>
+     *     <li>continue forwards until the current segment's end time is
+     *      greater than the `end` time, or the timezone's DST status
+     *      changes
+     *     <li>stop unless a DST change was crossed
+     *     <li>create a new segment that ends at the `end` time
+     *     <li>continue backwards until the current segment's start time
+     *      is less than or equal to the last segment from amove
+     *     <li>sort all segments by start time
+     *    </ul>
+     *   </li>
+     * </ol>
+     *
+     * <p>The algorithm above should produce intuitive dates in most
+     *  cases, but produces unexpected behaviour if there is more than
+     *  one DST change in a single day.</p>
+     *
+     * <p>Be aware that some timezones have [a 45-minute offset from
+     * UTC](https://en.wikipedia.org/wiki/UTC%2B05:45), and [even more
+     * esoteric
+     * timezones](https://en.wikipedia.org/wiki/UTC%E2%88%9200:25:21),
+     * existed in the 20th century.  You may need to test your program
+     * carefully to avoid incorrect behaviour in some cases.</p>
+     *
+     * @public
+     *
+     * @param {string} [timezone=SYSTEM_TIMEZONE] - display dates in this timezone
+     * @param {number} [day_start=64800000] - start the first new day at this time (usually 6pm)
+     * @param {number} [day_stride=86400000] - amount of time to advance each day (usually 24 hours)
+     * @param {number=} [segment_stride] - amount of time to advance each segment
+     *
+     * @example
+     * console.log( diary.daily_activities() );
+     * -> [
+     *      {
+     *        "start"   : 123456789, // Unix time when the day starts
+     *        "end"     : 234567890, // start + day_stride - dst_change
+     *        "duration": 11111111, // end - start
+     *        "id"      : "2020-03-30T18:00:00.000 Etc/GMT" // ISO 8601 equivalent of "start"
+     *        "year"    : 2020,
+     *        "month"   : 2, // zero-based month number
+     *        "day"     : 29, // zero-based day of month
+     *        "activities": [
+     *          {
+     *            "start"       : 123459999, // time when the event started (optional)
+     *            "end"         : 234560000, // time when the event ended (optional)
+     *            "time"        : 200000000, // time associated with the event (required)
+     *            "offset_start": 0.1, // ( start - day.start ) / day.duration
+     *            "offset_end"  : 0.9, // ( end - day.start ) / day.duration
+     *            "offset_time" : 0.5, // ( time - day.start ) / day.duration
+     *            "type"        : "start-end" // see above for list of types
+     *            "record"      : { ... }, // associated record
+     *            "index"       : 0, // this is the nth activity for this record
+     *          },
+     *        ],
+     *        "activity_summaries": {
+     *          "asleep": {
+     *            "first_start": "2020-03-30T20:00:00.000 Etc/GMT", // start of first activity
+     *            "first_end"  : "2020-03-31T06:00:00.000 Etc/GMT", // end of first activity
+     *             "last_start": "2020-03-31T14:00:00.000 Etc/GMT", // start of last activity
+     *             "last_end"  : "2020-03-31T14:30:00.000 Etc/GMT", // end of last activity
+     *            "duration"   : 37800000, // total milliseconds (NaN if some activities have undefined duration)
+     *          },
+     *          ...
+     *        },
+     *        "segments": [
+     *          {
+     *            "dst_state": "on" // or "off" or "change-forward" or "change-back"
+     *            "year"  : 2020,
+     *            "month" : 2, // zero-based month number
+     *            "day"   : 29, // zero-based day of month
+     *            "hour"  : 18,
+     *            "minute": 0,
+     *            "second": 0,
+     *            "id"    : "2020-03-30T18:00:00.000 Etc/GMT"
+     *          },
+     *          ...
+     *        ],
+     *      },
+     *      ...
+     *    ]
+     */
+    ["daily_activities"]( timezone, day_start, day_stride, segment_stride ) {
+
+        timezone   = timezone   || "Etc/GMT";
+        day_start  = ( day_start === undefined ) ? 1000*60*60*18 : day_start; // 6pm
+        day_stride = day_stride || 1000*60*60*24; // 24 hours
+
+        let records = this["records"].sort( (a,b) => (a["start"]||a["end"]) - (b["start"]||b["end"]) ),
+            today = records.find( r => r["start"]||r["end"] ),
+            next_dst_change = DiaryBase.next_dst_change( today?(today["start"]||today["end"])-1:0, timezone ),
+            timezone_str  = timezone.replace(/^([A-Za-z])/," $1"),
+            offset,
+            offset_ms,
+            is_dst,
+            tomorrow,
+            day_index = 0,
+            days = [],
+            current_activities,
+            record_index
+        ;
+        const milliseconds = DiaryBase.tc()["TimeUnit"]["Millisecond"],
+              advance_to = timestamp => {
+                  let segment_dst_change = next_dst_change;
+                  while ( tomorrow["unixUtcMillis"]() <= timestamp ) {
+                      segment_dst_change = next_dst_change;
+                      current_activities = 0;
+                      ++day_index;
+                      today = tomorrow;
+                      tomorrow = tomorrow["add"]( day_stride, milliseconds );
+                      if ( tomorrow["unixUtcMillis"]() >= next_dst_change ) {
+                          next_dst_change = DiaryBase.next_dst_change(today["unixUtcMillis"](),timezone);
+                          const offset_tomorrow = tomorrow["add"]( ( today["offset"]() - tomorrow["offset"]() ) * 60 * 1000, milliseconds );
+                          if ( today["lessThan"](offset_tomorrow) ) {
+                              // just in case someone e.g. sets a stride less than the DST change amount
+                              const passed_timestamp = tomorrow["unixUtcMillis"]() > timestamp;
+                              tomorrow = offset_tomorrow;
+                              if ( passed_timestamp ) break;
+                          }
+                      }
+                  }
+                  if ( !current_activities ) {
+                      const    today_ms = today["unixUtcMillis"](),
+                            tomorrow_ms = tomorrow["unixUtcMillis"](),
+                            day = days[day_index] = {
+                                "start"     : today_ms,
+                                "end"       : tomorrow_ms,
+                                "duration"  : tomorrow_ms - today_ms,
+                                "id"        : today.toString(),
+                                "year"      : today["year"] ()  ,
+                                "month"     : today["month"]()-1,
+                                "day"       : today["day"]  ()-1,
+                                "activities": current_activities = [],
+                            }
+                      ;
+                      if ( segment_stride > 0 ) {
+                          let segments  = day["segments"] = [],
+                              segment_start = today_ms
+                          ;
+                          while ( segment_start < tomorrow_ms ) {
+
+                              const dt = new Date( segment_start + offset_ms );
+
+                              segments.push({
+                                  "dst_state": is_dst?"on":"off",
+                                  "id"       : dt.toISOString().replace(/Z/,timezone_str),
+                                  "year"     : dt.getUTCFullYear()  ,
+                                  "month"    : dt.getUTCMonth   (),
+                                  "day"      : dt.getUTCDate    ()-1,
+                                  "hour"     : dt.getUTCHours   (),
+                                  "minute"   : dt.getUTCMinutes (),
+                                  "second"   : dt.getUTCSeconds (),
+                              });
+
+                              segment_start += segment_stride;
+
+                              if ( segment_start >= segment_dst_change ) {
+                                  const time = DiaryBase.date( segment_start, today["zone"]()["name"]() );
+                                  segments[segments.length-1]["dst_state"] = (
+                                      "change-"
+                                      + ( is_dst ? "back" : "forward" )
+                                  );
+                                  offset    = time["offsetDuration"]();
+                                  offset_ms = offset["milliseconds"]();
+                                  is_dst    = !offset["equals"]( today["standardOffsetDuration"]() );
+                                  segment_dst_change = DiaryBase.next_dst_change(time["unixUtcMillis"](),timezone);
+                              }
+
+                          }
+                      }
+                  }
+              },
+              build_activity = (record,activity) => {
+                  activity["time"] = (
+                      (activity["start"]||activity["end"]) +
+                      (activity["end"]||activity["start"])
+                  ) / 2;
+                  activity["record"] = record;
+                  activity["index"] = record_index++;
+                  //activity["related"] = related; // NO!  Would make `days` impossible to stringify
+                  const day = days[days.length-1],
+                        start = day["start"],
+                        duration = day["duration"]
+                  ;
+                  [ "start", "end", "time" ].forEach( key => {
+                      if ( activity[key] ) {
+                          activity["offset_"+key] = ( activity[key] - start ) / duration
+                      }
+                  });
+                  return activity;
+              }
+        ;
+
+        if ( today ) {
+
+            // get the base date:
+            today = DiaryBase.date(today["start"]||today["end"],timezone);
+            const base_time = today["unixUtcMillis"]() - today["startOfDay"]()["unixUtcMillis"]();
+            today = today["sub"](
+                ( ( base_time < day_start ) ? 1000*60*60*24 : 0 ) +
+                base_time - day_start, milliseconds,
+            );
+            tomorrow = today["add"]( day_stride, milliseconds );
+
+            const offset_tomorrow = tomorrow["add"]( ( today["offset"]() - tomorrow["offset"]() ) * 60 * 1000, milliseconds );
+            if ( offset_tomorrow["greaterThan"](today) ) {
+                // just in case someone e.g. sets a stride less than the DST change amount
+                tomorrow = offset_tomorrow;
+            }
+
+            offset    = today["offsetDuration"]();
+            offset_ms = offset["milliseconds"]();
+            is_dst    = !offset["equals"]( today["standardOffsetDuration"]() );
+
+            // convert records to days
+            records.forEach(
+                record => {
+
+                    record_index = 0;
+
+                    let start_timestamp = record["start"],
+                        end_timestamp   = record["end"],
+                        related = []
+                    ;
+
+                    if ( start_timestamp ) {
+
+                        advance_to(start_timestamp);
+
+                        if ( end_timestamp ) {
+                            if ( tomorrow["unixUtcMillis"]() >= end_timestamp ) {
+                                current_activities.push(build_activity(record,{
+                                    "start": start_timestamp,
+                                    "end"  : end_timestamp,
+                                    "type" : "start-end",
+                                }));
+                            } else {
+                                current_activities.push(build_activity(record,{
+                                    "start": start_timestamp,
+                                    "end"  : tomorrow["unixUtcMillis"](),
+                                    "type" : "start-mid",
+                                }));
+                                for (;;) {
+                                    advance_to(tomorrow["unixUtcMillis"]()+1);
+                                    if ( tomorrow["unixUtcMillis"]() >= end_timestamp ) break;
+                                    current_activities.push(build_activity(record,{
+                                        "start": today["unixUtcMillis"](),
+                                        "end"  : tomorrow["unixUtcMillis"](),
+                                        "type" : "mid-mid",
+                                    }));
+                                }
+                                current_activities.push(build_activity(record,{
+                                    "start": today["unixUtcMillis"](),
+                                    "end"  : end_timestamp,
+                                    "type" : "mid-end",
+                                }));
+                            }
+                        } else {
+                            current_activities.push(build_activity(record,{
+                                "start": start_timestamp,
+                                "type" : "start-unknown",
+                            }));
+                        }
+
+                    } else if ( end_timestamp ) {
+
+                        advance_to(end_timestamp);
+
+                        current_activities.push(build_activity(record,{
+                            "end" : end_timestamp,
+                            "type": "unknown-end",
+                        }));
+
+                    }
+
+                });
+
+        }
+
+        days.forEach( day => {
+
+            const activity_summaries = day["activity_summaries"] = {};
+
+            day["activities"].forEach( activity => {
+                const status = activity["record"]["status"],
+                      summary = (
+                          activity_summaries[status] =
+                          activity_summaries[status] || {
+                              "duration": 0,
+                          }
+                      )
+                ;
+                ["start","end"].forEach( se => {
+                    let time = activity[se];
+                    if ( time !== undefined ) {
+                        time = DiaryBase.date( time, timezone ).toString();
+                        summary["last_"+se] = time;
+                        if ( summary["first_"+se] == undefined ) {
+                            summary["first_"+se] = time;
+                        }
+                    }
+                });
+                if ( activity["start"] && activity["end"] ) {
+                    summary["duration"] += activity["end"] - activity["start"];
+                } else {
+                    summary["duration"] = NaN;
+                }
+            });
+
+        });
+
+        return days;
+
+    }
+
+    /**
      * Latest sleep/wake status
      *
      * @public
