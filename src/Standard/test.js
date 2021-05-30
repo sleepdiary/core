@@ -806,7 +806,6 @@ describe("Standard format", () => {
 
     it(`calculates the correct daily schedule`, function() {
 
-
         var tests = [
 
             {
@@ -1010,11 +1009,12 @@ describe("Standard format", () => {
         ];
 
         tests.forEach(function(test) {
+            let diary = sleep_diary_exports["new_sleep_diary"](wrap_input({
+                "file_format": "Standard",
+                "records": test["records"],
+            }));
             expect(
-                sleep_diary_exports["new_sleep_diary"](wrap_input({
-                    "file_format": "Standard",
-                    "records": test["records"],
-                }))["summarise_schedule"](...test["args"])
+                diary["summarise_schedule"].apply(diary,test["args"])
             )["toEqual"](test["expected"]);
         });
 

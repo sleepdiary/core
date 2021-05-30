@@ -822,7 +822,7 @@ class DiaryStandard extends DiaryBase {
      * }}
      *
      * @example
-     * console.log( diary.summarise_schedule();
+     * console.log( diary.summarise_schedule() );
      * -> {
      *      sleep: { // time when the user falls asleep:
      *                      average           : 12345.678,
@@ -1347,7 +1347,7 @@ class DiaryStandard extends DiaryBase {
     ["latest_sleep_status"]() {
 
         for ( let n=this["records"].length-1; n>=0; --n ) {
-            let status = this["records"][n].status;
+            let status = this["records"][n]["status"];
             if ( status == "awake" || status == "asleep" ) return status;
         }
         return "";
