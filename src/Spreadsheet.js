@@ -744,7 +744,7 @@ class Spreadsheet {
                         raw_cell["value"] = cell["value"];
                     }
                     let style = cell["style"].split(',');
-                    if ( style[0] || style[1] ) {
+                    if ( style[0] || style[1] || style[2] ) {
                         // Note: we remove any existing style, in case it interacts with the style we add:
                         const raw_style = raw_cell["style"] = {};
                         raw_style["fill"] = raw_style["fill"] || {};
@@ -759,6 +759,12 @@ class Spreadsheet {
                             raw_style["fill"]["fgColor"] = decode_style(style[1]);
                         } else {
                             delete raw_style["fill"]["fgColor"];
+                        }
+                        if ( style[2] ) {
+                            raw_style["font"] = raw_style["font"] || {};
+                            raw_style["font"]["color"] = decode_style(style[2]);
+                        } else {
+                            delete raw_style["font"];
                         }
                     } else {
                         const raw_style = raw_cell;
