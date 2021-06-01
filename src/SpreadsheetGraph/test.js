@@ -236,10 +236,10 @@ describe("SpreadsheetGraph format", () => {
             explicit_time_header.slice(0),
             [
                 { "value": "2000-01-01" },
-                { "value": "Comment\ntext", "style": "#FFFFFF00,#FF0000FF" },
+                { "value": "Comment\ntext", "style": "#FFFFFF00,#FF0000FF,#FFFFFFFF" },
             ],
             [],
-            [{ "value": "asleep", "style": "#FFFFFF00,#FF0000FF" }],
+            [{ "value": "asleep", "style": "#FFFFFF00,#FF0000FF,#FFFFFFFF" }],
         ]),
     });
 
@@ -449,27 +449,29 @@ describe("SpreadsheetGraph format", () => {
                 [ {}, { "value": "unused value" } ],
             ],
             statuses: [
-                "toilet", "sleep aid", "caffeine", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "drink", "exercise", "noise", "alarm", "in bed", "out of bed", "toilet", "sleep aid", "caffeine", "awake", "asleep", "snack", "meal", "alcohol", "chocolate",
-                "sleep aid", "caffeine", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "drink", "exercise", "noise", "alarm", "in bed", "out of bed", "toilet", "sleep aid", "caffeine", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "drink",
-                "caffeine", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "drink", "exercise", "noise", "alarm", "in bed", "out of bed", "toilet", "sleep aid", "caffeine", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "drink", "exercise",
-                "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "drink", "exercise", "noise", "alarm", "in bed", "out of bed", "toilet", "sleep aid", "caffeine", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "drink", "exercise", "noise",
+                "caffeine","alcohol","snack","awake","asleep","lights off","lights on","meal","chocolate","drink","sleep aid","exercise","toilet","noise","alarm","in bed","out of bed","caffeine","alcohol","snack","awake","asleep","lights off","lights on",
+                "alcohol","snack","awake","asleep","lights off","lights on","meal","chocolate","drink","sleep aid","exercise","toilet","noise","alarm","in bed","out of bed","caffeine","alcohol","snack","awake","asleep","lights off","lights on","meal",
+                "snack","awake","asleep","lights off","lights on","meal","chocolate","drink","sleep aid","exercise","toilet","noise","alarm","in bed","out of bed","caffeine","alcohol","snack","awake","asleep","lights off","lights on","meal","chocolate",
+                "awake","asleep","lights off","lights on","meal","chocolate","drink","sleep aid","exercise","toilet","noise","alarm","in bed","out of bed","caffeine","alcohol","snack","awake","asleep","lights off","lights on","meal","chocolate","drink",
             ],
             status_map: {
                 "awake"     :"#FFFFFFFF,#FFFFF0003",
                 "asleep"    :"#FFFFFFFF,#FFFFF0004",
-                "snack"     :"#FFFFFFFF,#FFFFF0005",
-                "meal"      :"#FFFFFFFF,#FFFFF0006",
-                "alcohol"   :"#FFFFFFFF,#FFFFF0007",
+                "snack"     :"#FFFFFFFF,#FFFFF0002",
+                "meal"      :"#FFFFFFFF,#FFFFF0007",
+                "alcohol"   :"#FFFFFFFF,#FFFFF0001",
                 "chocolate" :"#FFFFFFFF,#FFFFF0008",
-                "caffeine"  :"#FFFFFFFF,#FFFFF0002",
+                "caffeine"  :"#FFFFFFFF,#FFFFF0000",
                 "drink"     :"#FFFFFFFF,#FFFFF0009",
-                "sleep aid" :"#FFFFFFFF,#FFFFF0001",
-                "exercise"  :"#FFFFFFFF,#FFFFF0010",
-                "toilet"    :"#FFFFFFFF,#FFFFF0000",
-                "noise"     :"#FFFFFFFF,#FFFFF0011",
-                "alarm"     :"#FFFFFFFF,#FFFFF0012",
-                "in bed"    :"#FFFFFFFF,#FFFFF0013",
-                "out of bed":"#FFFFFFFF,#FFFFF0014"
+                "sleep aid" :"#FFFFFFFF,#FFFFF0010",
+                "exercise"  :"#FFFFFFFF,#FFFFF0011",
+                "toilet"    :"#FFFFFFFF,#FFFFF0012",
+                "noise"     :"#FFFFFFFF,#FFFFF0013",
+                "alarm"     :"#FFFFFFFF,#FFFFF0014",
+                "in bed"    :"#FFFFFFFF,#FFFFF0015",
+                "out of bed":"#FFFFFFFF,#FFFFF0016",
+                "lights off":"#FFFFFFFF,#FFFFF0005",
+                "lights on" :"#FFFFFFFF,#FFFFF0006",
             }
 
         },
@@ -494,13 +496,15 @@ describe("SpreadsheetGraph format", () => {
                     { "style": "#FFFFFFFF,#FFFFF0012", "value": "alarm" },
                     { "style": "#FFFFFFFF,#FFFFF0013", "value": "in bed" },
                     { "style": "#FFFFFFFF,#FFFFF0014", "value": "out of bed" },
+                    { "style": "#FFFFFFFF,#FFFFF0015", "value": "lights off" },
+                    { "style": "#FFFFFFFF,#FFFFF0016", "value": "lights on" },
                 ]
             ],
             statuses: [
-                "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid",
-                "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise",
-                "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet",
-                "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise",
+                "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine",
+                "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink",
+                "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid",
+                "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise",
             ],
             status_map: {
                 "awake"     :"#FFFFFFFF,#FFFFF0000",
@@ -517,7 +521,9 @@ describe("SpreadsheetGraph format", () => {
                 "noise"     :"#FFFFFFFF,#FFFFF0011",
                 "alarm"     :"#FFFFFFFF,#FFFFF0012",
                 "in bed"    :"#FFFFFFFF,#FFFFF0013",
-                "out of bed":"#FFFFFFFF,#FFFFF0014"
+                "out of bed":"#FFFFFFFF,#FFFFF0014",
+                "lights off":"#FFFFFFFF,#FFFFF0015",
+                "lights on" :"#FFFFFFFF,#FFFFF0016",
             }
 
         },
@@ -542,6 +548,8 @@ describe("SpreadsheetGraph format", () => {
                     { "style": "#FFFFFFFF,#FFFFF0012" },
                     { "style": "#FFFFFFFF,#FFFFF0013" },
                     { "style": "#FFFFFFFF,#FFFFF0014" },
+                    { "style": "#FFFFFFFF,#FFFFF0015" },
+                    { "style": "#FFFFFFFF,#FFFFF0016" },
                 ],
                 [
                     { "value": "awake" },
@@ -559,13 +567,15 @@ describe("SpreadsheetGraph format", () => {
                     { "value": "alarm" },
                     { "value": "in bed" },
                     { "value": "out of bed" },
+                    { "value": "lights off" },
+                    { "value": "lights on" },
                 ]
             ],
             statuses: [
-                "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid",
-                "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise",
-                "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet",
-                "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise",
+                "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine",
+                "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink",
+                "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid",
+                "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise",
             ],
             status_map: {
                 "awake"     :"#FFFFFFFF,#FFFFF0000",
@@ -582,7 +592,9 @@ describe("SpreadsheetGraph format", () => {
                 "noise"     :"#FFFFFFFF,#FFFFF0011",
                 "alarm"     :"#FFFFFFFF,#FFFFF0012",
                 "in bed"    :"#FFFFFFFF,#FFFFF0013",
-                "out of bed":"#FFFFFFFF,#FFFFF0014"
+                "out of bed":"#FFFFFFFF,#FFFFF0014",
+                "lights off":"#FFFFFFFF,#FFFFF0015",
+                "lights on" :"#FFFFFFFF,#FFFFF0016",
             }
 
         },
@@ -607,13 +619,15 @@ describe("SpreadsheetGraph format", () => {
                     { "style": "#FFFFFFFF,#FFFFF0012", "value": "alarm" },
                     { "style": "#FFFFFFFF,#FFFFF0013", "value": "in bed" },
                     { "style": "#FFFFFFFF,#FFFFF0014", "value": "out of bed" },
+                    { "style": "#FFFFFFFF,#FFFFF0015", "value": "lights off" },
+                    { "style": "#FFFFFFFF,#FFFFF0016", "value": "lights on" },
                 ]
             ],
             statuses: [
-                "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid",
-                "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise",
-                "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet",
-                "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise",
+                "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine",
+                "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink",
+                "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid",
+                "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise",
             ],
             status_map: {
                 "awake"     :"#FFFFFFFF,#FFFFF0000",
@@ -630,7 +644,9 @@ describe("SpreadsheetGraph format", () => {
                 "noise"     :"#FFFFFFFF,#FFFFF0011",
                 "alarm"     :"#FFFFFFFF,#FFFFF0012",
                 "in bed"    :"#FFFFFFFF,#FFFFF0013",
-                "out of bed":"#FFFFFFFF,#FFFFF0014"
+                "out of bed":"#FFFFFFFF,#FFFFF0014",
+                "lights off":"#FFFFFFFF,#FFFFF0015",
+                "lights on" :"#FFFFFFFF,#FFFFF0016",
             }
 
         },
@@ -655,13 +671,15 @@ describe("SpreadsheetGraph format", () => {
                     { "style": "#FFFFFFFF,#FFFFF0012", "value": "alarm" },
                     //{ "style": "#FFFFFFFF,#FFFFF0013", "value": "in bed" },
                     { "style": "#FFFFFFFF,#FFFFF0014", "value": "out of bed" },
+                    { "style": "#FFFFFFFF,#FFFFF0015", "value": "lights off" },
+                    { "style": "#FFFFFFFF,#FFFFF0016", "value": "lights on" },
                 ]
             ],
             statuses: [
-                "awake", "exercise", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "drink", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "exercise", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid",
-                "exercise", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "drink", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "exercise", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "drink",
-                "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "drink", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "exercise", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "drink", "toilet",
-                "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "drink", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "exercise", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "drink", "toilet", "noise",
+                "awake", "drink", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "drink", "snack", "asleep", "alcohol", "meal", "caffeine",
+                "drink", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "drink", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate",
+                "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "drink", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid",
+                "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "drink", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "exercise",
             ],
             status_map: {
                 "awake"     :"#FFFFFFFF,#FFFFF0000",
@@ -671,14 +689,16 @@ describe("SpreadsheetGraph format", () => {
                 "alcohol"   :"#FFFFFFFF,#FFFFF0004",
                 "chocolate" :"#FFFFFFFF,#FFFFF0007",
                 "caffeine"  :"#FFFFFFFF,#FFFFF0006",
-                "drink"     :"#FFFFFFFF,#FFFFF0009",
+                "drink"     :"#FFFFFFFF,#FFFFF0001",
                 "sleep aid" :"#FFFFFFFF,#FFFFF0008",
-                "exercise"  :"#FFFFFFFF,#FFFFF0001",
+                "exercise"  :"#FFFFFFFF,#FFFFF0009",
                 "toilet"    :"#FFFFFFFF,#FFFFF0010",
                 "noise"     :"#FFFFFFFF,#FFFFF0011",
                 "alarm"     :"#FFFFFFFF,#FFFFF0012",
                 "in bed"    :"#FFFFFFFF,#FFFFF0013",
-                "out of bed":"#FFFFFFFF,#FFFFF0014"
+                "out of bed":"#FFFFFFFF,#FFFFF0014",
+                "lights off":"#FFFFFFFF,#FFFFF0015",
+                "lights on" :"#FFFFFFFF,#FFFFF0016",
             }
 
         },
@@ -694,7 +714,7 @@ describe("SpreadsheetGraph format", () => {
 
         for ( var n=0; n!=24; ++n ) {
             cells.forEach( (row,m) => {
-                var value = ( ( n + m ) % 15 /* current value of DiaryBase.status_matches().length */ ).toString();
+                var value = ( ( n + m ) % 17 /* current value of DiaryBase.status_matches().length */ ).toString();
                 while ( value.length < 4 ) value = '0' + value;
                 row[n+1] = { "value": "", "style": "#FFFFFFFF,#FFFFF" + value };
             });

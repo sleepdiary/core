@@ -35,6 +35,10 @@ const DiaryStandardRecordStatus = {
     in_bed: "in bed",
     /** user is asleep */
     asleep: "asleep",
+    /** user is currently turning off the lights in preparation to go to bed */
+    "lights off": "lights off",
+    /** user is currently turning on the lights after getting out of bed */
+    "lights on": "lights on",
     /** user is eating some food, but not a full meal */
     snack: "snack",
     /** user is eating a full meal */
