@@ -472,6 +472,22 @@ class DiaryBase {
     }
 
     /**
+     * Get the main object for timezone manipulation
+     *
+     * This object may change in future - prefer date() whenever possible.
+     */
+    static tc() {
+        let ret;
+        try {
+            ret = window["tc"];
+            if ( !ret ) throw "";
+        } catch (e) {
+            ret = require("timezonecomplete");
+        }
+        return ret;
+    }
+
+    /**
      * Create a DateTime object with timezone support
      *
      * @param {number|string} date - the date to parse
@@ -482,14 +498,8 @@ class DiaryBase {
      *   let date = DiaryBase.date(123456789,"Etc/GMT");
      */
     static date( date, timezone ) {
-        let tc;
-        try {
-            tc = window["tc"];
-            if ( !tc ) throw "";
-        } catch (e) {
-            tc = require("timezonecomplete");
-        }
-        const ret = new tc["DateTime"](date||0,tc["zone"]("Etc/UTC"));
+        const tc = DiaryBase.tc(),
+              ret = new tc["DateTime"](date||0,tc["zone"]("Etc/UTC"));
         return timezone ? ret["toZone"](tc["zone"](timezone)) : ret;
     }
 
