@@ -25,6 +25,12 @@
 "use strict";
 
 /**
+ * @define {boolean} debugging mode
+ * @package
+ */
+const DEBUG = false;
+
+/**
  * Functions for converting from the current type to some other type
  * @private
  */
@@ -530,6 +536,12 @@ class DiaryBase {
         ];
     }
 
+    /**
+     * Version ID for this package
+     * @return {string}
+     */
+    ["software_version"]() { return SOFTWARE_VERSION; }
+
 }
 
 /**
@@ -585,13 +597,13 @@ function new_sleep_diary(file,serialiser) {
             return new sleep_diary_formats[n]["constructor"](file,serialiser);
         } catch (e) {
             if ( e ) { // SleepDiary.invalid() throws null to indicate the file is in the wrong format
-                if ( ENABLE_DEBUG ) console.error(e);
+                if ( DEBUG ) console.error(e);
                 error = e;
             }
         }
     }
 
-    if ( ENABLE_DEBUG ) {
+    if ( DEBUG ) {
         // this can cause false positives when e.g. DiaryLoader calls it on an ArrayBuffer,
         // before converting the file to text
         console.error( "Failed to read sleep diary", file, error );

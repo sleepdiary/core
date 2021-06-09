@@ -1,3 +1,6 @@
+#!/bin/sh
+
+cat > constants.js <<EOF
 /**
  * @preserve Copyright 2020 Andrew Sayers <andrew-github.com@pileofstuff.org>
  *
@@ -22,7 +25,5 @@
  * SOFTWARE.
  */
 
-/** @define {boolean} debugging mode */
-var ENABLE_DEBUG = false;
-/** @define {boolean} compiled code */
-var COMPILED = false;
+const SOFTWARE_VERSION = "$( git rev-parse --short HEAD )";
+EOF

@@ -18,25 +18,25 @@ DIARY_FILES += $(patsubst %,src/%/format.js,$(FORMATS))
 CLOSURE_OPTIONS= \
 		--generate_exports \
 		--export_local_property_definitions \
-		--define=COMPILED=true \
 		--isolation_mode=IIFE \
 		--compilation_level ADVANCED_OPTIMIZATIONS \
 		--language_in ECMASCRIPT_NEXT_IN \
 		--language_out ECMASCRIPT5 \
 
 SLEEP_DIARY_FORMATS_EXTERNS=src/closure-externs.js
-SLEEP_DIARY_FORMATS_INPUT=src/closure.js $(DIARY_FILES)
 TEST_INPUT=src/test-harness.js src/test-spreadsheet.js $(patsubst %,src/%/test.js,$(FORMATS))
 
-sleep-diary-formats.js: $(SLEEP_DIARY_FORMATS_EXTERNS) $(SLEEP_DIARY_FORMATS_INPUT) $(TEST_INPUT)
+sleep-diary-formats.js: $(SLEEP_DIARY_FORMATS_EXTERNS) $(DIARY_FILES) $(TEST_INPUT)
+	./bin/create-constants.sh
 	google-closure-compiler \
 		$(CLOSURE_OPTIONS) \
 		--create_source_map "%outname%.map" \
 		--externs $(SLEEP_DIARY_FORMATS_EXTERNS) \
-		$(SLEEP_DIARY_FORMATS_INPUT) \
-		--chunk sleep-diary-formats:$(words $(SLEEP_DIARY_FORMATS_INPUT)) \
+		constants.js $(DIARY_FILES) \
+		--chunk sleep-diary-formats:$(words constants.js $(DIARY_FILES)) \
 		$(TEST_INPUT) \
 		--chunk test:$(words $(TEST_INPUT)):sleep-diary-formats
+	rm constants.js
 	echo "//# sourceMappingURL="sleep-diary-formats.js.map >> sleep-diary-formats.js
 	echo "//# sourceMappingURL="test.js.map >> test.js
 
