@@ -7,23 +7,27 @@
  */
 class DiaryLoader {
 
+    static resources() {
+        return [
+            [
+                window["JSZip"],
+                "https://cdn.jsdelivr.net/npm/jszip@3.6.x/dist/jszip.min.js"
+            ],
+            [
+                window["tc"],
+                "https://cdn.jsdelivr.net/npm/tzdata@1.0.x/tzdata.js",
+                "https://cdn.jsdelivr.net/npm/timezonecomplete@5.12.x/dist/timezonecomplete.min.js"
+            ],
+            [
+                window["ExcelJS"],
+                "https://cdn.jsdelivr.net/npm/exceljs@4.2.x/dist/exceljs.min.js"
+            ]
+        ];
+    }
+
     static load_resources() {
         try {
-            [
-                [
-                    window["JSZip"],
-                    "https://cdn.jsdelivr.net/npm/jszip@3.6.x/dist/jszip.min.js"
-                ],
-                [
-                    window["tc"],
-                    "https://cdn.jsdelivr.net/npm/tzdata@1.0.x/tzdata.js",
-                    "https://cdn.jsdelivr.net/npm/timezonecomplete@5.12.x/dist/timezonecomplete.min.js"
-                ],
-                [
-                    window["ExcelJS"],
-                    "https://cdn.jsdelivr.net/npm/exceljs@4.2.x/dist/exceljs.min.js"
-                ]
-            ].forEach( resource => {
+            DiaryLoader.resources().forEach( resource => {
                 if ( !resource[0] ) {
                     resource.slice(1).forEach( url => {
                         let script = document.createElement("script");
@@ -116,6 +120,10 @@ class DiaryLoader {
      * my_file_input.addEventListener( "change", event => diary_loader.load(event) );
      */
     ["load"](raw,source) {
+
+        if ( DiaryLoader.resources().some( resource => !resource[0] ) ) {
+            return setTimeout( () => this["load"](raw,source), 100 );
+        }
 
         const jszip = window["JSZip"];
 
