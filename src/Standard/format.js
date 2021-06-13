@@ -792,6 +792,77 @@ class DiaryStandard extends DiaryBase {
     }
 
     /**
+     * Summary statistics about the number of times an event occurs per day
+     *
+     * <p>Similar to {@link DiaryStandard#summarise_days}, but
+     * looks at totals instead of sums.</p>
+     *
+     * <p>The <tt>summarise_*</tt> functions examine sums, so missing
+     * values are treated as <tt>undefined</tt>.  This function
+     * examines totals, so missing values are treated as <tt>0</tt>.
+     * The <tt>record_filter</tt> and <tt>day_filter</tt> parameters
+     * allow you to exclude days and records separately.</p>
+     *
+     * @public
+     *
+     * @see [summarise_records]{@link DiaryStandard#summarise_records}
+     *
+     * @param {function(*)=} record_filter - only examine records that match this filter
+     * @param {function(*)=}    day_filter - only examine days that match this filter
+     *
+     * @return MaybeDiaryStandardStatistics
+     *
+     * @example
+     * console.log( diary.total_per_day(
+     *   record => record.status == "asleep", // only count sleep records
+     *   record => record.start > cutoff      // ignore old records
+     * ) );
+     * -> {
+     *                    average           : 1.234,
+     *                    mean              : 1.345,
+     *      interquartile_mean              : 1.234,
+     *                    standard_deviation: 0.123,
+     *      interquartile_standard_deviation: 0.012,
+     *                    median            : 1,
+     *      interquartile_range             : 1,
+     *                    counts            : [ undefined, 1, undefined, ... ],
+     *      interquartile_counts            : [ 1, 1, 2, 1, 1, 0, ... ],
+     *      // included for compatibility with summarise_* functions:
+     *                    durations         : [ undefined, 1, undefined, ... ],
+     *      interquartile_durations         : [ 1, 1, 2, 1, 1, 0, ... ],
+     *    }
+     */
+    ["total_per_day"](record_filter,day_filter) {
+
+        // get the earliest start time for each day:
+        let counts = [],
+            cutoff = (
+                // duration cannot be calculated for an incomplete day:
+                this["records"].length
+                    ? this["records"][this["records"].length-1]["day_number"]
+                    : 0
+            );
+
+        ( day_filter ? this["records"].filter(day_filter) : this["records"] )
+            .forEach( r => (
+                counts[r["day_number"]]
+                    = (counts[r["day_number"]]||0)
+                    + ( record_filter && !record_filter(r) ? 0 : 1 )
+            ));
+
+        delete counts[0];
+        delete counts[cutoff];
+
+        // remove leading undefined start times:
+        while ( counts.length && counts[0] === undefined ) {
+            counts.shift();
+        }
+
+        return DiaryStandard.summarise(counts);
+
+    }
+
+    /**
      * Summary statistics about daily events
      *
      * <p>Somewhat similar to {@link DiaryStandard#summarise_records}.</p>
