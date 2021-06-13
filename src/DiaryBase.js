@@ -55,6 +55,16 @@ let DiaryFormat;
 const sleep_diary_formats = [];
 
 /**
+ * Default timezone for this system
+ *
+ * This is constant in normal operation, but can be overridden
+ * by unit tests
+ */
+let system_timezone = (
+    tz => ( tz == "UTC" ) ? "Etc/GMT" : tz
+)( new Intl.DateTimeFormat().resolvedOptions().timeZone );
+
+/**
  * @class Base class for sleep diary formats
  *
  * @unrestricted

@@ -818,7 +818,7 @@ class DiaryStandard extends DiaryBase {
      *
      * @param {function(*)=} [filter=null] - only examine records that match this filter
      * @param {number=} [day_length=86400000] - times of day are calculated relative to this amount of time
-     * @param {string=} timezone - default timezone for records without one
+     * @param {string=} [timezone=system_timezone] - default timezone for records
      *
      * @return {{
      *   sleep : MaybeDiaryStandardStatistics,
@@ -868,6 +868,7 @@ class DiaryStandard extends DiaryBase {
         const hours = 60*60*1000;
 
         day_length = day_length || 24*hours;
+        timezone   = timezone   || system_timezone;
 
         const half_day_length = day_length/2;
 
@@ -884,9 +885,7 @@ class DiaryStandard extends DiaryBase {
                         let time = r["start"],
                             tz = r["start_timezone"]||timezone;
                         time += (
-                            tz
-                                ? DiaryBase.date(time,tz)["offset"]()
-                                : - new Date(time).getTimezoneOffset()
+                            DiaryBase.date(time,tz)["offset"]()
                         ) * 60000;
                         sleep_early.push( time                 %day_length);
                         sleep_late .push((time+half_day_length)%day_length);
@@ -895,9 +894,7 @@ class DiaryStandard extends DiaryBase {
                         let time = r["end"],
                             tz = r["end_timezone"]||timezone;
                         time += (
-                            tz
-                                ? DiaryBase.date(time,tz)["offset"]()
-                                : - new Date(time).getTimezoneOffset()
+                            DiaryBase.date(time,tz)["offset"]()
                         ) * 60000;
                         wake_early .push( time                 %day_length);
                         wake_late  .push((time+half_day_length)%day_length);
@@ -1052,7 +1049,7 @@ class DiaryStandard extends DiaryBase {
      *
      * @public
      *
-     * @param {string} [timezone=SYSTEM_TIMEZONE] - display dates in this timezone
+     * @param {string} [timezone=system_timezone] - display dates in this timezone
      * @param {number} [day_start=64800000] - start the first new day at this time (usually 6pm)
      * @param {number} [day_stride=86400000] - amount of time to advance each day (usually 24 hours)
      * @param {number=} [segment_stride] - amount of time to advance each segment
@@ -1110,7 +1107,7 @@ class DiaryStandard extends DiaryBase {
      */
     ["daily_activities"]( timezone, day_start, day_stride, segment_stride ) {
 
-        timezone   = timezone   || "Etc/GMT";
+        timezone   = timezone   || system_timezone;
         day_start  = ( day_start === undefined ) ? 1000*60*60*18 : day_start; // 6pm
         day_stride = day_stride || 1000*60*60*24; // 24 hours
 

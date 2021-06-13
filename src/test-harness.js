@@ -39,6 +39,7 @@ function compare_diaries(observed,expected,debug) {
 function test_constructor(test,serialiser) {
     var diary = null, error = false;
     var console_error = console.error;
+    system_timezone = "Etc/GMT";
     if ( test.quiet ) console.error = function() {};
     try {
         var input = test.input;
