@@ -766,12 +766,22 @@ class DiaryStandard extends DiaryBase {
      */
     ["summarise_days"](filter) {
 
+        let starts = [],
+            cutoff = (
+                this["records"].length
+                ? this["records"][this["records"].length-1]["day_number"]
+                : 0
+            );
         // get the earliest start time for each day:
-        let starts = [];
         ( filter ? this["records"].filter(filter) : this["records"] )
             .forEach( r => {
-                if ( starts[r["day_number"]]||0 < r["start"] )
-                    starts[r["day_number"]] = r["start"];
+                const day_number = r["day_number"];
+                if (
+                    (starts[day_number]||0) < r["start"]
+                    // duration cannot be calculated for an incomplete day:
+                    && day_number > 0 && day_number < cutoff
+                )
+                    starts[day_number] = r["start"];
             });
 
         // remove leading undefined start times:
