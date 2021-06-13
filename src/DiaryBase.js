@@ -510,6 +510,38 @@ class DiaryBase {
     }
 
     /**
+     * Get the time of the next DST change after the specified date
+     *
+     * @param {number|string} date - the date to parse
+     * @param {string=} timezone - timezone (e.g. "Europe/London")
+     * @return {number} - tranisition time, or Infinity if no transitions are expected
+     * @public
+     */
+    static next_dst_change( date, timezone ) {
+        const tzdata = DiaryBase.tc()["TzDatabase"]["instance"]();
+        /*
+         * As of 2021-06-10, timezonecomplete has a weird bug
+         * that causes it to miscalculate DST changes shortly before
+         * the change itself.  This works around that issue:
+         */
+        for ( let time = date - 1000*60*60*48; time < date; time += 1000*60*60 ) {
+            try {
+                const ret = tzdata["nextDstChange"]( timezone, time );
+                if ( !ret ) return Infinity;
+                if ( ret > date ) return ret;
+            } catch ( e ) {
+                /*
+                 * timezonecomplete has been seen to throw timezonecomplete.InvalidTimeZoneData
+                 * when calling e.g. tzdata["nextDstChange"]( "Europe/London", 0 )
+
+                 */
+                return Infinity;
+            }
+        }
+        return tzdata["nextDstChange"]( timezone, date ) || Infinity;
+    }
+
+    /**
      * Array of status strings and associated regular expressions
      * @protected
      */
