@@ -465,7 +465,7 @@ class DiaryStandard extends DiaryBase {
             ;
 
             const settings = contents["settings"]||contents,
-                  minimum_day_duration = settings["minimum_day_duration"] || 20*60*60*1000,
+                  minimum_day_duration = settings["minimum_day_duration"] || 16*60*60*1000,
                   maximum_day_duration = settings["maximum_day_duration"] || minimum_day_duration*2
             ;
 

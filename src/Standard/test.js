@@ -6,7 +6,7 @@ register_roundtrip_modifier("Standard",function(our_diary,roundtripped_diary,oth
         });
         diary["settings"] = Object.assign( {}, diary["settings"] );
     });
-    if ( our_diary["settings"]["minimum_day_duration"] != 72000000 || our_diary["settings"]["maximum_day_duration"] != 144000000 ) {
+    if ( our_diary["settings"]["minimum_day_duration"] != 57600000 || our_diary["settings"]["maximum_day_duration"] != 115200000 ) {
         // not supported in most formats - we don't expect to get any meaningful data
         [our_diary,roundtripped_diary].forEach(function(diary) {
             delete diary["settings"]["minimum_day_duration"];
@@ -102,8 +102,8 @@ describe("Standard format", () => {
         input: "{\"file_format\":\"Standard\",\"records\":[]}",
         expected: {
             "settings": {
-                "minimum_day_duration": 72000000,
-                "maximum_day_duration": 144000000,
+                "minimum_day_duration": 57600000,
+                "maximum_day_duration": 115200000,
             },
             "records": [],
         }
@@ -134,8 +134,8 @@ describe("Standard format", () => {
         }),
         expected: {
             "settings": {
-                "minimum_day_duration": 72000000,
-                "maximum_day_duration": 144000000,
+                "minimum_day_duration": 57600000,
+                "maximum_day_duration": 115200000,
             },
             "records": [],
         }
@@ -173,8 +173,8 @@ describe("Standard format", () => {
         }),
         expected: {
             "settings": {
-                "minimum_day_duration": 72000000,
-                "maximum_day_duration": 144000000,
+                "minimum_day_duration": 57600000,
+                "maximum_day_duration": 115200000,
             },
             "records": [
                 {
@@ -295,8 +295,8 @@ describe("Standard format", () => {
         ] }),
         expected: wrap_expected({
             "settings": {
-                "minimum_day_duration": 72000000,
-                "maximum_day_duration": 144000000,
+                "minimum_day_duration": 57600000,
+                "maximum_day_duration": 115200000,
             },
             "records": [
                 {
@@ -394,62 +394,62 @@ describe("Standard format", () => {
         file_format:"Standard",
         input: wrap_input({ "file_format": "Standard", "records": [
             {
-                "start"               : 72000000*0,
+                "start"               : 57600000*0,
                 "status"              : "asleep",
             },
             {
-                "start"               : 72000000*1,
+                "start"               : 57600000*1,
                 "status"              : "asleep",
             },
             {
-                "start"               : 72000000*1 + 1,
+                "start"               : 57600000*1 + 1,
                 "status"              : "asleep",
             },
             {
-                "start"               : 72000000*3 + 1,
+                "start"               : 57600000*3 + 1,
                 "status"              : "asleep",
             },
             {
-                "start"               : 72000000*5 + 2,
+                "start"               : 57600000*5 + 2,
                 "status"              : "asleep",
             },
         ] }),
         expected: wrap_expected({
             "settings": {
-                "minimum_day_duration": 72000000,
-                "maximum_day_duration": 144000000,
+                "minimum_day_duration": 57600000,
+                "maximum_day_duration": 115200000,
             },
             "records": [
                 {
-                    "start"               : 72000000*0,
+                    "start"               : 57600000*0,
                     "status"              : "asleep",
                     "day_number"          : 0,
                     "start_of_new_day"    : false,
                     "missing_record_after": true,
                 },
                 {
-                    "start"               : 72000000*1,
+                    "start"               : 57600000*1,
                     "status"              : "asleep",
                     "day_number"          : 0,
                     "start_of_new_day"    : false,
                     "missing_record_after": true,
                 },
                 {
-                    "start"               : 72000000*1 + 1,
+                    "start"               : 57600000*1 + 1,
                     "status"              : "asleep",
                     "day_number"          : 1,
                     "start_of_new_day"    : true,
                     "missing_record_after": true,
                 },
                 {
-                    "start"               : 72000000*3 + 1,
+                    "start"               : 57600000*3 + 1,
                     "status"              : "asleep",
                     "day_number"          : 2,
                     "start_of_new_day"    : true,
                     "missing_record_after": true,
                 },
                 {
-                    "start"               : 72000000*5 + 2,
+                    "start"               : 57600000*5 + 2,
                     "status"              : "asleep",
                     "day_number"          : 4,
                     "start_of_new_day"    : true,
@@ -467,23 +467,23 @@ describe("Standard format", () => {
             "file_format": "Standard",
             "records": [
                 {
-                    "start"               : 72000000*0,
+                    "start"               : 57600000*0,
                     "status"              : "asleep",
                 },
                 {
-                    "start"               : 72000000*1,
+                    "start"               : 57600000*1,
                     "status"              : "asleep",
                 },
                 {
-                    "start"               : 72000000*1 + 1,
+                    "start"               : 57600000*1 + 1,
                     "status"              : "asleep",
                 },
                 {
-                    "start"               : 72000000*3 + 1,
+                    "start"               : 57600000*3 + 1,
                     "status"              : "asleep",
                 },
                 {
-                    "start"               : 72000000*5 + 2,
+                    "start"               : 57600000*5 + 2,
                     "status"              : "asleep",
                 },
             ],
@@ -497,35 +497,35 @@ describe("Standard format", () => {
             },
             "records": [
                 {
-                    "start"               : 72000000*0,
+                    "start"               : 57600000*0,
                     "status"              : "asleep",
                     "day_number"          : 0,
                     "start_of_new_day"    : false,
                     "missing_record_after": true,
                 },
                 {
-                    "start"               : 72000000*1,
+                    "start"               : 57600000*1,
                     "status"              : "asleep",
                     "day_number"          : 1,
                     "start_of_new_day"    : true,
                     "missing_record_after": true,
                 },
                 {
-                    "start"               : 72000000*1 + 1,
+                    "start"               : 57600000*1 + 1,
                     "status"              : "asleep",
                     "day_number"          : 1,
                     "start_of_new_day"    : false,
                     "missing_record_after": true,
                 },
                 {
-                    "start"               : 72000000*3 + 1,
+                    "start"               : 57600000*3 + 1,
                     "status"              : "asleep",
                     "day_number"          : 2,
                     "start_of_new_day"    : true,
                     "missing_record_after": true,
                 },
                 {
-                    "start"               : 72000000*5 + 2,
+                    "start"               : 57600000*5 + 2,
                     "status"              : "asleep",
                     "day_number"          : 3,
                     "start_of_new_day"    : true,
@@ -542,30 +542,30 @@ describe("Standard format", () => {
             "file_format": "Standard",
             "records": [
                 {
-                    "start"               : 72000000*1,
+                    "start"               : 57600000*1,
                     "status"              : "asleep",
                 },
                 {
-                    "start"               : 72000000*0,
+                    "start"               : 57600000*0,
                     "status"              : "asleep",
                 },
             ],
         }),
         expected: wrap_expected({
             "settings": {
-                "minimum_day_duration": 72000000,
-                "maximum_day_duration": 144000000,
+                "minimum_day_duration": 57600000,
+                "maximum_day_duration": 115200000,
             },
             "records": [
                 {
-                    "start"               : 72000000*0,
+                    "start"               : 57600000*0,
                     "status"              : "asleep",
                     "day_number"          : 0,
                     "start_of_new_day"    : false,
                     "missing_record_after": true,
                 },
                 {
-                    "start"               : 72000000*1,
+                    "start"               : 57600000*1,
                     "status"              : "asleep",
                     "day_number"          : 0,
                     "start_of_new_day"    : false,
@@ -592,8 +592,8 @@ describe("Standard format", () => {
         }),
         expected: wrap_expected({
             "settings": {
-                "minimum_day_duration": 72000000,
-                "maximum_day_duration": 144000000,
+                "minimum_day_duration": 57600000,
+                "maximum_day_duration": 115200000,
             },
             "records": [
                 {
@@ -628,7 +628,7 @@ describe("Standard format", () => {
                     },
                 ],
             }))["to"]("output")["contents"]
-        )["toEqual"]('{"file_format":"Standard","records":[{"duration":1,"status":"asleep","start_of_new_day":false,"day_number":0,"missing_record_after":true},{"duration":2,"status":"asleep","start_of_new_day":false,"day_number":0,"is_primary_sleep":true}],"settings":{"minimum_day_duration":72000000,"maximum_day_duration":144000000}}');
+        )["toEqual"]('{"file_format":"Standard","records":[{"duration":1,"status":"asleep","start_of_new_day":false,"day_number":0,"missing_record_after":true},{"duration":2,"status":"asleep","start_of_new_day":false,"day_number":0,"is_primary_sleep":true}],"settings":{"minimum_day_duration":57600000,"maximum_day_duration":115200000}}');
     });
 
     [
@@ -680,8 +680,8 @@ describe("Standard format", () => {
             }),
             expected: {
                 "settings": {
-                    "minimum_day_duration":  72000000,
-                    "maximum_day_duration": 144000000,
+                    "minimum_day_duration":  57600000,
+                    "maximum_day_duration": 115200000,
                 },
                 "records": test["expected"],
             },
