@@ -35,6 +35,33 @@ const DiaryStandardRecordStatus = {
     in_bed: "in bed",
     /** user is asleep */
     asleep: "asleep",
+    /** user is eating some food, but not a full meal */
+    snack: "snack",
+    /** user is eating a full meal */
+    meal: "meal",
+    /** user is consuming alcohol */
+    alcohol: "alcohol",
+    /** user is consuming chocolate */
+    chocolate: "chocolate",
+    /** user is consuming caffeine */
+    caffeine: "caffeine",
+    /** user is consuming a drink that doesn't fit into any other category */
+    drink: "drink",
+    /** user is taking a sleeping pill, tranqulisier, or other medication to aid sleep */
+    "sleep aid": "sleep aid",
+    /** user is exercising */
+    exercise: "exercise",
+    /** user is using the toilet */
+    toilet: "toilet",
+    /** user is experiencing noise that disturbs their sleep */
+    noise: "noise",
+    /** user's wake-up alarm is trying to wake them up */
+    alarm: "alarm",
+    /** user is currently getting into bed */
+    "in bed": "in bed",
+    /** user is currently getting out of bed */
+    "out of bed": "out of bed",
+
 };
 
 /**
