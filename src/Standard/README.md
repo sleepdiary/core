@@ -15,7 +15,7 @@ This record indicates the minimum expected day duration in milliseconds.  By def
 
 ## `maximum_day_duration`
 
-This record indicates the maximum expected day duration in milliseconds.  By default, missing records are detected by looking for "asleep" events at least this far apart.
+This record indicates the maximum expected day duration in milliseconds.  By default, missing records are detected by looking for "asleep" events at most this far apart.
 
 ## `records`
 
@@ -27,15 +27,15 @@ Unix time in milliseconds when the record started.
 
 ### `start_timezone`
 
-User's timezone at the time referred to by the `start` record (or `undefined` if unknown).  Should be a string from the [tz database](https://en.wikipedia.org/wiki/Tz_database).  The database includes several timezones of the form `Etc/GMT[+-]N` for use when converting from formats that store times as an offset from GMT.
+User's timezone at the time referred to by the `start` record (or `undefined` if unknown).  Should be a string from the [tz database](https://en.wikipedia.org/wiki/Tz_database) - either a locale-related timezone like `Europe/London`, or a timezone of the form `Etc/GMT[+-]N`.
 
 ### `end`
 
-Unix time in milliseconds before which the record ended.  This should be a string from the [tz database](https://en.wikipedia.org/wiki/Tz_database).  The database includes several timezones of the form `Etc/GMT[+-]N` for use when converting from formats that store times as an offset from GMT.
+Unix time in milliseconds before which the record ended.
 
 ### `end_timezone`
 
-User's timezone at the time referred to by the `end` record (or `undefined` if unknown).  Should be a string from the [tz database](https://en.wikipedia.org/wiki/Tz_database).  The database includes several timezones of the form `Etc/GMT[+-]N` for use when converting from formats that store times as an offset from GMT.
+User's timezone at the time referred to by the `end` record (or `undefined` if unknown).  Should be a string from the [tz database](https://en.wikipedia.org/wiki/Tz_database) - either a locale-related timezone like `Europe/London`, or a timezone of the form `Etc/GMT[+-]N`.
 
 ### `duration`
 
