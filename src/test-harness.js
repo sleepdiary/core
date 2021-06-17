@@ -1,10 +1,4 @@
-const sleep_diary_exports = (
-    ( typeof module !== "undefined" && module.exports )
-        ? require("./sleep-diary-formats.js")
-        : window
-),
-      serialiser = /** @type {Function} */( sleep_diary_exports["DiaryLoader"] || {} )["serialiser"]
-;
+const serialiser = /** @type {Function} */(DiaryLoader["serialiser"]);
 
 var roundtrip_modifiers = {};
 function register_roundtrip_modifier(format,callback) {
@@ -48,9 +42,9 @@ function test_constructor(test,serialiser) {
         }
         if ( input && typeof(input) == "function" ) input = input();
         if ( typeof(test.input) == "string" || test.input["file_format"] ) {
-            diary = sleep_diary_exports["new_sleep_diary"](test.input,serialiser);
+            diary = new_sleep_diary(test.input,serialiser);
         } else {
-            diary = sleep_diary_exports["new_sleep_diary"]({ "file_format": function() { return "archive" }, "contents": test.input },serialiser);
+            diary = new_sleep_diary({ "file_format": function() { return "archive" }, "contents": test.input },serialiser);
         }
     } catch (e) {
         if ( !test.error ) console_error.call(console,"Unexpected error constructing object:",e);
@@ -107,7 +101,7 @@ function test_parse(test) {
 
         it(`URL-ifies "${test.name||"format's 'parse' test"}" correctly`, function() {
             var url = diary["to"]("url");
-            var observed = sleep_diary_exports["new_sleep_diary"]({
+            var observed = new_sleep_diary({
                 "file_format": "url",
                 "contents": url,
             },serialiser);
@@ -125,7 +119,7 @@ function test_parse(test) {
          * but formats shouldn't lose any more data than that.
          */
         var n = 0;
-        sleep_diary_exports["sleep_diary_formats"].forEach( function(format) {
+        sleep_diary_formats.forEach( function(format) {
             it(`converts "${test.name||"format's 'parse' test"}" to ${format.name} correctly in test_parse()`, function() {
                 return new Promise(function(resolve, reject) {
                     try {
@@ -204,7 +198,7 @@ function test_parse(test) {
                     return new Promise(function(resolve, reject) {
                         try {
                             diary["to_async"]("output").then( function(output) {
-                                var diary_loader = new sleep_diary_exports["DiaryLoader"](
+                                var diary_loader = new DiaryLoader(
                                     function(observed,source) {
                                         if ( debug ) {
                                             console.log({
@@ -222,7 +216,7 @@ function test_parse(test) {
                                         reject(error);
                                     }
                                 );
-                                diary_loader["load"]( sleep_diary_exports["DiaryLoader"]["to_url"](output) );
+                                diary_loader["load"]( DiaryLoader["to_url"](output) );
                             });
                         } catch (error) {
                             console.error("diary.to_async() failed:",diary,error);
@@ -244,9 +238,9 @@ function test_parse(test) {
                         try {
                             diary["to_async"]("spreadsheet")
                                 .then( function(raw) {
-                                    return sleep_diary_exports["_Spreadsheet_buffer_to_spreadsheet"](raw).then(
+                                    return Spreadsheet.buffer_to_spreadsheet(raw).then(
                                         function(spreadsheet) {
-                                            var diary_loader = new sleep_diary_exports["DiaryLoader"](
+                                            var diary_loader = new DiaryLoader(
                                                 function(diary,source) {
                                                     var clone2 = Object.assign({},diary);
                                                     Object.keys(clone2)
@@ -360,8 +354,8 @@ function test_merge(test) {
     it(`merges "${test.name}" correctly`, function() {
         var clone = Object.assign(
             {},
-            sleep_diary_exports["new_sleep_diary"](test.left)
-                ["merge"](sleep_diary_exports["new_sleep_diary"](test.right))
+            new_sleep_diary(test.left)
+                ["merge"](new_sleep_diary(test.right))
         );
         delete clone["spreadsheet"];
         expect(clone)["toEqual"](test.expected);

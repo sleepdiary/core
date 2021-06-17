@@ -67,7 +67,7 @@ describe("SpreadsheetGraph format", () => {
     function create_diary(cells) {
         return {
             "file_format": () => "spreadsheet",
-            "spreadsheet": sleep_diary_exports["_Spreadsheet_parse_csv"]("").spreadsheet,
+            "spreadsheet": Spreadsheet.parse_csv("").spreadsheet,
             "sheets": [{
                 "cells": cells || [
                     explicit_time_header.slice(0),

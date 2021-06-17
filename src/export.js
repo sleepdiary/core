@@ -29,10 +29,6 @@ const _sleep_diary_exports = {
     "sleep_diary_formats": sleep_diary_formats,
     "DiaryLoader"        : DiaryLoader,
     "Spreadsheet"        : Spreadsheet,
-    // Debugging use only:
-    "_Spreadsheet_parse_csv": Spreadsheet.parse_csv,
-    "_Spreadsheet_parse_timestamp": Spreadsheet.parse_timestamp,
-    "_Spreadsheet_buffer_to_spreadsheet": Spreadsheet.buffer_to_spreadsheet,
 };
 
 if ( typeof module !== "undefined" && module.exports ) {

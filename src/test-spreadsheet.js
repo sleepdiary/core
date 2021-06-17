@@ -20,7 +20,7 @@ describe("Spreadsheet", () => {
     ].forEach(
         function(test) {
             it(`parses "${test[0]}" correctly`, function() {
-                expect(sleep_diary_exports["_Spreadsheet_parse_timestamp"](test[0]))["toEqual"](test[1]);
+                expect(Spreadsheet.parse_timestamp(test[0]))["toEqual"](test[1]);
             });
         }
     );
@@ -29,7 +29,7 @@ describe("Spreadsheet", () => {
 
         let associated = {};
 
-        var spreadsheet = new sleep_diary_exports["Spreadsheet"](associated,[
+        var spreadsheet = new Spreadsheet(associated,[
             {
                 sheet: "records",
                 cells: [

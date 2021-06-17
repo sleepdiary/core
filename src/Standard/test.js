@@ -616,7 +616,7 @@ describe("Standard format", () => {
 
     it(`serialises data correctly`, function() {
         expect(
-            sleep_diary_exports["new_sleep_diary"](wrap_input({
+            new_sleep_diary(wrap_input({
                 "records": [
                     {
                         "duration": 1,
@@ -759,7 +759,7 @@ describe("Standard format", () => {
 
         tests.forEach(function(test) {
             expect(
-                sleep_diary_exports["new_sleep_diary"](wrap_input({
+                new_sleep_diary(wrap_input({
                     "file_format": "Standard",
                     "records": test["records"],
                 }))["summarise_records"]()
@@ -795,7 +795,7 @@ describe("Standard format", () => {
 
         tests.forEach(function(test) {
             expect(
-                sleep_diary_exports["new_sleep_diary"](wrap_input({
+                new_sleep_diary(wrap_input({
                     "file_format": "Standard",
                     "records": test["records"],
                 }))["latest_sleep_status"]()
@@ -1009,7 +1009,7 @@ describe("Standard format", () => {
         ];
 
         tests.forEach(function(test) {
-            let diary = sleep_diary_exports["new_sleep_diary"](wrap_input({
+            let diary = new_sleep_diary(wrap_input({
                 "file_format": "Standard",
                 "records": test["records"],
             }));
@@ -3269,7 +3269,7 @@ describe("Standard format", () => {
 
         tests.forEach(function(test) {
             try {
-            let diary = sleep_diary_exports["new_sleep_diary"](wrap_input({
+            let diary = new_sleep_diary(wrap_input({
                 "file_format": "Standard",
                 "records": test["records"],
             }));
