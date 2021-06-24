@@ -23,6 +23,8 @@ Here are the meanings of each member in a format definition:
 * `title` is the user-facing title for the format
 * `name` is the name the code uses internally to refer to this format
 * `url` is a URL with more information about the format
+* `logo` is a URL containing an image associated with the file format
+* `icon` is the name of an associated icon in a common icon list (at present, all icons begin with `mdi-`, indicating [Material Design Icons](https://materialdesignicons.com/))
 * `extension` is the default file extension for files in this format
 * `constructor` is the constructor used to generate files of this format - you should not need to use this
 

@@ -1275,6 +1275,7 @@ class DiarySleepmeter extends DiaryBase {
             "url": "/src/Sleepmeter",
             "statuses": [ "in bed", "asleep" ],
             "extension": ".csv",
+            "logo": "http://www.squalllinesoftware.com/sites/squalllinesoftware.com/files/sleepmeter_logo_128x128.png",
         }
     }
 

@@ -630,6 +630,7 @@ class DiarySpreadsheetGraph extends DiaryBase {
             "title": "Spreadsheet Graph",
             "url": "/src/SpreadsheetGraph",
             "extension": ".xlsx",
+            "icon": "mdi-file-excel-outline"
         }
     }
 

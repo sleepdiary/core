@@ -1130,6 +1130,7 @@ class DiarySleepAsAndroid extends DiaryBase {
             "url": "/src/SleepAsAndroid",
             "statuses": [ "asleep" ],
             "extension": ".zip",
+            "logo": "https://docs.sleep.urbandroid.org/assets/images/logo.png",
         }
     }
 

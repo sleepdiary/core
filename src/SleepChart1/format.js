@@ -235,6 +235,7 @@ class DiarySleepChart1 extends DiaryBase {
             "url": "/src/SleepChart1",
             "statuses": [ "asleep" ],
             "extension": ".tim",
+            "logo": "https://www.supermemo.com/assets/images/frontpage2/intro/icon4.svg",
         }
     }
 
