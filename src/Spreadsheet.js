@@ -575,7 +575,6 @@ class Spreadsheet {
 
                 // ensure that all headers are present:
                 const header_row = cells[0].slice(0);
-
                 if (
                     !sheet_rule["cells"].every(
                         cell => cell["members"].every( member => member == (header_row.shift()||{"value":NaN})["value"] )
