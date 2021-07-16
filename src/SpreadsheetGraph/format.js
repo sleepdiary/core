@@ -536,7 +536,7 @@ class DiarySpreadsheetGraph extends DiaryBase {
                 const comments = (r["comments"]||[]).slice(0);
                 const comments_per_cell = Math.ceil( comments.length / cell_count );
 
-                for ( let n = start; n < end; n += cell_duration ) {
+                for ( let n = start; n < Math.max(end,start+1); n += cell_duration ) {
                     const time = n % twenty_four_hours;
                     const date = n - time;
                     cells
