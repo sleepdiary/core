@@ -3,7 +3,6 @@
 #
 
 # These files are sometimes useful during development, but should never be committed:
-/src/*/demo.html
 README.html
 
 # These files should only be committed to the gh-pages branch:

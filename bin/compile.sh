@@ -46,16 +46,6 @@ git diff --exit-code || {
     fail "Please commit the above changes"
 }
 
-kramdown -v | grep -q . || fail "Please install the 'kramdown' parser"
-for DEMO in src/*/demo.md
-do
-    if kramdown "$DEMO" 2>&1 >/dev/null | grep -q .
-    then
-        kramdown "$DEMO" >/dev/null
-        fail "Please fix markdown issues in $DEMO"
-    fi
-done
-
 git diff @{u} -- . ':!src/Example' | grep -i '^\+.*todo' && fail "Please remove 'TODO' messages in your code"
 
 git diff @{u} -- . ':!src/Example' | grep -i '^\+.*[^@\/]example[^s]' | grep -vF 'example code' && fail "Please fix 'example' messages in your code"
@@ -66,7 +56,7 @@ git ls-files src/\*/format.js \
     | sed -e 's/^src\///' -e 's/\/format.js$//' -e '/^Example$/ d' \
     | while read FORMAT
       do
-          for FILE in Makefile index.js README.md doc/README.md
+          for FILE in Makefile README.md doc/README.md
           do
               if ! grep -q "$FORMAT" "$FILE"
               then

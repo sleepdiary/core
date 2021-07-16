@@ -45,6 +45,6 @@ test: spec/support/jasmine.json test.js sleep-diary-formats.js
 	PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-no-sandbox node bin/puppeteer-test.js
 
 clean:
-	rm -rf README.html doc/*.html sleep-diary-formats.js* test.js doc/*/README.html doc/*/demo.html doc/fonts doc/scripts doc/styles
+	rm -rf README.html doc/*.html sleep-diary-formats.js* test.js doc/*/README.html doc/fonts doc/scripts doc/styles
 
 gh-pages: sleep-diary-formats.js test.js doc/index.html
