@@ -5,7 +5,7 @@
 # These files are sometimes useful during development, but should never be committed:
 README.html
 
-# These files should only be committed to the gh-pages branch:
+# These files should only be committed to the built branch:
 /doc/*.html
 /doc/fonts
 /doc/scripts

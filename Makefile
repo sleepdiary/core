@@ -1,7 +1,7 @@
 DEFAULT_GOAL: test
 FULL: DEFAULT_GOAL doc/index.html
 
-.PHONY: DEFAULT_GOAL clean gh-pages
+.PHONY: DEFAULT_GOAL clean build
 
 all-test: DEFAULT_GOAL test
 
@@ -58,4 +58,4 @@ test: spec/support/jasmine.json sleep-diary-formats.js
 clean:
 	rm -rf README.html doc/*.html sleep-diary-formats.js* test.js* doc/*/README.html doc/fonts doc/scripts doc/styles
 
-gh-pages: sleep-diary-formats.js doc/index.html
+build: sleep-diary-formats.js doc/index.html
