@@ -515,7 +515,7 @@ class DiarySpreadsheetGraph extends DiaryBase {
 
             // Add headers
             for ( let n=0; n!=twenty_four_hours; n += cell_duration ) {
-                cells[0].push( Spreadsheet.create_cell(new Date(n),"#FFEEEEEE,#FFEEEEEE") )
+                cells[0].push( Spreadsheet.create_cell(n/twenty_four_hours,"#FFEEEEEE,#FFEEEEEE") )
                 number_formats.push("H:MM");
                 widths.push(5.9);
 
