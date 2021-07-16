@@ -61,6 +61,7 @@ class DiaryLoader {
 
         function initialise() {
             if ( window["tc"] ) {
+                clearInterval(load_interval);
                 window.addEventListener('hashchange', () =>
                     location.hash.replace(
                         /(?:^#|[?&])(sleep-diary=[^&]*)/g,
@@ -78,7 +79,6 @@ class DiaryLoader {
                         "contents": diary
                     }, "hash" )
                 );
-                clearInterval(load_interval);
             }
         }
 
