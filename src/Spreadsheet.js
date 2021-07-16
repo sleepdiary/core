@@ -718,7 +718,7 @@ class Spreadsheet {
 
         // Add/update worksheets:
         this["sheets"].forEach( sheet => {
-            let raw_sheet = raw_sheets[sheet["name"]] || this.raw["addWorksheet"](sheet["name"]);
+            let raw_sheet = raw_sheets[sheet["name"]] || this.raw["addWorksheet"](sheet["name"],sheet["options"]);
 
             // Remove deleted cells:
             raw_sheet["eachRow"]( { "includeEmpty": true }, (raw_row, row_number) => {
@@ -742,10 +742,12 @@ class Spreadsheet {
                     } else {
                         raw_cell["value"] = cell["value"];
                     }
-                    let style = cell["style"].split(',');
+                    let style = cell["style"].split(','),
+                        raw_style = raw_cell["style"] = raw_cell["style"] || {},
+                        column_font = ((sheet["styles"]||[])[n]||{})["font"]
+                    ;
                     if ( style[0] || style[1] || style[2] ) {
                         // Note: we remove any existing style, in case it interacts with the style we add:
-                        const raw_style = raw_cell["style"] = {};
                         raw_style["fill"] = raw_style["fill"] || {};
                         raw_style["fill"]["type"] = "pattern";
                         raw_style["fill"]["pattern"] = "solid";
@@ -766,11 +768,17 @@ class Spreadsheet {
                             delete raw_style["font"];
                         }
                     } else {
-                        const raw_style = raw_cell;
                         if ( raw_style && raw_style["fill"] ) {
                             delete raw_style["fill"]["bgColor"];
                             delete raw_style["fill"]["fgColor"];
                         }
+                    }
+                    /*
+                     * Cell styles override column styles, so we need to copy them in.
+                     * "font" is the only property we actually use right now.
+                     */
+                    if ( column_font ) {
+                        Object.assign( raw_style["font"] = raw_style["font"] || {}, column_font );
                     }
                 });
                 raw_row["commit"]();
@@ -780,6 +788,10 @@ class Spreadsheet {
                 sheet["widths"].forEach( (w,n) => raw_sheet["columns"][n]["width"] = w );
             } else {
                 raw_sheet["columns"].forEach( col => col["width"] = 18 );
+            }
+
+            if ( sheet["styles"] ) {
+                sheet["styles"].forEach( (s,n) => raw_sheet["columns"][n]["style"] = s );
             }
 
             (sheet["number_formats"]||[]).forEach (
