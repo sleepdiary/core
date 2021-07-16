@@ -510,14 +510,17 @@ class DiarySpreadsheetGraph extends DiaryBase {
             max_day -= max_day % twenty_four_hours;
 
             const cells = [ [Spreadsheet.create_cell()] ];
-            let number_formats = [ "YYYY-MM-DD" ];
-            let widths = [ 11.5 ];
+            let number_formats = [ "YYYY-MM-DD" ],
+                widths = [ 11 ],
+                styles = [ { "font": { "size": 10 } } ]
+            ;
 
             // Add headers
             for ( let n=0; n!=twenty_four_hours; n += cell_duration ) {
                 cells[0].push( Spreadsheet.create_cell(n/twenty_four_hours,"#FFEEEEEE,#FFEEEEEE") )
                 number_formats.push("H:MM");
-                widths.push(5.9);
+                widths.push(5);
+                styles.push( { "font": { "size": 10 } } );
 
             };
             for ( let n=min_day; n<=max_day; n += twenty_four_hours ) {
@@ -574,6 +577,16 @@ class DiarySpreadsheetGraph extends DiaryBase {
                 "number_formats": number_formats,
                 "cells": cells,
                 "widths": widths,
+                "styles": styles,
+                "options": {
+                    "properties" : {
+                        "defaultRowHeight": 12.5,
+                    },
+                    "pageSetup" : {
+                        "paperSize" : 9, // A4
+                        "orientation" : "landscape",
+                    },
+                }
             };
 
             return this["spreadsheet"]["serialise"]().then(
