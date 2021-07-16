@@ -4,7 +4,7 @@ var diary_loader = new DiaryLoader(
         // convert from your program's format to the Standard format:
         var diary_standard = diary.to("Standard");
 
-        var cutoff = new Date().getTime() - 30*24*60*60*1000; // 30 days
+        var cutoff = new Date().getTime() - 14*24*60*60*1000; // 14 days
         var summary = diary.to("Standard").summarise_days( r => r.start > cutoff );
 
         var bars = summary.durations
