@@ -41,7 +41,7 @@ People who maintain your work will need to understand your format.  See the othe
 
 You will eventually need to write your code and unit tests in JavaScript, although you might prefer to write an initial implementation in some other language.  For example, a binary format might be easier to prototype in C, or you might be more comfortable trying things out in Python.
 
-[format.js](format.js) and [test.js](test.js) in this directory show what your code should eventually look like.  Make sure to add unit tests for all the edge cases you found in previous stages.
+[engine.js](engine.js) and [test.js](test.js) in this directory show what your code should eventually look like.  Make sure to add unit tests for all the edge cases you found in previous stages.
 
 The easiest way to test your code during development is to rebuild it like this:
 
@@ -52,7 +52,7 @@ The easiest way to test your code during development is to rebuild it like this:
 Before creating a pull request for your format, make sure to:
 
 * write `./README.md`
-* write `./format.js`
+* write `./engine.js`
 * write `./tests.js`
 * write `./demo.html`
 * mention the file in `/Makefile`

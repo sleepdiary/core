@@ -8,7 +8,7 @@ There is no formal definition for a spreadsheet graph, but people often independ
 
 You may find the following useful:
 
-* [JavaScript example code](format.js)
+* [JavaScript example code](engine.js)
 * [Test cases](test.js)
 * [Examples](examples/)
 
@@ -39,7 +39,7 @@ The decoding process involves the following steps:
 3. detect the legend
 4. convert data to sleep diary
 
-The remainder of this section will discuss a simplified approach to solving these problems.  See [the JavaScript example code](format.js) for a practical example.
+The remainder of this section will discuss a simplified approach to solving these problems.  See [the JavaScript example code](engine.js) for a practical example.
 
 ## Parse time values
 

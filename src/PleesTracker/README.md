@@ -13,7 +13,7 @@ The export format is very simple.  The documentation below explains it in some d
 
 You may find the following useful:
 
-* [JavaScript example code](format.js)
+* [JavaScript example code](engine.js)
 * [Test cases](test.js)
 * [Examples](examples/)
 

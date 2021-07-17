@@ -6,7 +6,7 @@ There is no formal definition for a spreadsheet table, but people often independ
 
 You may find the following useful:
 
-* [JavaScript example code](format.js)
+* [JavaScript example code](engine.js)
 * [Test cases](test.js)
 * [Examples](examples/)
 

@@ -43,7 +43,7 @@ Duration of the record in milliseconds.  This is normally equal to `end - start`
 
 ### `status`
 
-Status associated with the record (usually `awake` or `asleep`).  See `DiaryStandardRecordStatus` in [format.js](format.js) for the complete list.
+Status associated with the record (usually `awake` or `asleep`).  See `DiaryStandardRecordStatus` in [engine.js](engine.js) for the complete list.
 
 ### `tags`
 
@@ -79,5 +79,5 @@ Most formats do not detect this automatically, so this value is usually inferred
 
 You may find the following useful:
 
-* [JavaScript example code](format.js)
+* [JavaScript example code](engine.js)
 * [Test cases](test.js)

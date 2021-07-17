@@ -10,7 +10,7 @@ We have not been able to find any official documentation about the file format.
 
 You may find the following useful:
 
-* [JavaScript example code](format.js)
+* [JavaScript example code](engine.js)
 * [Test cases](test.js)
 * [Examples](examples/)
 
