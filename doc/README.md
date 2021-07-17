@@ -9,7 +9,7 @@ In your HTML:
 
 ...
 
-<script src="https://sleep-diary-formats.github.io/sleepdiary-library.js"></script>
+<script src="https://sleepdiary.github.io/library/sleepdiary-library.js"></script>
 ```
 
 In your JavaScript:
@@ -94,13 +94,13 @@ Most users can us the pre-compiled [sleepdiary-library.js](../sleepdiary-library
 
 ```bash
 # Go to the directory this file is in:
-cd .../sleep-diary-formats
+cd .../sleepdiary-library
 
 # First time only: create the build envirnoment:
-docker build -t sleep-diary-formats .
+docker build -t sleepdiary-library .
 
 # Build the project:
-docker run --rm -v "$PWD":/sleep-diary-formats sleep-diary-formats
+docker run --rm -v "$PWD":/sleepdiary-library sleepdiary-library
 ```
 
 This will create a build environment that runs the [Makefile](Makefile) in a repeatable way.  The Makefile might run on your system without Docker, but is likely to produce different results.

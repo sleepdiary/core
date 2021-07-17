@@ -45,7 +45,7 @@ You will eventually need to write your code and unit tests in JavaScript, althou
 
 The easiest way to test your code during development is to rebuild it like this:
 
-    run --rm -v "$PWD":/app sleep-diary-formats
+    run --rm -v "$PWD":/app sleepdiary-library
 
 ## Final checklist
 

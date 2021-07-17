@@ -167,7 +167,7 @@ class DiaryBase {
             return this;
 
         case "url":
-            return "sleep-diary=" + encodeURIComponent(JSON.stringify(
+            return "sleepdiary=" + encodeURIComponent(JSON.stringify(
                 {
                     "file_format": this["file_format"](),
                     "contents"   : this,
@@ -269,7 +269,7 @@ class DiaryBase {
         format["constructor"] = constructor;
         sleep_diary_formats.push(format);
         if ( format["url"][0] == '/' ) {
-            format["url"] = "https://sleep-diary-formats.github.io" + format["url"];
+            format["url"] = "https://sleepdiary.github.io/library/" + format["url"];
         }
         if ( format.name != "Standard" ) {
             sleep_diary_converters[format.name] = format.constructor;
