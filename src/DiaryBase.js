@@ -600,6 +600,14 @@ class DiaryBase {
     }
 
     /**
+     * Complete list of allowed timezones
+     * @return {Array<string>}
+     */
+    ["timezones"]() {
+        return Object.keys(window["tzdata"]["zones"]).sort();
+    }
+
+    /**
      * Version ID for this package
      * @return {string}
      */
