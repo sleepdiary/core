@@ -68,7 +68,7 @@ git ls-files src/\*/format.js \
 [ -n "$RESULT" ] && exit "$RESULT"
 
 # Make sure we're going to push what we expected to:
-git diff @{u} ':(exclude)doc/*.html' ':(exclude)sleep-diary-formats.js.map'
+git diff @{u} ':(exclude)doc/*.html' ':(exclude)sleepdiary-library.js.map'
 echo
 git log --oneline --graph @{u}...HEAD
 

@@ -27,7 +27,7 @@ CLOSURE_OPTIONS= \
 SLEEP_DIARY_FORMATS_EXTERNS=src/closure-externs.js
 TEST_INPUT=src/test-harness.js src/test-spreadsheet.js $(patsubst %,src/%/test.js,$(FORMATS))
 
-sleep-diary-formats.js: $(SLEEP_DIARY_FORMATS_EXTERNS) $(DIARY_FILES)
+sleepdiary-library.js: $(SLEEP_DIARY_FORMATS_EXTERNS) $(DIARY_FILES)
 	./bin/create-constants.sh
 	google-closure-compiler \
 		$(CLOSURE_OPTIONS) \
@@ -35,7 +35,7 @@ sleep-diary-formats.js: $(SLEEP_DIARY_FORMATS_EXTERNS) $(DIARY_FILES)
 		--js_output_file $@ \
 		--js constants.js $(DIARY_FILES)
 	rm constants.js
-	echo "//# sourceMappingURL="sleep-diary-formats.js.map >> sleep-diary-formats.js
+	echo "//# sourceMappingURL="sleepdiary-library.js.map >> sleepdiary-library.js
 
 test.js: $(SLEEP_DIARY_FORMATS_EXTERNS) $(DIARY_FILES) $(TEST_INPUT)
 	./bin/create-constants.sh
@@ -51,11 +51,11 @@ doc/index.html: doc/README.md $(DIARY_FILES) doc/tutorials/*.md
 	/tmp/libfaketime/src/faketime "1970-01-01 00:00:00 +0000" jsdoc -d doc --readme $< $(DIARY_FILES) -u doc/tutorials
 	sed -i -e "s/Thu Jan 01 1970 ..:..:.. GMT+0000 (Coordinated Universal Time)/$(shell node -e "console.log(new Date('$(shell git log -1 --format="%ci" doc/README.md $(DIARY_FILES) doc/tutorials )').toString())" )/g" doc/*.html
 
-test: spec/support/jasmine.json sleep-diary-formats.js test.js
+test: spec/support/jasmine.json sleepdiary-library.js test.js
 	jasmine $<
 	PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-no-sandbox node bin/puppeteer-test.js
 
 clean:
-	rm -rf README.html doc/*.html sleep-diary-formats.js* test.js* doc/*/README.html doc/fonts doc/scripts doc/styles
+	rm -rf README.html doc/*.html sleepdiary-library.js* test.js* doc/*/README.html doc/fonts doc/scripts doc/styles
 
-build: sleep-diary-formats.js doc/index.html
+build: sleepdiary-library.js doc/index.html

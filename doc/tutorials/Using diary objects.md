@@ -40,7 +40,7 @@ Try loading a diary with the file input:
 
 <input type="file" id="diary-input">
 
-<script src="../sleep-diary-formats.js"></script>
+<script src="../sleepdiary-library.js"></script>
 <script>
 var diary_loader = new DiaryLoader(
 

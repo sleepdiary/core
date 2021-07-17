@@ -10,8 +10,8 @@ README.html
 /doc/fonts
 /doc/scripts
 /doc/styles
-/sleep-diary-formats.js
-/sleep-diary-formats.js.map
+/sleepdiary-library.js
+/sleepdiary-library.js.map
 /test.js
 /test.js.map
 /constants.js
