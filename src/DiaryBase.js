@@ -509,7 +509,7 @@ class DiaryBase {
     }
 
     /**
-     * Get the main object for timezone manipulation
+     * Get the main object for managing timezones
      *
      * This object may change in future - prefer date() whenever possible.
      */
