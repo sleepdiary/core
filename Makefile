@@ -51,7 +51,7 @@ doc/index.html: doc/README.md $(DIARY_FILES) doc/tutorials/*.md
 	/tmp/libfaketime/src/faketime "1970-01-01 00:00:00 +0000" jsdoc -d doc --readme $< $(DIARY_FILES) -u doc/tutorials
 	sed -i -e "s/Thu Jan 01 1970 ..:..:.. GMT+0000 (Coordinated Universal Time)/$(shell node -e "console.log(new Date('$(shell git log -1 --format="%ci" doc/README.md $(DIARY_FILES) doc/tutorials )').toString())" )/g" doc/*.html
 
-test: spec/support/jasmine.json sleep-diary-formats.js
+test: spec/support/jasmine.json sleep-diary-formats.js test.js
 	jasmine $<
 	PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-no-sandbox node bin/puppeteer-test.js
 
