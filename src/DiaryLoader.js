@@ -136,7 +136,7 @@ class DiaryLoader {
             let xhr = new XMLHttpRequest;
             xhr.responseType = 'blob';
             xhr.onload = () => this["load"]([xhr.response],source);
-            xhr.open('GET', raw);
+            xhr.open('GET', /** @type {string} */(raw));
             return xhr.send();
         }
 
@@ -144,9 +144,21 @@ class DiaryLoader {
 
         if ( raw.target && raw.target.files ) raw = raw.target.files;
 
-        if ( raw.length ) { // looks array-like (e.g. FileList)
+        if ( raw.replace ) {
+            raw.replace(/^storage-line:([^:]+):(.*)/, (_,file_format,json) => {
+                raw = {
+                    "file_format": "storage-line",
+                    "contents": {
+                        "file_format": file_format,
+                        "contents"   : JSON.parse(json),
+                    },
+                };
+            });
+        }
 
-            Array.from(raw).forEach( file => {
+        if ( typeof(raw) != "string" && raw.length ) { // looks array-like (e.g. FileList)
+
+            Array.from(/** @type {!Iterable<*>} */(raw)).forEach( file => {
 
                 let file_reader = new FileReader(),
                     zip = new jszip()

@@ -117,7 +117,21 @@ class DiaryBase {
      * Create a deep copy of the current object
      */
     ["clone"]() {
-        return new_sleep_diary(this["to"]("url"),this.serialiser);
+        return new_sleep_diary(
+            {
+                "file_format": "storage-line",
+                "contents": {
+                    "file_format": this["file_format"](),
+                    "contents"   : JSON.parse(
+                        JSON.stringify(
+                            this,
+                            (key,value) => ( key == "spreadsheet" ) ? undefined : value
+                        )
+                    ),
+                }
+            },
+            this.serialiser
+        );
     }
 
     /**
@@ -128,6 +142,7 @@ class DiaryBase {
      * <ul>
      *   <li><tt>url</tt> - contents serialised for inclusion in a URL</li>
      *   <li><tt>json</tt> - contents serialised to JSON</li>
+     *   <li><tt>storage-line</tt> - contents serialised for inclusion in a newline-separated list of diaries</li>
      *   <li><tt>Standard</tt> - Standard format</li>
      *   <li><em>(other formats)</em> - the name of any other diary format</li>
      * </ul>
@@ -162,6 +177,12 @@ class DiaryBase {
 
         case "json":
             return JSON.stringify(
+                this,
+                (key,value) => ( key == "spreadsheet" ) ? undefined : value
+            );
+
+        case "storage-line":
+            return "storage-line:" + this["file_format"]() + ':' + JSON.stringify(
                 this,
                 (key,value) => ( key == "spreadsheet" ) ? undefined : value
             );
@@ -622,6 +643,9 @@ function new_sleep_diary(file,serialiser) {
 
         if ( file_format == "url" ) {
             file["contents"] = JSON.parse(decodeURIComponent(file["contents"].substr(12)));
+        } else if ( file_format == "storage-line" ) {
+            // these two formats behave identically after this point:
+            file_format = "url";
         }
 
     } else {
