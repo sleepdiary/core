@@ -52,15 +52,15 @@ git diff @{u} -- . ':!src/Example' | grep -i '^\+.*[^@\/]example[^s]' | grep -vF
 
 git diff @{u} -- . ':!src/Example' | grep -i '^\+[^\*]*\.\.\.' && fail "Please fix '...' messages in your code"
 
-git ls-files src/\*/format.js \
-    | sed -e 's/^src\///' -e 's/\/format.js$//' -e '/^Example$/ d' \
-    | while read FORMAT
+git ls-files src/\*/engine.js \
+    | sed -e 's/^src\///' -e 's/\/engine.js$//' -e '/^Example$/ d' \
+    | while read ENGINE
       do
           for FILE in Makefile README.md doc/README.md
           do
-              if ! grep -q "$FORMAT" "$FILE"
+              if ! grep -q "$ENGINE" "$FILE"
               then
-                  fail "Please add $FORMAT to $FILE"
+                  fail "Please add $ENGINE to $FILE"
               fi
           done
       done

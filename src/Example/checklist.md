@@ -1,10 +1,10 @@
-# How to implement a new format
+# How to implement a new engine
 
-This document explains the general process of implementing a new sleep diary format.  It is split out into distinct stages for purposes of explanation, but in practice you will spend a lot of time going back and forth between stages.
+This document explains the general process of implementing a new engine for a sleep diary format.  It is split out into distinct stages for purposes of explanation, but in practice you will spend a lot of time going back and forth between stages.
 
 ## Research the format
 
-The first step in implementing a format is to find out what's already known about it.
+The first step in implementing an engine is to find out what's already known about the format it will process.
 
 Make sure to search thoroughly online, both for official documentation and unofficial guides.  You might not find a technical description of the format, but you will usually be able to find out e.g. non-obvious features you'll need to support.
 

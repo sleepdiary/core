@@ -24,15 +24,15 @@
 
 "use strict";
 
-const _sleep_diary_exports = {
-    "new_sleep_diary"    : new_sleep_diary,
-    "sleep_diary_formats": sleep_diary_formats,
-    "DiaryLoader"        : DiaryLoader,
-    "Spreadsheet"        : Spreadsheet,
+const _sleepdiary_exports = {
+    "new_sleep_diary"   : new_sleep_diary,
+    "sleepdiary_engines": sleepdiary_engines,
+    "DiaryLoader"       : DiaryLoader,
+    "Spreadsheet"       : Spreadsheet,
 };
 
 if ( typeof module !== "undefined" && module.exports ) {
-    module.exports = _sleep_diary_exports;
+    module.exports = _sleepdiary_exports;
 } else {
-    Object.keys(_sleep_diary_exports).forEach( e => window[e] = _sleep_diary_exports[e] );
+    Object.keys(_sleepdiary_exports).forEach( e => window[e] = _sleepdiary_exports[e] );
 }

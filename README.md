@@ -1,4 +1,4 @@
-# Sleep Diary Formats
+# Sleep Diary Library
 
 Documentation and code for file formats that record circadian rhythms.
 
@@ -26,4 +26,4 @@ To check if the project works in your browser, try the [browser-based unit tests
 
 Please [create a new GitHub issue](https://github.com/sleepdiary-library/sleepdiary-library.github.io/issues/new/choose) or [mention it on Discord](https://discord.com/channels/725475399156629615/725477106103877772).  GitHub is generally a better place to discuss feature requests, but Discord is more private if you need to include data from your personal sleep diary.  When reporting a bug, make sure to include [unit test results](browser_test.html) for your browser - even if they don't find anything, it helps us to rule out things that _can't_ be the problem.
 
-Please get in touch if you would like to add a new format!
+Please get in touch if you would like to add support for a new format!

@@ -1,4 +1,4 @@
-# Sleep Diary Formats
+# Sleep Diary Library
 
 ## Browser Quick Start
 
@@ -77,11 +77,11 @@ npm install timezonecomplete xmldom
 Use the package:
 
 ```javascript
-const sleep_diary_formats = require(".../sleepdiary-library.js");
+const sleepdiary = require(".../sleepdiary-library.js");
 
 ...
 
-let diary = sleep_diary_formats.new_sleep_diary( my_diary );
+let diary = sleepdiary.new_sleep_diary( my_diary );
 ```
 
 ## Browser support

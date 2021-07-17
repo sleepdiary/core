@@ -1,11 +1,11 @@
 const serialiser = /** @type {Function} */(DiaryLoader["serialiser"]);
 
 var roundtrip_modifiers = {};
-function register_roundtrip_modifier(format,callback) {
-    if ( format == "Example" ) {
-        console.error("register_roundtrip_modifier() called with format == 'Example' - please set the format");
+function register_roundtrip_modifier(engine,callback) {
+    if ( engine == "Example" ) {
+        console.error("register_roundtrip_modifier() called with engine == 'Example' - please set the engine");
     } else {
-        roundtrip_modifiers[format] = callback;
+        roundtrip_modifiers[engine] = callback;
     }
 }
 
@@ -74,7 +74,7 @@ function test_is_runnable(test) {
 
 function test_parse(test) {
 
-    if ( !test.name ) test.name = "format's 'parse' test";
+    if ( !test.name ) test.name = "engine's 'parse' test";
 
     // disable all but the test you care about:
     if ( !test_is_runnable(test) ) return;
@@ -95,11 +95,11 @@ function test_parse(test) {
             compare_diaries(diary,test.expected,debug);
         });
 
-        it(`produces a file of the correct format for "${test.name||"format's 'parse' test"}"`, function() {
+        it(`produces a file of the correct format for "${test.name||"engine's 'parse' test"}"`, function() {
             expect(diary["file_format"]())["toEqual"](test.file_format);
         });
 
-        it(`URL-ifies "${test.name||"format's 'parse' test"}" correctly`, function() {
+        it(`URL-ifies "${test.name||"engine's 'parse' test"}" correctly`, function() {
             var url = diary["to"]("url");
             var observed = new_sleep_diary({
                 "file_format": "url",
@@ -119,11 +119,11 @@ function test_parse(test) {
          * but formats shouldn't lose any more data than that.
          */
         var n = 0;
-        sleep_diary_formats.forEach( function(format) {
-            it(`converts "${test.name||"format's 'parse' test"}" to ${format.name} correctly in test_parse()`, function() {
+        sleepdiary_engines.forEach( function(engine) {
+            it(`converts "${test.name||"engine's 'parse' test"}" to ${engine.name} correctly in test_parse()`, function() {
                 return new Promise(function(resolve, reject) {
                     try {
-                        diary["to_async"](format.name).then(
+                        diary["to_async"](engine.name).then(
                             function(formatted) {
                                 try {
                                     formatted["to_async"](diary["file_format"]()).then(
@@ -131,7 +131,7 @@ function test_parse(test) {
                                             var observed = Object.assign({},roundtripped["to"]("Standard"));
                                             var expected = Object.assign({},diary       ["to"]("Standard"));
                                             if ( debug ) console.log({
-                                                "0. test and format": [ test, format ],
+                                                "0. test and engine": [ test, engine ],
                                                 "1. original": diary,
                                                 "2. original to Standard": diary["to"]("Standard"),
                                                 "3. original to formatted": formatted,
@@ -146,7 +146,7 @@ function test_parse(test) {
                                                 )
                                             );
                                             if ( roundtrip_modifiers[diary["file_format"]()] ) {
-                                                roundtrip_modifiers[diary["file_format"]()](expected,observed,format);
+                                                roundtrip_modifiers[diary["file_format"]()](expected,observed,engine);
                                             }
                                             if ( formatted["format_info"]()["statuses"] ) {
                                                 var statuses = {};
@@ -179,12 +179,12 @@ function test_parse(test) {
                                 }
                             },
                             function(error) {
-                                console.error(`diary.to_async("${format.name}") failed:`,diary,error);
+                                console.error(`diary.to_async("${engine.name}") failed:`,diary,error);
                                 reject(error);
                             }
                         );
                     } catch (error) {
-                        console.error(`diary.to_async("${format.name}") failed:`,diary,error);
+                        console.error(`diary.to_async("${engine.name}") failed:`,diary,error);
                         reject(error);
                     }
                 });
@@ -194,7 +194,7 @@ function test_parse(test) {
         if ( typeof module === "undefined" || !module.exports ) {
 
             if ( output ) {
-                it(`outputs "${test.name||"format's 'parse' test"}" correctly`, function() {
+                it(`outputs "${test.name||"engine's 'parse' test"}" correctly`, function() {
                     return new Promise(function(resolve, reject) {
                         try {
                             diary["to_async"]("output").then( function(output) {
@@ -227,7 +227,7 @@ function test_parse(test) {
             }
 
             if ( spreadsheetify ) {
-                it(`spreadsheetifies "${test.name||"format's 'parse' test"}" correctly`, function() {
+                it(`spreadsheetifies "${test.name||"engine's 'parse' test"}" correctly`, function() {
                     var clone1 = Object.assign({},diary);
                     Object.keys(clone1)
                         .forEach( function(key) {
@@ -280,7 +280,7 @@ function test_from_standard(test) {
         // || true // enable debugging for all tests
     );
 
-    if ( !test.name ) test.name = "format's 'from standard' test";
+    if ( !test.name ) test.name = "engine's 'from standard' test";
 
     if ( !test_is_runnable(test) ) return;
 
@@ -315,7 +315,7 @@ function test_to(test) {
         // || true // enable debugging for all tests
     );
 
-    if ( !test.name ) test.name = "format's 'to' test";
+    if ( !test.name ) test.name = "engine's 'to' test";
 
     if ( !test_is_runnable(test) ) return;
 
@@ -347,7 +347,7 @@ function test_to(test) {
 
 function test_merge(test) {
 
-    if ( !test.name ) test.name = "format's 'merge' test";
+    if ( !test.name ) test.name = "engine's 'merge' test";
 
     if ( !test_is_runnable(test) ) return;
 

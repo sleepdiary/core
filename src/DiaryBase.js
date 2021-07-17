@@ -34,7 +34,7 @@ const DEBUG = false;
  * Functions for converting from the current type to some other type
  * @private
  */
-const sleep_diary_converters = {};
+const sleepdiary_converters = {};
 
 /**
  * @typedef {{
@@ -42,17 +42,17 @@ const sleep_diary_converters = {};
  *   constructor : Function,
  *   title       : string,
  *   url         : string
- * }} DiaryFormat
+ * }} DiaryEngine
  */
-let DiaryFormat;
+let DiaryEngine;
 
 /**
- * List of known formats for sleep diaries
- * @type Array<DiaryFormat>
- * @tutorial List supported formats
+ * List of known engines for sleep diaries
+ * @type Array<DiaryEngine>
+ * @tutorial List supported engines
  * @public
  */
-const sleep_diary_formats = [];
+const sleepdiary_engines = [];
 
 /**
  * Default timezone for this system
@@ -65,7 +65,7 @@ let system_timezone = (
 )( new Intl.DateTimeFormat().resolvedOptions().timeZone );
 
 /**
- * @class Base class for sleep diary formats
+ * @class Base class for sleep diary engines
  *
  * @unrestricted
  * @abstract
@@ -188,8 +188,8 @@ class DiaryBase {
             );
 
         default:
-            if ( sleep_diary_converters.hasOwnProperty(to_format) ) {
-                return new sleep_diary_converters[to_format](
+            if ( sleepdiary_converters.hasOwnProperty(to_format) ) {
+                return new sleepdiary_converters[to_format](
                     this["to"]("Standard"),
                     this.serialiser,
                 );
@@ -255,24 +255,24 @@ class DiaryBase {
      */
 
     /**
-     * Register a new format
+     * Register a new engine
      *
      * @public
      *
-     * @param {Function} constructor - sleep diary format
+     * @param {Function} constructor - sleep diary engine
      *
      * @example
      *   DiaryBase.register(MyClass);
      */
     static register( constructor ) {
-        let format = constructor["prototype"]["format_info"]();
-        format["constructor"] = constructor;
-        sleep_diary_formats.push(format);
-        if ( format["url"][0] == '/' ) {
-            format["url"] = "https://sleepdiary.github.io/library/" + format["url"];
+        let engine = constructor["prototype"]["format_info"]();
+        engine["constructor"] = constructor;
+        sleepdiary_engines.push(engine);
+        if ( engine["url"][0] == '/' ) {
+            engine["url"] = "https://sleepdiary.github.io/library/" + engine["url"];
         }
-        if ( format.name != "Standard" ) {
-            sleep_diary_converters[format.name] = format.constructor;
+        if ( engine.name != "Standard" ) {
+            sleepdiary_converters[engine.name] = engine.constructor;
         }
 
     };
@@ -650,7 +650,7 @@ function new_sleep_diary(file,serialiser) {
         }
 
         if ( file_format == "url" ) {
-            file["contents"] = JSON.parse(decodeURIComponent(file["contents"].substr(12)));
+            file["contents"] = JSON.parse(decodeURIComponent(file["contents"].replace(/^sleep-?diary=/,'')));
         } else if ( file_format == "storage-line" ) {
             // these two formats behave identically after this point:
             file_format = "url";
@@ -666,9 +666,9 @@ function new_sleep_diary(file,serialiser) {
         Object.assign(file,Spreadsheet.parse_csv(file["contents"]));
     }
 
-    for ( let n=0; n!=sleep_diary_formats.length; ++n ) {
+    for ( let n=0; n!=sleepdiary_engines.length; ++n ) {
         try {
-            return new sleep_diary_formats[n]["constructor"](file,serialiser);
+            return new sleepdiary_engines[n]["constructor"](file,serialiser);
         } catch (e) {
             if ( e ) { // SleepDiary.invalid() throws null to indicate the file is in the wrong format
                 if ( DEBUG ) console.error(e);
