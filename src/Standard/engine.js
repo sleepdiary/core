@@ -99,7 +99,9 @@ let DiaryStandardRecord;
  *                 median            : number,
  *   interquartile_range             : number,
  *                 durations         : Array<number|undefined>,
- *   interquartile_durations         : Array<number|undefined>
+ *   interquartile_durations         : Array<number|undefined>,
+ *         rolling_average           : Array<number|undefined>,
+ *                 timestamps        : Array<number|undefined>
  * }} DiaryStandardStatistics
  *
  * Information about records from a diary
@@ -627,11 +629,15 @@ class DiaryStandard extends DiaryBase {
 
     /**
      * Internal function used by summarise_*
+     * @param {Array<Array<number>>} durations_and_timestamps - event durations and associated timestamps
+     * @param {number=} rolling_average_max - maximum allowed value for the rolling average (e.g. 24 hours)
      * @private
      */
-    static summarise(durations) {
+    static summarise(durations_and_timestamps,rolling_average_max) {
 
-        let defined_durations = durations.filter( r => r !== undefined ),
+        let defined_durations = durations_and_timestamps
+            .map( r => r[0] )
+            .filter( r => r !== undefined ),
             total_durations   = defined_durations.length
         ;
 
@@ -640,6 +646,7 @@ class DiaryStandard extends DiaryBase {
         let a_plus_b        = (a,b) => a+b,
             a_minus_b       = (a,b) => a-b,
             sum_of_squares  = (a,r) => a + Math.pow(r - mean, 2) ,
+            rolling_window = [],
 
             sorted_durations  = defined_durations.sort(a_minus_b),
             interquartile_durations = sorted_durations.slice(
@@ -662,8 +669,59 @@ class DiaryStandard extends DiaryBase {
                     interquartile_durations[0]
                 ),
 
-                              "durations":               durations,
+                              "durations": durations_and_timestamps.map( r => r ? r[0] : undefined ),
+                             "timestamps": durations_and_timestamps.map( r => r ? r[1] : undefined ),
                 "interquartile_durations": interquartile_durations,
+                        "rolling_average": durations_and_timestamps.map(
+                    rolling_average_max
+                    ? (_,n) => {
+                        /*
+                         * work around a similar issue to that described in summarise_schedule(),
+                         * but using a different approach.
+                         *
+                         * Unlike summarise_schedule(), we want to switch between earlier and later
+                         * values for every calculation, and can assume the rolling average
+                         * has values in a relatively small range.
+                         */
+                        if ( n < 14 ) return undefined;
+                        const rolling_window = durations_and_timestamps
+                              .slice(Math.max(0,n-13),n+1)
+                              .map( r => r[0] )
+                              .filter( r => r !== undefined ),
+                              extremes = [ 0, 0 ]
+                              ;
+                        rolling_window.forEach( duration => {
+                            if ( duration<rolling_average_max*1/4 ) {
+                                ++extremes[0]
+                            } else if ( duration>rolling_average_max*3/4 ) {
+                                ++extremes[1];
+                            }
+                        });
+                        return (
+                            rolling_window.length
+                            ? (
+                                rolling_window.reduce( (a,b) => a + b )
+                                    + ( extremes[0] < extremes[1]
+                                        ? extremes[0]* rolling_average_max
+                                        : extremes[1]*-rolling_average_max
+                                      )
+                            ) / rolling_window.length
+                            : undefined
+                        );
+                    }
+                    : (_,n) => {
+                        const rolling_window = durations_and_timestamps
+                              .slice(Math.max(0,n-13),n+1)
+                              .map( r => r[0] )
+                              .filter( r => r !== undefined )
+                        ;
+                        return (
+                            ( n >= 14 && rolling_window.length )
+                            ? rolling_window.reduce( (a,b) => a+b ) / rolling_window.length
+                            : undefined
+                        );
+                    }
+                ),
         };
 
         // calculate standard deviations:
@@ -730,7 +788,7 @@ class DiaryStandard extends DiaryBase {
 
         return DiaryStandard.summarise(
             ( filter ? this["records"].filter(filter) : this["records"] )
-                .map( r => r["duration"] )
+                .map( r => [ r["duration"], r["start"]||r["end"] ] )
         );
 
     }
@@ -793,7 +851,7 @@ class DiaryStandard extends DiaryBase {
         let durations = [];
         for ( let n=1; n<starts.length; ++n ) {
             if ( starts[n] && starts[n-1] ) {
-                durations[n-1] = starts[n] - starts[n-1];
+                durations[n-1] = [ starts[n] - starts[n-1], starts[n-1] ];
             }
         }
 
@@ -844,7 +902,6 @@ class DiaryStandard extends DiaryBase {
      */
     ["total_per_day"](record_filter,day_filter) {
 
-        // get the earliest start time for each day:
         let counts = [],
             cutoff = (
                 // duration cannot be calculated for an incomplete day:
@@ -854,14 +911,13 @@ class DiaryStandard extends DiaryBase {
             );
 
         ( day_filter ? this["records"].filter(day_filter) : this["records"] )
-            .forEach( r => (
-                counts[r["day_number"]]
-                    = (counts[r["day_number"]]||0)
-                    + ( record_filter && !record_filter(r) ? 0 : 1 )
-            ));
+            .forEach( r =>
+                (
+                    counts[r["day_number"]] = counts[r["day_number"]] || [ 0, r["start"] ]
+                )[0] += ( record_filter && !record_filter(r) ? 0 : 1 )
+            );
 
-        delete counts[0];
-        delete counts[cutoff];
+        counts = counts.slice( 1, cutoff );
 
         // remove leading undefined start times:
         while ( counts.length && counts[0] === undefined ) {
@@ -968,8 +1024,8 @@ class DiaryStandard extends DiaryBase {
                         time += (
                             DiaryBase.date(time,tz)["offset"]()
                         ) * 60000;
-                        sleep_early.push( time                 %day_length);
-                        sleep_late .push((time+half_day_length)%day_length);
+                        sleep_early.push([ time                 %day_length, time ]);
+                        sleep_late .push([(time+half_day_length)%day_length, time ]);
                     }
                     if ( r["end"] ) {
                         let time = r["end"],
@@ -977,16 +1033,16 @@ class DiaryStandard extends DiaryBase {
                         time += (
                             DiaryBase.date(time,tz)["offset"]()
                         ) * 60000;
-                        wake_early .push( time                 %day_length);
-                        wake_late  .push((time+half_day_length)%day_length);
+                        wake_early .push([ time                 %day_length, time ]);
+                        wake_late  .push([(time+half_day_length)%day_length, time ]);
                     }
                 }
             });
 
-        let sleep_stats_early = DiaryStandard.summarise(sleep_early),
-            sleep_stats_late  = DiaryStandard.summarise(sleep_late ),
-             wake_stats_early = DiaryStandard.summarise( wake_early),
-             wake_stats_late  = DiaryStandard.summarise( wake_late )
+        let sleep_stats_early = DiaryStandard.summarise(sleep_early,day_length),
+            sleep_stats_late  = DiaryStandard.summarise(sleep_late ,day_length),
+             wake_stats_early = DiaryStandard.summarise( wake_early,day_length),
+             wake_stats_late  = DiaryStandard.summarise( wake_late ,day_length)
         ;
 
         [
@@ -1000,6 +1056,7 @@ class DiaryStandard extends DiaryBase {
                 [ "durations", "interquartile_durations" ].forEach(
                     key => stats[0][key] = stats[1][key]
                 );
+                stats[0]["rolling_average"] = stats[1]["rolling_average"];
             }
         });
 

@@ -711,6 +711,8 @@ describe("Standard format", () => {
                     "interquartile_durations": [ 1 ],
                     "standard_deviation": 0,
                     "interquartile_standard_deviation": 0,
+                    "timestamps": [ undefined ],
+                    "rolling_average": [ undefined ],
                 }),
             },
             {
@@ -725,6 +727,8 @@ describe("Standard format", () => {
                     "interquartile_durations": [ 1 ],
                     "standard_deviation": 0,
                     "interquartile_standard_deviation": 0,
+                    "timestamps": [ undefined, 1 ],
+                    "rolling_average": [ undefined, undefined ],
                 }),
             },
             {
@@ -739,6 +743,8 @@ describe("Standard format", () => {
                     "interquartile_durations": [ 1, 1 ],
                     "standard_deviation": 0,
                     "interquartile_standard_deviation": 0,
+                    "timestamps": [ undefined, undefined, undefined, undefined ],
+                    "rolling_average": [ undefined, undefined, undefined, undefined ],
                 }),
             },
             {
@@ -753,6 +759,8 @@ describe("Standard format", () => {
                     "interquartile_durations": [ 1, 1 ],
                     "standard_deviation": 7.428828979051813,
                     "interquartile_standard_deviation": 0,
+                    "timestamps": [ undefined, undefined, undefined, undefined ],
+                    "rolling_average": [ undefined, undefined, undefined, undefined ],
                 }),
             },
         ];
@@ -834,6 +842,8 @@ describe("Standard format", () => {
                         "interquartile_durations": [ 1 ],
                         "standard_deviation": 0,
                         "interquartile_standard_deviation": 0,
+                        "timestamps": [ 1 ],
+                        "rolling_average": [ undefined ],
                     },
                 },
             },
@@ -854,6 +864,8 @@ describe("Standard format", () => {
                         "interquartile_durations": [ 1 ],
                         "standard_deviation": 0,
                         "interquartile_standard_deviation": 0,
+                        "timestamps": [ 1 ],
+                        "rolling_average": [ undefined ],
                     },
                     "sleep": null,
                 },
@@ -875,6 +887,8 @@ describe("Standard format", () => {
                         "interquartile_durations": [ 1 ],
                         "standard_deviation": 0,
                         "interquartile_standard_deviation": 0,
+                        "timestamps": [ 1 ],
+                        "rolling_average": [ undefined ],
                     },
                     "sleep": {
                         "average": 1,
@@ -886,6 +900,8 @@ describe("Standard format", () => {
                         "interquartile_durations": [ 1 ],
                         "standard_deviation": 0,
                         "interquartile_standard_deviation": 0,
+                        "timestamps": [ 1 ],
+                        "rolling_average": [ undefined ],
                     },
                 },
             },
@@ -912,6 +928,8 @@ describe("Standard format", () => {
                         "interquartile_durations": [ 24*60*60*1000-1 ],
                         "standard_deviation": 0,
                         "interquartile_standard_deviation": 0,
+                        "timestamps": [ 24*60*60*1000-1 ],
+                        "rolling_average": [ undefined ],
                     },
                     "sleep": {
                         "average": 1,
@@ -923,6 +941,8 @@ describe("Standard format", () => {
                         "interquartile_durations": [ 1 ],
                         "standard_deviation": 0,
                         "interquartile_standard_deviation": 0,
+                        "timestamps": [ 1 ],
+                        "rolling_average": [ undefined ],
                     },
                 },
             },
@@ -945,6 +965,8 @@ describe("Standard format", () => {
                         "interquartile_durations": [ 3 ],
                         "standard_deviation": 1,
                         "interquartile_standard_deviation": 0,
+                        "timestamps": [ 1, 3 ],
+                        "rolling_average": [ undefined, undefined ],
                     },
                 },
             },
@@ -967,6 +989,8 @@ describe("Standard format", () => {
                         "interquartile_durations": [ 24*60*60*1000-1 ],
                         "standard_deviation": 1,
                         "interquartile_standard_deviation": 0,
+                        "timestamps": [ 1, 24*60*60*1000-1 ],
+                        "rolling_average": [ undefined, undefined ],
                     },
                 },
             },
@@ -1002,6 +1026,51 @@ describe("Standard format", () => {
                         "interquartile_durations": [ 0, 0, 0 ],
                         "standard_deviation": 0,
                         "interquartile_standard_deviation": 0,
+                        "timestamps": [ 1585440000000, 1585440000000, 1585440000000, 1585526400000, 1585526400000, 1585526400000 ],
+                        "rolling_average": [ undefined, undefined, undefined, undefined, undefined, undefined ],
+                    },
+                },
+            },
+
+            {
+                "records": [
+                    {
+                        "is_primary_sleep": true,
+                        // date --date='TZ="Etc/GMT+1" March 29 2020 00:00' +%s000
+                        "start": 1585443600000,
+                        "start_timezone": "Etc/GMT+1",
+                        // date --date='TZ="Etc/GMT+2" March 29 2020 08:00' +%s000
+                        "end": 1585476000000,
+                        "end_timezone": "Etc/GMT+2",
+                    },
+                ],
+                "args": [null,null,/*"Asia/Seoul"*/], //
+                "expected": {
+                    "wake": {
+                        "average": 28800000,
+                        "mean": 28800000,
+                        "interquartile_mean": 28800000,
+                        "median": 28800000,
+                        "interquartile_range": 0,
+                        "durations": [ 28800000 ],
+                        "interquartile_durations": [ 28800000 ],
+                        "standard_deviation": 0,
+                        "interquartile_standard_deviation": 0,
+                        "timestamps": [ 1585468800000 ],
+                        "rolling_average": [ undefined ],
+                    },
+                    "sleep": {
+                        "average": 0,
+                        "mean": 0,
+                        "interquartile_mean": 0,
+                        "median": 0,
+                        "interquartile_range": 0,
+                        "durations": [ 0 ],
+                        "interquartile_durations": [ 0 ],
+                        "standard_deviation": 0,
+                        "interquartile_standard_deviation": 0,
+                        "timestamps": [ 1585440000000 ],
+                        "rolling_average": [ undefined ],
                     },
                 },
             },
@@ -3284,5 +3353,331 @@ describe("Standard format", () => {
 
     });
 
+    it(`calculates the correct total per day`, function() {
+
+        var tests = [
+
+            {
+                "records": [],
+                "args": [],
+                "expected": null,
+            },
+
+            {
+                "records": [
+                    { "day_number": 0 },
+                ],
+                "args": [],
+                "expected": null,
+            },
+
+            {
+                "records": [
+                    { "day_number": 0 },
+                    { "day_number": 1 },
+                ],
+                "args": [],
+                "expected": null,
+            },
+
+            {
+                "records": [
+                    { "day_number": 0 },
+                    { "day_number": 1 },
+                    { "day_number": 2 },
+                ],
+                "args": [],
+                "expected": {
+                    "average": 1,
+                    "mean": 1,
+                    "interquartile_mean": 1,
+                    "median": 1,
+                    "interquartile_range": 0,
+                    "durations": [ 1 ],
+                    "interquartile_durations": [ 1 ],
+                    "standard_deviation": 0,
+                    "interquartile_standard_deviation": 0,
+                    "timestamps": [ undefined ],
+                    "rolling_average": [ undefined ],
+                },
+            },
+
+            {
+                "records": [
+                    { "day_number": 0 },
+                    { "day_number": 1 },
+                    { "day_number": 1 },
+                    { "day_number": 1 },
+                    { "day_number": 2 },
+                ],
+                "args": [],
+                "expected": {
+                    "average": 3,
+                    "mean": 3,
+                    "interquartile_mean": 3,
+                    "median": 3,
+                    "interquartile_range": 0,
+                    "durations": [ 3 ],
+                    "interquartile_durations": [ 3 ],
+                    "standard_deviation": 0,
+                    "interquartile_standard_deviation": 0,
+                    "timestamps": [ undefined ],
+                    "rolling_average": [ undefined ],
+                },
+            },
+
+        ];
+
+        tests.forEach(function(test) {
+            try {
+            let diary = new_sleep_diary(wrap_input({
+                "file_format": "Standard",
+                "records": test["records"],
+            }));
+            expect(
+                diary["total_per_day"].apply(diary,test["args"])
+            )["toEqual"](test["expected"]);
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
+        });
+
+    });
+
+    it(`calculates the correct daily summary`, function() {
+
+        var tests = [
+
+            {
+                "records": [],
+                "args": [],
+                "expected": null,
+            },
+
+            {
+                "records": [
+                    {
+                        "is_primary_sleep": true,
+                        "status": "asleep",
+                        "start": 1262304000000, // date -d "2010-01-01T00:00:00.000" +%s000
+                        "day_number": 0,
+                    },
+                ],
+                "args": [],
+                "expected": null,
+            },
+
+            {
+                "records": [
+                    {
+                        "is_primary_sleep": true,
+                        "status": "asleep",
+                        "start": 1262304000000, // date -d "2010-01-01T00:00:00.000" +%s000
+                        "day_number": 0,
+                    },
+                    {
+                        "is_primary_sleep": true,
+                        "status": "asleep",
+                        "start": 1262390400000, // date -d "2010-01-02T00:00:00.000" +%s000
+                        "day_number": 1,
+                    },
+                ],
+                "args": [],
+                "expected": null,
+            },
+
+            {
+                "records": [
+                    {
+                        "is_primary_sleep": true,
+                        "status": "asleep",
+                        "start": 1262304000000+86400000*0, // date -d "2010-01-01T00:00:00.000" +%s000
+                        "day_number": 0,
+                    },
+                    {
+                        "is_primary_sleep": true,
+                        "status": "asleep",
+                        "start": 1262304000000+86400000*1,
+                        "day_number": 1,
+                    },
+                    {
+                        "is_primary_sleep": true,
+                        "status": "asleep",
+                        "start": 1262304000000+86400000*2,
+                        "day_number": 2,
+                    },
+                ],
+                "args": [],
+                "expected": null,
+            },
+
+            {
+                "records": [
+                    {
+                        "is_primary_sleep": true,
+                        "status": "asleep",
+                        "start": 1262304000000+86400000*0, // date -d "2010-01-01T00:00:00.000" +%s000
+                        "day_number": 0,
+                    },
+                    {
+                        "is_primary_sleep": true,
+                        "status": "asleep",
+                        "start": 1262304000000+86400000*1,
+                        "day_number": 1,
+                    },
+                    {
+                        "is_primary_sleep": true,
+                        "status": "asleep",
+                        "start": 1262304000000+86400000*2,
+                        "day_number": 2,
+                    },
+                    {
+                        "is_primary_sleep": true,
+                        "status": "asleep",
+                        "start": 1262304000000+86400000*3,
+                        "day_number": 3,
+                    },
+                ],
+                "args": [],
+                "expected": {
+                    "average": 86400000,
+                    "mean": 86400000,
+                    "interquartile_mean": 86400000,
+                    "median": 86400000,
+                    "interquartile_range": 0,
+                    "durations": [ 86400000 ],
+                    "interquartile_durations": [ 86400000 ],
+                    "standard_deviation": 0,
+                    "interquartile_standard_deviation": 0,
+                    "timestamps": [ 1262304000000+86400000*1 ],
+                    "rolling_average": [ undefined ],
+                },
+            },
+
+        ];
+
+        tests.forEach(function(test) {
+            try {
+            let diary = new_sleep_diary(wrap_input({
+                "file_format": "Standard",
+                "records": test["records"],
+            }));
+            expect(
+                diary["summarise_days"].apply(diary,test["args"])
+            )["toEqual"](test["expected"]);
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
+        });
+
+    });
+
+    it(`calculates the correct rolling average`, function() {
+
+        var tests = [
+
+            {
+                "records": [
+                    { "start":  1, "end":  2 },
+                    { "start":  2, "end":  3 },
+                    { "start":  3, "end":  4 },
+                    { "start":  4, "end":  5 },
+                    { "start":  5, "end":  6 },
+                    { "start":  6, "end":  7 },
+                    { "start":  7, "end":  8 },
+                    { "start":  8, "end":  9 },
+                    { "start":  9, "end": 10 },
+                    { "start": 10, "end": 11 },
+                    { "start": 11, "end": 12 },
+                    { "start": 12, "end": 13 },
+                    { "start": 13, "end": 14 },
+                    { "start": 14, "end": 15 },
+                    { "start": 15, "end": 16 },
+                    { "start": 16, "end": 17 },
+                    { "start": 17, "end": 18 },
+                    { "start": 18, "end": 19 },
+                    { "start": 19, "end": 20 },
+                    { "start": 20, "end": 22 },
+                    { "start": 21, "end": 23 },
+                    { "start": 22, "end": 24 },
+                    { "start": 23, "end": 25 },
+                    { "start": 24, "end": 26 },
+                    { "start": 25, "end": 27 },
+                    { "start": 26, "end": 28 },
+                    { "start": 27, "end": 29 },
+                    { "start": 28, "end": 30 },
+                    { "start": 29, "end": 31 },
+                    { "start": 30, "end": 32 },
+                    { "start": 31, "end": 33 },
+                    { "start": 32, "end": 34 },
+                    { "start": 33, "end": 35 },
+                    { "start": 34, "end": 36 },
+                    { "start": 35, "end": 37 },
+                    { "start": 36, "end": 38 },
+                    { "start": 37, "end": 39 },
+                    { "start": 38, "end": 40 },
+                    { "start": 39, "end": 41 },
+                ],
+                "args": [],
+                "expected": {
+                    "average": 1.5128205128205128,
+                    "mean": 1.5128205128205128,
+                    "interquartile_mean": 1.5263157894736843,
+                    "median": 2,
+                    "interquartile_range": 1,
+                    "durations": [
+                        1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 1, 1, 1, 2, 2,
+                        2, 2, 2, 2, 2, 2, 2,
+                        2, 2, 2, 2, 2, 2, 2,
+                        2, 2, 2, 2,
+                    ],
+                    "interquartile_durations": [
+                        1, 1, 1, 1, 1, 1, 1,
+                        1, 1, 2, 2, 2, 2, 2,
+                        2, 2, 2, 2, 2,
+                    ],
+                    "standard_deviation": 0.4998356074261009,
+                    "interquartile_standard_deviation": 0.49930699897395464,
+                    "timestamps": [
+                         1,  2,  3,  4,  5,  6,  7,
+                         8,  9, 10, 11, 12, 13, 14,
+                        15, 16, 17, 18, 19, 20, 21,
+                        22, 23, 24, 25, 26, 27, 28,
+                        29, 30, 31, 32, 33, 34, 35,
+                        36, 37, 38, 39,
+                    ],
+                    "rolling_average": [
+                        undefined, undefined, undefined, undefined, undefined, undefined, undefined,
+                        undefined, undefined, undefined, undefined, undefined, undefined, undefined,
+                            14/14,     14/14,     14/14,     14/14,     14/14,     15/14,     16/14,
+                            17/14,     18/14,     19/14,     20/14,     21/14,     22/14,     23/14,
+                            24/14,     25/14,     26/14,     27/14,     28/14,     28/14,     28/14,
+                            28/14,     28/14,     28/14,     28/14,
+                    ],
+                },
+            },
+
+        ];
+
+        tests.forEach(function(test) {
+            try {
+            let diary = new_sleep_diary(wrap_input({
+                "file_format": "Standard",
+                "records": test["records"],
+            }));
+            expect(
+                diary["summarise_records"].apply(diary,test["args"])
+            )["toEqual"](test["expected"]);
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
+        });
+
+    });
 
 });
