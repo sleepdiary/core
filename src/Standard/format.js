@@ -192,8 +192,8 @@ let MaybeDiaryStandardStatistics;
  *      interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
  *    }
  *
- * // Print the user's day length statistics for the past 30 days:
- * let cutoff = new Date().getTime() - 1000*60*60*24*30;
+ * // Print the user's day length statistics for the past 14 days:
+ * let cutoff = new Date().getTime() - 1000*60*60*24*14;
  * console.log( diary.summarise_days( record => record.start > cutoff ) );
  * -> {
  *                    average           : 12345.678,
@@ -234,8 +234,8 @@ let MaybeDiaryStandardStatistics;
  *      },
  *    }
  *
- * // Print the user's daily schedule on a 24-hour clock for the past 30 days:
- * let cutoff = new Date().getTime() - 1000*60*60*24*30;
+ * // Print the user's daily schedule on a 24-hour clock for the past 14 days:
+ * let cutoff = new Date().getTime() - 1000*60*60*24*14;
  * console.log( diary.summarise_schedule( record => record.start > cutoff ) );
  * -> {
  *      sleep: { // time (GMT) when the user falls asleep:
