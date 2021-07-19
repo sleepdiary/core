@@ -149,6 +149,7 @@ class Spreadsheet {
     /**
      * @param {Object} associated - object to synchronise the spreadsheet with
      * @param {SpreadsheetRules} rules - rules to convert between objects and spreadsheets
+     * @param {boolean=} convert_times_to_dates - guess the dates associated with times
      *
      * <p>The spreadsheet rules can include a <tt>formats</tt> member,
      * specifying how numbers will be formatted in the associated
@@ -200,7 +201,7 @@ class Spreadsheet {
      *   ]
      * );
      */
-    constructor(associated,rules) {
+    constructor(associated,rules,convert_times_to_dates) {
 
         const debug = false;
 
@@ -246,7 +247,13 @@ class Spreadsheet {
 
             let ret;
             switch ( cell["type"] ) {
-            case "time"    : ret = (elem,row,offset) => !isNaN( elem[member] = Spreadsheet.parse_timestamp(row[offset]["value"]) ); break;
+            case "time"    :
+                ret = (
+                    convert_times_to_dates
+                    ? (elem,row,offset) => !isNaN( elem[member] = row[offset]. dated_timestamp )
+                    : (elem,row,offset) => !isNaN( elem[member] = row[offset].parsed_timestamp )
+                );
+                break;
             case "duration": ret = (elem,row,offset) => !isNaN( elem[member] = row[offset]["value"].getTime() + self["epoch_offset"] ); break;
             case "number"  : ret = (elem,row,offset) => !isNaN( elem[member] = parseFloat(row[offset]["value"]) ); break;
             case "boolean" : ret = (elem,row,offset) => !isNaN( elem[member] = !!row[offset]["value"] ); break;
@@ -389,6 +396,28 @@ class Spreadsheet {
     }
 
     /**
+     * Calculate timestamps for all cells in a worksheet
+     * @param {Array} sheet - sheet to process
+     * @param {Object=} raw_spreadsheet - raw spreadsheet object from which the value was taken
+     */
+    static parse_all_timestamps(sheet,raw_spreadsheet) {
+        let prev_date = 0;
+        sheet.forEach( row => row.forEach( cell => {
+            let timestamp = cell.parsed_timestamp = Spreadsheet.parse_timestamp(cell,raw_spreadsheet),
+                dated_timestamp
+                = cell.dated_timestamp
+                = ( isNaN(timestamp) || timestamp < 0 || timestamp > 86400000 )
+                ? timestamp
+                : timestamp + prev_date - (prev_date%86400000)
+            ;
+            if ( dated_timestamp < prev_date ) {
+                cell.dated_timestamp = dated_timestamp += 86400000;
+            }
+            prev_date = dated_timestamp;
+        }));
+    }
+
+    /**
      * Read data from a buffer (e.g. a file input)
      */
     static buffer_to_spreadsheet(buffer) {
@@ -440,6 +469,8 @@ class Spreadsheet {
                             })
                         });
                     });
+
+                    sheets.forEach( sheet => Spreadsheet.parse_all_timestamps( sheet["cells"], spreadsheet ) );
 
                     return {
                         "file_format": "spreadsheet",
@@ -517,6 +548,8 @@ class Spreadsheet {
                     });
             }
         );
+
+        Spreadsheet.parse_all_timestamps(records);
 
         return {
             "spreadsheet": spreadsheet,

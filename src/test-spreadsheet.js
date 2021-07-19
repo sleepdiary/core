@@ -84,6 +84,8 @@ describe("Spreadsheet", () => {
 
         };
 
+        input["sheets"].forEach( sheet => Spreadsheet.parse_all_timestamps(sheet["cells"]) );
+
         var expected = {
             "records": [
                 {
