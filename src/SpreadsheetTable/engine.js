@@ -122,7 +122,7 @@ class DiarySpreadsheetTable extends DiaryBase {
                 switch ( key ) {
                 case "start":
                 case "end":
-                    rules[value[1]] = { "member": value[0], "type": "time" };
+                    rules[value[1]] = { "member": value[0], "type": "time", "optional": true };
                     break;
                 case "status":
                     rules[value[1]] = Object.assign( { "members": [ value[0] ] }, status_rule(value[0]) );
@@ -155,8 +155,8 @@ class DiarySpreadsheetTable extends DiaryBase {
             };
 
             rules = [
-                { "member": "start", "type": "time" },
-                { "member": "end"  , "type": "time" },
+                { "member": "start", "type": "time", "optional": true },
+                { "member": "end"  , "type": "time", "optional": true },
                 status_rule("status"),
                 {
                     "members": ["comments"],
@@ -197,7 +197,7 @@ class DiarySpreadsheetTable extends DiaryBase {
                                 if ( value.search(column_match[1]) == -1 ) return false;
                                 if ( !member_map.hasOwnProperty(column_match[0]) ) {
                                     member_map[column_match[0]] = [ value, cell_n[1] ];
-                                    rules[cell_n[1]] = { "member": value, "type": "time" };
+                                    rules[cell_n[1]] = { "member": value, "type": "time", "optional": true };
                                 }
                                 return true;
                             })
@@ -235,10 +235,10 @@ class DiarySpreadsheetTable extends DiaryBase {
 
                         if ( !member_map.hasOwnProperty("start") ) {
                             member_map["start"] = [ value, cell_n[1] ];
-                            rules[cell_n[1]] = { "member": value, "type": "time" };
+                            rules[cell_n[1]] = { "member": value, "type": "time", "optional": true };
                         } else if ( !member_map.hasOwnProperty("end") ) {
                             member_map["end"] = [ value, cell_n[1] ];
-                            rules[cell_n[1]] = { "member": value, "type": "time" };
+                            rules[cell_n[1]] = { "member": value, "type": "time", "optional": true };
                         } else {
                             return true;
                         }
