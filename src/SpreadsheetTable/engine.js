@@ -239,6 +239,8 @@ class DiarySpreadsheetTable extends DiaryBase {
                         } else if ( !member_map.hasOwnProperty("end") ) {
                             member_map["end"] = [ value, cell_n[1] ];
                             rules[cell_n[1]] = { "member": value, "type": "time", "optional": true };
+                        } else if ( (/date|time/i).test(value) ) {
+                            rules[cell_n[1]] = { "member": value, "optional": true, is_date: true };
                         } else {
                             return true;
                         }
@@ -320,7 +322,8 @@ class DiarySpreadsheetTable extends DiaryBase {
                     "member" : "records",
                     "cells": rules
                 }
-            ]
+            ],
+            true, // convert_times_to_dates
         );
 
         if ( !this.initialise_from_common_formats(file) ) {
@@ -385,7 +388,7 @@ class DiarySpreadsheetTable extends DiaryBase {
             return this.serialise({
                 "file_format": () => "string",
                 "contents": (
-                    columns.join() + "\n" +
+                    columns.filter( column => column !== undefined ).join() + "\n" +
                         this["records"]
                         .map( r => {
                             let ret = [];
