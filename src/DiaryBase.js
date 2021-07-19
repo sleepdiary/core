@@ -469,11 +469,12 @@ class DiaryBase {
         }
 
         // the value is e.g. "00:00" or "14:30":
-        let hhmm_match = cleaned_value.match(/^([0-9]*)(:([0-9]*))?$/);
-        if ( hhmm_match ) {
+        let hhmmss_match = cleaned_value.match(/^([0-9]*)(:([0-9]*))?(:([0-9]*))?$/);
+        if ( hhmmss_match ) {
             return (
-                parseInt(hhmm_match[1],10) +
-                    parseInt(hhmm_match[3]||'0',10)/60
+                parseInt(hhmmss_match[1],10) +
+                parseInt(hhmmss_match[3]||'0',10)/60 +
+                parseInt(hhmmss_match[5]||'0',10)/3600
             ) * hours_to_milliseconds
         }
 
