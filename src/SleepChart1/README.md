@@ -1,6 +1,6 @@
 # SleepChart 1.0 Format
 
-SleepChart 1.0 is a Windows program, available from a link near the bottom of [a page on super-memory.com](https://www.supermemo.com/en/archives1990-2015/articles/sleepchart).
+SleepChart 1.0 is a Windows program, available from a link near the bottom of [a page on supermemo.com](https://www.supermemo.com/en/archives1990-2015/articles/sleepchart).
 
 The source code for this program is not publicly available, but there is a link near the bottom of the page offering to release it on request.
 

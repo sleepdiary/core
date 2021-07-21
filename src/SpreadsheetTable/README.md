@@ -12,11 +12,11 @@ You may find the following useful:
 
 # Creation process
 
-Spreadsheet table are usually created in [Microsoft Excel](https://www.microsoft.com/en-gb/microsoft-365/excel) or [LibreOffice Calc](https://www.libreoffice.org/discover/calc/).  The user puts headings in the first row, then adds a new row each day.
+Spreadsheet tables are usually created in [Microsoft Excel](https://www.microsoft.com/en-gb/microsoft-365/excel) or [LibreOffice Calc](https://www.libreoffice.org/discover/calc/).  The user puts headings in the first row, then adds a new row each day.
 
 # Export format
 
-The most common raw format for spreadsheets is [Office Open XML](https://en.wikipedia.org/wiki/Office_Open_XML), followed by [OpenDocument](https://en.wikipedia.org/wiki/OpenDocument).  These formats have been published as international standards, and will not be described here.
+The most common raw format for spreadsheets is [Office Open XML](https://en.wikipedia.org/wiki/Office_Open_XML), followed by [OpenDocument](https://en.wikipedia.org/wiki/OpenDocument).  These formats have been published as international standards, and developers are encouraged to use a library to manipulate them.
 
 Spreadsheet tables generally have the following properties:
 
@@ -49,6 +49,8 @@ Here is a process to detect which columns contains comments:
 1. if any header cell matches the regular expression `/comment|note/i`, the all matching columns indicate the comment
 2. any columns with blank headers indicate comments
 
+The precise process used by the JavaScript code is more complex than the above.  For example, it handles the case where a user specifies the full date in some columns, but only the time in others.
+
 ## Parsing statuses
 
 Here is a process to convert status strings to values:
@@ -60,7 +62,7 @@ Here is a process to convert status strings to values:
 5. values that match `/alco/i` indicate the user is drinking an alcoholic drink
 6. values that match `/caffeine|coffee|tea|cola/i` indicate the user is drinking a caffeinated drink
 7. values that match both `/choc/i` and `/drink/i` indicate the user is drinking a chocolate drink
-8. values that match `/drink/i` but none of the above drinks indicate the user is drinking something that is neither alcoholic, caffeniated nor chocolate
+8. values that match `/drink/i` but none of the above indicate the user is drinking something that is neither alcoholic, caffeniated nor chocolate
 9. values that match `/pill|tranq/i` indicate the user is taking a sleeping pill or tranquiliser
 10. values that match `/exercise/i` indicate the user is exercising
 11. values that match `/toilet|bathroom|loo/i` indicate the user is using the toilet

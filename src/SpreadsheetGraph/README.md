@@ -18,7 +18,7 @@ Spreadsheet graphs are usually created in [Microsoft Excel](https://www.microsof
 
 # Export format
 
-The most common raw format for spreadsheets is [Office Open XML](https://en.wikipedia.org/wiki/Office_Open_XML), followed by [OpenDocument](https://en.wikipedia.org/wiki/OpenDocument).  These formats have been published as international standards, and will not be described here.
+The most common raw format for spreadsheets is [Office Open XML](https://en.wikipedia.org/wiki/Office_Open_XML), followed by [OpenDocument](https://en.wikipedia.org/wiki/OpenDocument).  These formats have been published as international standards, and developers are encouraged to use a library to manipulate them.
 
 Spreadsheet graphs generally have the following properties:
 
@@ -88,7 +88,7 @@ To detect an explicit legend:
 1. look for styled cells outside the header or body
 2. look for cells containing text outside the header or body
 3. while there are both styled cells and text cells remaining:
-   1. find the styled cell and text cell with the lowest manhattan distance between them
+   1. find the styled cell and text cell with the lowest Manhattan distance between them
    2. assign a meaning based on the pair of cells
    3. remove both of the cells from the lists
 
