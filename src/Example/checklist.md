@@ -15,12 +15,12 @@ Also go through the official program(s) that support the format, digging through
 * how to create records
 * how to display the list of records
   * create at least one record before looking for this, as your app might not do anything useful when there are no records
-  
+
 Finally, you should use any available programs to get information about your file format.  In particular:
 * open files in a text editor, to see if it looks like text
 * check the sizes of different files (an empty file, a file with one record, two and so on)
 * use the Linux [file](https://linux.die.net/man/1/file) program to see if it's a known file type
-  
+
 ## Reverse-engineer the format
 
 Unless you found a lot of technical information, you will probably need to work some things out experimentally.  One excellent (but very detailed) discussion of reverse engineering comes from [the authors of Samba](https://www.samba.org/ftp/tridge/misc/french_cafe.txt), but you will need to come up with a solution that works for you.
