@@ -501,7 +501,7 @@ class DiarySpreadsheetGraph extends DiaryBase {
             let max_day = 0;
             records.forEach( r => {
                 min_day = Math.min( min_day, r["start"] );
-                max_day = Math.max( max_day, r["start"] );
+                max_day = Math.max( max_day, r["end"  ]||(r["start"]+1) );
             });
 
             if ( min_day == Infinity ) min_day = max_day;
