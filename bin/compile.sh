@@ -68,7 +68,7 @@ git ls-files src/\*/engine.js \
 [ -n "$RESULT" ] && exit "$RESULT"
 
 # Make sure we're going to push what we expected to:
-git diff @{u} ':(exclude)doc/*.html' ':(exclude)sleepdiary-library.js.map'
+git diff @{u} ':(exclude)doc/*.html' ':(exclude)sleepdiary-library.min.js.map'
 echo
 git log --oneline --graph @{u}...HEAD
 
