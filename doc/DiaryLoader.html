@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>DiaryLoader<span class="signature">(success_callback<span class="signature-attributes">opt</span>, error_callback<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>DiaryLoader<span class="signature">(success_callback<span class="signature-attributes">opt</span>, error_callback<span class="signature-attributes">opt</span>, hash_parse_policy<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
         
             <div class="class-description">High-level reader interface</div>
         
@@ -45,7 +45,7 @@
     
 
     
-    <h4 class="name" id="DiaryLoader"><span class="type-signature"></span>new DiaryLoader<span class="signature">(success_callback<span class="signature-attributes">opt</span>, error_callback<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="DiaryLoader"><span class="type-signature"></span>new DiaryLoader<span class="signature">(success_callback<span class="signature-attributes">opt</span>, error_callback<span class="signature-attributes">opt</span>, hash_parse_policy<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
     
 
     
@@ -147,6 +147,45 @@
             
 
             <td class="description last">called when a file cannot be loaded</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>hash_parse_policy</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">how to handle URL hashes:
+
+<ul>
+ <li> <tt>0</tt> or <tt>undefined</tt> - always parse the URL hash
+ <li> <tt>1</tt> - parse each URL hash once, skip it if e.g. the user navigates away then clicks <em>back</em>
+ <li> <tt>2</tt> - never parse the URL hash
+</ul></td>
         </tr>
 
     
@@ -416,7 +455,7 @@ let loader = new DiaryLoader(my_success_callback,my_error_callback);</code></pre
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="DiaryLoader.js.html">DiaryLoader.js</a>, <a href="DiaryLoader.js.html#line118">line 118</a>
+        <a href="DiaryLoader.js.html">DiaryLoader.js</a>, <a href="DiaryLoader.js.html#line148">line 148</a>
     </li></ul></dd>
     
 
@@ -467,13 +506,13 @@ let loader = new DiaryLoader(my_success_callback,my_error_callback);</code></pre
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DiaryBase.html">DiaryBase</a></li><li><a href="DiaryLoader.html">DiaryLoader</a></li><li><a href="DiaryPleesTracker.html">DiaryPleesTracker</a></li><li><a href="DiarySleepAsAndroid.html">DiarySleepAsAndroid</a></li><li><a href="DiarySleepChart1.html">DiarySleepChart1</a></li><li><a href="DiarySleepmeter.html">DiarySleepmeter</a></li><li><a href="DiarySpreadsheetGraph.html">DiarySpreadsheetGraph</a></li><li><a href="DiarySpreadsheetTable.html">DiarySpreadsheetTable</a></li><li><a href="DiaryStandard.html">DiaryStandard</a></li><li><a href="Spreadsheet.html">Spreadsheet</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-Graph your day lengths.html">Graph your day lengths</a></li><li><a href="tutorial-List supported formats.html">List supported formats</a></li><li><a href="tutorial-Using diary objects.html">Using diary objects</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DiaryStandardRecordStatus">DiaryStandardRecordStatus</a></li><li><a href="global.html#new_sleep_diary">new_sleep_diary</a></li><li><a href="global.html#sleep_diary_formats">sleep_diary_formats</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DiaryActivityLog.html">DiaryActivityLog</a></li><li><a href="DiaryBase.html">DiaryBase</a></li><li><a href="DiaryLoader.html">DiaryLoader</a></li><li><a href="DiaryPleesTracker.html">DiaryPleesTracker</a></li><li><a href="DiarySleepAsAndroid.html">DiarySleepAsAndroid</a></li><li><a href="DiarySleepChart1.html">DiarySleepChart1</a></li><li><a href="DiarySleepmeter.html">DiarySleepmeter</a></li><li><a href="DiarySpreadsheetGraph.html">DiarySpreadsheetGraph</a></li><li><a href="DiarySpreadsheetTable.html">DiarySpreadsheetTable</a></li><li><a href="DiaryStandard.html">DiaryStandard</a></li><li><a href="Spreadsheet.html">Spreadsheet</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-Graph your day lengths.html">Graph your day lengths</a></li><li><a href="tutorial-List supported formats.html">List supported formats</a></li><li><a href="tutorial-Using diary objects.html">Using diary objects</a></li></ul><h3>Global</h3><ul><li><a href="global.html#debugging">debugging</a></li><li><a href="global.html#DiaryStandardRecordStatus">DiaryStandardRecordStatus</a></li><li><a href="global.html#new_sleep_diary">new_sleep_diary</a></li><li><a href="global.html#sleepdiary_engines">sleepdiary_engines</a></li><li><a href="global.html#system_timezone">system_timezone</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Jun 15 2021 08:52:23 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sat Jul 24 2021 12:01:27 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>

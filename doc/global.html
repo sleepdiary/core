@@ -98,6 +98,78 @@
 
         
             
+<h4 class="name" id="debugging"><span class="type-signature">(package, constant) </span>debugging<span class="type-signature"> :boolean</span></h4>
+
+
+
+
+<div class="description">
+    mode
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">boolean</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line27">line 27</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
 <h4 class="name" id="DiaryStandardRecordStatus"><span class="type-signature">(constant) </span>DiaryStandardRecordStatus<span class="type-signature"> :string</span></h4>
 
 
@@ -212,6 +284,52 @@
             
 
             <td class="description last">user is asleep</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>"lights off"</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">user is currently turning off the lights in preparation to go to bed</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>"lights on"</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">user is currently turning on the lights after getting out of bed</td>
         </tr>
 
     
@@ -549,7 +667,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Standard_format.js.html">Standard/format.js</a>, <a href="Standard_format.js.html#line31">line 31</a>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line31">line 31</a>
     </li></ul></dd>
     
 
@@ -567,13 +685,13 @@
 
         
             
-<h4 class="name" id="sleep_diary_formats"><span class="type-signature">(constant) </span>sleep_diary_formats<span class="type-signature"> :Array.&lt;<a href="global.html#DiaryFormat">DiaryFormat</a>></span></h4>
+<h4 class="name" id="sleepdiary_engines"><span class="type-signature">(constant) </span>sleepdiary_engines<span class="type-signature"> :Array.&lt;<a href="global.html#DiaryEngine">DiaryEngine</a>></span></h4>
 
 
 
 
 <div class="description">
-    List of known formats for sleep diaries
+    List of known engines for sleep diaries
 </div>
 
 
@@ -582,7 +700,7 @@
     <ul>
         <li>
             
-<span class="param-type">Array.&lt;<a href="global.html#DiaryFormat">DiaryFormat</a>></span>
+<span class="param-type">Array.&lt;<a href="global.html#DiaryEngine">DiaryEngine</a>></span>
 
 
         </li>
@@ -621,7 +739,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line49">line 49</a>
+        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line55">line 55</a>
     </li></ul></dd>
     
 
@@ -629,9 +747,74 @@
     <dt class="tag-tutorial">Tutorials:</dt>
     <dd class="tag-tutorial">
         <ul>
-            <li><a href="tutorial-List supported formats.html">List supported formats</a></li>
+            <li><em class="disabled">Tutorial: List supported engines</em></li>
         </ul>
     </dd>
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="system_timezone"><span class="type-signature"></span>system_timezone<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Default timezone for this system
+
+This is constant in normal operation, but can be overridden
+by unit tests
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line63">line 63</a>
+    </li></ul></dd>
+    
+
     
 
     
@@ -803,7 +986,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line444">line 444</a>
+        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line634">line 634</a>
     </li></ul></dd>
     
 
@@ -941,7 +1124,7 @@
 
             
                 
-<h4 class="name" id="DiaryFormat">DiaryFormat</h4>
+<h4 class="name" id="DiaryEngine">DiaryEngine</h4>
 
 
 
@@ -991,7 +1174,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line33">line 33</a>
+        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line39">line 39</a>
     </li></ul></dd>
     
 
@@ -1063,7 +1246,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Standard_format.js.html">Standard/format.js</a>, <a href="Standard_format.js.html#line67">line 67</a>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line71">line 71</a>
     </li></ul></dd>
     
 
@@ -1135,7 +1318,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Standard_format.js.html">Standard/format.js</a>, <a href="Standard_format.js.html#line88">line 88</a>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line92">line 92</a>
     </li></ul></dd>
     
 
@@ -1206,7 +1389,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Standard_format.js.html">Standard/format.js</a>, <a href="Standard_format.js.html#line105">line 105</a>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line111">line 111</a>
     </li></ul></dd>
     
 
@@ -1470,13 +1653,13 @@ structure (if different from <tt>sheet</tt>).</p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DiaryBase.html">DiaryBase</a></li><li><a href="DiaryLoader.html">DiaryLoader</a></li><li><a href="DiaryPleesTracker.html">DiaryPleesTracker</a></li><li><a href="DiarySleepAsAndroid.html">DiarySleepAsAndroid</a></li><li><a href="DiarySleepChart1.html">DiarySleepChart1</a></li><li><a href="DiarySleepmeter.html">DiarySleepmeter</a></li><li><a href="DiarySpreadsheetGraph.html">DiarySpreadsheetGraph</a></li><li><a href="DiarySpreadsheetTable.html">DiarySpreadsheetTable</a></li><li><a href="DiaryStandard.html">DiaryStandard</a></li><li><a href="Spreadsheet.html">Spreadsheet</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-Graph your day lengths.html">Graph your day lengths</a></li><li><a href="tutorial-List supported formats.html">List supported formats</a></li><li><a href="tutorial-Using diary objects.html">Using diary objects</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DiaryStandardRecordStatus">DiaryStandardRecordStatus</a></li><li><a href="global.html#new_sleep_diary">new_sleep_diary</a></li><li><a href="global.html#sleep_diary_formats">sleep_diary_formats</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DiaryActivityLog.html">DiaryActivityLog</a></li><li><a href="DiaryBase.html">DiaryBase</a></li><li><a href="DiaryLoader.html">DiaryLoader</a></li><li><a href="DiaryPleesTracker.html">DiaryPleesTracker</a></li><li><a href="DiarySleepAsAndroid.html">DiarySleepAsAndroid</a></li><li><a href="DiarySleepChart1.html">DiarySleepChart1</a></li><li><a href="DiarySleepmeter.html">DiarySleepmeter</a></li><li><a href="DiarySpreadsheetGraph.html">DiarySpreadsheetGraph</a></li><li><a href="DiarySpreadsheetTable.html">DiarySpreadsheetTable</a></li><li><a href="DiaryStandard.html">DiaryStandard</a></li><li><a href="Spreadsheet.html">Spreadsheet</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-Graph your day lengths.html">Graph your day lengths</a></li><li><a href="tutorial-List supported formats.html">List supported formats</a></li><li><a href="tutorial-Using diary objects.html">Using diary objects</a></li></ul><h3>Global</h3><ul><li><a href="global.html#debugging">debugging</a></li><li><a href="global.html#DiaryStandardRecordStatus">DiaryStandardRecordStatus</a></li><li><a href="global.html#new_sleep_diary">new_sleep_diary</a></li><li><a href="global.html#sleepdiary_engines">sleepdiary_engines</a></li><li><a href="global.html#system_timezone">system_timezone</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Jun 15 2021 08:52:23 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sat Jul 24 2021 12:01:27 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>

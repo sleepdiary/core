@@ -35,37 +35,52 @@
  */
 class DiaryLoader {
 
+    static resources() {
+        return [
+            [
+                self["JSZip"],
+                "https://cdn.jsdelivr.net/npm/jszip@3.6.x/dist/jszip.min.js"
+            ],
+            [
+                self["tc"],
+                "https://cdn.jsdelivr.net/npm/tzdata@1.0.x/tzdata.js",
+                "https://cdn.jsdelivr.net/npm/timezonecomplete@5.12.x/dist/timezonecomplete.min.js"
+            ],
+            [
+                self["ExcelJS"],
+                "https://cdn.jsdelivr.net/npm/exceljs@4.2.x/dist/exceljs.min.js"
+            ]
+        ];
+    }
+
     static load_resources() {
         try {
-            [
-                [
-                    window["JSZip"],
-                    "https://cdn.jsdelivr.net/npm/jszip@3.6.x/dist/jszip.min.js"
-                ],
-                [
-                    window["tc"],
-                    "https://cdn.jsdelivr.net/npm/tzdata@1.0.x/tzdata.js",
-                    "https://cdn.jsdelivr.net/npm/timezonecomplete@5.12.x/dist/timezonecomplete.min.js"
-                ],
-                [
-                    window["ExcelJS"],
-                    "https://cdn.jsdelivr.net/npm/exceljs@4.2.x/dist/exceljs.min.js"
-                ]
-            ].forEach( resource => {
-                if ( !resource[0] ) {
-                    resource.slice(1).forEach( url => {
-                        let script = document.createElement("script");
-                        script.src = url;
-                        document.head.appendChild(script);
-                    });
-                }
+            let files = [];
+            DiaryLoader.resources().forEach( resource => {
+                if ( !resource[0] ) files = files.concat( resource.slice(1) );
             });
+            if ( self.importScripts ) {
+                self.importScripts.apply( self, files );
+            } else {
+                files.forEach( url => {
+                    let script = document.createElement("script");
+                    script.src = url;
+                    document.head.appendChild(script);
+                });
+            }
         } catch (e) {}
     }
 
     /**
      * @param {Function=} success_callback - called when a new file is loaded successfully
      * @param {Function=} error_callback - called when a file cannot be loaded
+     * @param {number=}  hash_parse_policy - how to handle URL hashes:
+     *
+     * &lt;ul>
+     *  &lt;li> &lt;tt>0&lt;/tt> or &lt;tt>undefined&lt;/tt> - always parse the URL hash
+     *  &lt;li> &lt;tt>1&lt;/tt> - parse each URL hash once, skip it if e.g. the user navigates away then clicks &lt;em>back&lt;/em>
+     *  &lt;li> &lt;tt>2&lt;/tt> - never parse the URL hash
+     * &lt;/ul>
      *
      * @example
      * function my_success_callback( diary, source ) {
@@ -76,37 +91,52 @@ class DiaryLoader {
      * }
      * let loader = new DiaryLoader(my_success_callback,my_error_callback);
      */
-    constructor( success_callback, error_callback ) {
+    constructor( success_callback, error_callback, hash_parse_policy ) {
 
         this["success_callback"] = success_callback || ( () => {} );
         this["error_callback"] = error_callback || ( () => {} );
 
-        let load_interval, self = this;
+        let load_interval, this_ = this;
 
-        function initialise() {
-            if ( window["tc"] ) {
-                window.addEventListener('hashchange', () =>
+        function generate_init_callback( source ) {
+            return () => {
+                if ( !(history.state||{})["sleepdiary-library-processed"] ) {
                     location.hash.replace(
-                        /(?:^#|[?&amp;])(sleep-diary=[^&amp;]*)/g,
-                        (_,diary) => self["load"]({
-                            "file_format": "url",
-                            "contents": diary
-                        }, "hashchange" )
-                    ),
-                    false
-                );
-                location.hash.replace(
-                    /(?:^#|[?&amp;])(sleep-diary=[^&amp;]*)/g,
-                    (_,diary) => self["load"]({
-                        "file_format": "url",
-                        "contents": diary
-                    }, "hash" )
-                );
-                clearInterval(load_interval);
+                        /(?:^#|[?&amp;])(sleep-?diary=[^&amp;]*)/g,
+                        (_,diary) => {
+                            history.replaceState(
+                                Object.assign(
+                                    { "sleepdiary-library-processed": hash_parse_policy },
+                                    /** @type {Object} */(history.state||{})
+                                ),
+                                '',
+                            );
+                            this_["load"]({
+                                "file_format": "url",
+                                "contents": diary
+                            }, source )
+                        }
+                    );
+                }
             }
         }
 
-        load_interval = setInterval( initialise, 100 );
+        if ( hash_parse_policy != 2 ) {
+            load_interval = setInterval(
+                () => {
+                    if ( self["tc"] ) {
+                        clearInterval(load_interval);
+                        self.addEventListener(
+                            'hashchange',
+                            generate_init_callback("hashchange"),
+                            false
+                        );
+                        generate_init_callback("hash")();
+                    }
+                },
+                100
+            );
+        }
 
         /*
          * TODO: localStorage
@@ -145,7 +175,11 @@ class DiaryLoader {
      */
     ["load"](raw,source) {
 
-        const jszip = window["JSZip"];
+        if ( DiaryLoader.resources().some( resource => !resource[0] ) ) {
+            return setTimeout( () => this["load"](raw,source), 100 );
+        }
+
+        const jszip = self["JSZip"];
 
         // wait for JSZip to load:
         if ( !jszip ) {
@@ -156,7 +190,7 @@ class DiaryLoader {
             let xhr = new XMLHttpRequest;
             xhr.responseType = 'blob';
             xhr.onload = () => this["load"]([xhr.response],source);
-            xhr.open('GET', raw);
+            xhr.open('GET', /** @type {string} */(raw));
             return xhr.send();
         }
 
@@ -164,9 +198,21 @@ class DiaryLoader {
 
         if ( raw.target &amp;&amp; raw.target.files ) raw = raw.target.files;
 
-        if ( raw.length ) { // looks array-like (e.g. FileList)
+        if ( raw.replace ) {
+            raw.replace(/^storage-line:([^:]+):(.*)/, (_,file_format,json) => {
+                raw = {
+                    "file_format": "storage-line",
+                    "contents": {
+                        "file_format": file_format,
+                        "contents"   : JSON.parse(json),
+                    },
+                };
+            });
+        }
 
-            Array.from(raw).forEach( file => {
+        if ( typeof(raw) != "string" &amp;&amp; raw.length ) { // looks array-like (e.g. FileList)
+
+            Array.from(/** @type {!Iterable&lt;*>} */(raw)).forEach( file => {
 
                 let file_reader = new FileReader(),
                     zip = new jszip()
@@ -174,7 +220,7 @@ class DiaryLoader {
 
                 // extract the file contents:
                 file_reader.onload =
-                    () => Spreadsheet["buffer_to_spreadsheet"](file_reader.result).then(
+                    () => Spreadsheet.buffer_to_spreadsheet(file_reader.result).then(
 
                         spreadsheet => this["load"]( spreadsheet, source ),
 
@@ -242,7 +288,7 @@ class DiaryLoader {
 
             let diary;
             try {
-                diary = window["new_sleep_diary"]( raw, DiaryLoader["serialiser"] );
+                diary = self["new_sleep_diary"]( raw, DiaryLoader["serialiser"] );
             } catch (e) {
                 this[  "error_callback"]( raw  , source );
                 throw e;
@@ -265,7 +311,7 @@ class DiaryLoader {
             return btoa(unescape(encodeURIComponent(data["contents"])));
         case "archive":
             const callback = (resolve,reject) => {
-                const jszip = window["JSZip"];
+                const jszip = self["JSZip"];
                 if ( !jszip ) {
                     return setTimeout( () => callback(resolve,reject), 100 );
                 }
@@ -308,13 +354,13 @@ class DiaryLoader {
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DiaryBase.html">DiaryBase</a></li><li><a href="DiaryLoader.html">DiaryLoader</a></li><li><a href="DiaryPleesTracker.html">DiaryPleesTracker</a></li><li><a href="DiarySleepAsAndroid.html">DiarySleepAsAndroid</a></li><li><a href="DiarySleepChart1.html">DiarySleepChart1</a></li><li><a href="DiarySleepmeter.html">DiarySleepmeter</a></li><li><a href="DiarySpreadsheetGraph.html">DiarySpreadsheetGraph</a></li><li><a href="DiarySpreadsheetTable.html">DiarySpreadsheetTable</a></li><li><a href="DiaryStandard.html">DiaryStandard</a></li><li><a href="Spreadsheet.html">Spreadsheet</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-Graph your day lengths.html">Graph your day lengths</a></li><li><a href="tutorial-List supported formats.html">List supported formats</a></li><li><a href="tutorial-Using diary objects.html">Using diary objects</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DiaryStandardRecordStatus">DiaryStandardRecordStatus</a></li><li><a href="global.html#new_sleep_diary">new_sleep_diary</a></li><li><a href="global.html#sleep_diary_formats">sleep_diary_formats</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DiaryActivityLog.html">DiaryActivityLog</a></li><li><a href="DiaryBase.html">DiaryBase</a></li><li><a href="DiaryLoader.html">DiaryLoader</a></li><li><a href="DiaryPleesTracker.html">DiaryPleesTracker</a></li><li><a href="DiarySleepAsAndroid.html">DiarySleepAsAndroid</a></li><li><a href="DiarySleepChart1.html">DiarySleepChart1</a></li><li><a href="DiarySleepmeter.html">DiarySleepmeter</a></li><li><a href="DiarySpreadsheetGraph.html">DiarySpreadsheetGraph</a></li><li><a href="DiarySpreadsheetTable.html">DiarySpreadsheetTable</a></li><li><a href="DiaryStandard.html">DiaryStandard</a></li><li><a href="Spreadsheet.html">Spreadsheet</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-Graph your day lengths.html">Graph your day lengths</a></li><li><a href="tutorial-List supported formats.html">List supported formats</a></li><li><a href="tutorial-Using diary objects.html">Using diary objects</a></li></ul><h3>Global</h3><ul><li><a href="global.html#debugging">debugging</a></li><li><a href="global.html#DiaryStandardRecordStatus">DiaryStandardRecordStatus</a></li><li><a href="global.html#new_sleep_diary">new_sleep_diary</a></li><li><a href="global.html#sleepdiary_engines">sleepdiary_engines</a></li><li><a href="global.html#system_timezone">system_timezone</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Jun 15 2021 08:52:23 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sat Jul 24 2021 12:01:27 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -308,7 +308,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Standard_format.js.html">Standard/format.js</a>, <a href="Standard_format.js.html#line261">line 261</a>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line295">line 295</a>
     </li></ul></dd>
     
 
@@ -414,8 +414,8 @@ console.log( diary.summarise_records( record => record.status == "asleep" ) );
      interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
    }
 
-// Print the user's day length statistics for the past 30 days:
-let cutoff = new Date().getTime() - 1000*60*60*24*30;
+// Print the user's day length statistics for the past 14 days:
+let cutoff = new Date().getTime() - 1000*60*60*24*14;
 console.log( diary.summarise_days( record => record.start > cutoff ) );
 -> {
                    average           : 12345.678,
@@ -456,8 +456,8 @@ console.log( diary.summarise_schedule();
      },
    }
 
-// Print the user's daily schedule on a 24-hour clock for the past 30 days:
-let cutoff = new Date().getTime() - 1000*60*60*24*30;
+// Print the user's daily schedule on a 24-hour clock for the past 14 days:
+let cutoff = new Date().getTime() - 1000*60*60*24*14;
 console.log( diary.summarise_schedule( record => record.start > cutoff ) );
 -> {
      sleep: { // time (GMT) when the user falls asleep:
@@ -472,6 +472,32 @@ console.log( diary.summarise_schedule( record => record.start > cutoff ) );
        interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
      },
      wake: { // time (GMT) when the user wakes up:
+                     average           : 12345.678,
+                     mean              : 12356.789,
+       interquartile_mean              : 12345.678,
+                     standard_deviation: 12.56,
+       interquartile_standard_deviation: 12.45,
+                     median            : 12345,
+       interquartile_range             : 12,
+                     durations         : [ undefined, 12345, undefined, ... ],
+       interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
+     },
+   }
+// Print the user's daily schedule on a 25-hour clock, defaulting to Cairo's timezone:
+console.log( diary.summarise_schedule( null, 25*60*60*1000, "Africa/Cairo" ) );
+-> {
+     sleep: { // time (Cairo) when the user falls asleep:
+                     average           : 12345.678,
+                     mean              : 12356.789,
+       interquartile_mean              : 12345.678,
+                     standard_deviation: 12.56,
+       interquartile_standard_deviation: 12.45,
+                     median            : 12345,
+       interquartile_range             : 12,
+                     durations         : [ undefined, 12345, undefined, ... ],
+       interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
+     },
+     wake: { // time (Cairo) when the user wakes up:
                      average           : 12345.678,
                      mean              : 12356.789,
        interquartile_mean              : 12345.678,
@@ -571,7 +597,7 @@ console.log( diary.summarise_schedule( record => record.start > cutoff ) );
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Standard_format.js.html">Standard/format.js</a>, <a href="Standard_format.js.html#line430">line 430</a>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line464">line 464</a>
     </li></ul></dd>
     
 
@@ -643,7 +669,7 @@ console.log( diary.summarise_schedule( record => record.start > cutoff ) );
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Standard_format.js.html">Standard/format.js</a>, <a href="Standard_format.js.html#line286">line 286</a>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line320">line 320</a>
     </li></ul></dd>
     
 
@@ -720,7 +746,7 @@ console.log( diary.summarise_schedule( record => record.start > cutoff ) );
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line69">line 69</a>
+        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line85">line 85</a>
     </li></ul></dd>
     
 
@@ -805,7 +831,7 @@ console.log( diary.summarise_schedule( record => record.start > cutoff ) );
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line103">line 103</a>
+        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line119">line 119</a>
     </li></ul></dd>
     
 
@@ -973,7 +999,7 @@ console.log( diary.summarise_schedule( record => record.start > cutoff ) );
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line258">line 258</a>
+        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line295">line 295</a>
     </li></ul></dd>
     
 
@@ -1000,6 +1026,438 @@ console.log( diary.summarise_schedule( record => record.start > cutoff ) );
 
 
 
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="daily_activities"><span class="type-signature"></span>daily_activities<span class="signature">(timezone<span class="signature-attributes">opt</span>, day_start<span class="signature-attributes">opt</span>, day_stride<span class="signature-attributes">opt</span>, segment_stride<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    List of activities, grouped by day
+
+<p>It can be useful to display a diary as a series of columns
+or rows, each containing the activities for that day.  This
+function returns a structure that accounts for the following
+issues:</p>
+
+<p><strong>Multi-day records</strong> - the function returns a
+list of <em>days</em>, which contain <em>activities</em> -
+parts of a record confined within that day.</p>
+
+<p><strong>Daylight savings time</strong> - if the timezone
+observes daylight savings time (e.g. `Europe/London` instead of
+`Etc/GMT`), the function will modify days to account for DST
+changes (so a 24-hour diary will start at the same time
+every day, even if that means having a 23- or 25-hour day).</p>
+
+<p><strong>Missing days</strong> - if a user skips a day, or
+stops recording altogether for months or even years, the
+function will leave a gap in the array for each missing
+day.</p>
+
+<p>Not including workarounds for a few edge cases, the start
+and end times for days are calculated like this:</p>
+
+<ol>
+ <li>Find the start of the first day:
+  <ol>
+   <li>find the earliest date in the list of records
+   <li>find the last time at or before that date
+    where the time equals `day_start` in `timezone`
+   <li>if that date would be invalid (because a DST change
+    causes that time to be skipped), move backwards by the DST
+    change duration.
+  </ol>
+ </li>
+ <li>Find the start of the next day:
+  <ol>
+   <li>move forwards in time by `day_stride`
+   <li>move backwards by the difference between the start and end timezone offsets<br>
+    (so a 24-hour `day_stride` will always start at the same time of day)
+  </ol>
+ </li>
+ <li>Create a new day object with the start of the current and next day</li>
+ <li>Continue moving forward one day at a time until we reach the final record
+</ul>
+
+<p>An activity represents the fraction of a record that exists
+within the current day.  For example, a record that lasted two
+days would have two associated records.  Activity times are
+decided like this:</p>
+
+<ul>
+ <li>if a record has neither a `start` nor `end` time, no activities are created
+ <li>if a record has exactly one `start` or `end` time, one activity is created.
+  The activity has a `time` equal to whichever was defined.
+ <li>if a record has both `start` and `end`, and both are within the same day,
+  one activity is created. The activity has a `time` halfway between the two.
+ <li>if a record has both `start` and `end` that span multiple days,
+  one activity is created for each day the record is active.  The first
+  activity has a `time` halfway between `start` and the end of that day.
+  middle activities have a `time` equal to the middle of the day.  The final
+  activity has a `time` halfway between the start of that day and `end`
+</ul>
+
+<p>Each activity includes a `type`, which is one of:</p>
+
+<ul>
+ <li>`start-end` - complete duration of an event
+ <li>`start-mid` - start of an event that spans multiple days
+ <li>`mid-mid` - middle of an event that spans multiple days
+ <li>`mid-end` - end of an event that spans multiple days
+ <li>`start-unknown` - start of an event with an undefined end time
+ <li>`unknown-end` - end of an event with an undefined start time
+</ul>
+
+<p>If a `segment_stride` argument is passed, segments for a day
+are calculated like this:</p>
+
+<ol>
+ <li>create a segment that starts at the `start` time
+ <li>check whether the DST offset is the same at the start and end of the day
+ <ul>
+  <li>if not, create segments `segment_stride` apart
+  <li>otherwise...
+   <ul>
+    <li>continue forwards until the current segment's end time is
+     greater than the `end` time, or the timezone's DST status
+     changes
+    <li>stop unless a DST change was crossed
+    <li>create a new segment that ends at the `end` time
+    <li>continue backwards until the current segment's start time
+     is less than or equal to the last segment from amove
+    <li>sort all segments by start time
+   </ul>
+  </li>
+</ol>
+
+<p>The algorithm above should produce intuitive dates in most
+ cases, but produces unexpected behaviour if there is more than
+ one DST change in a single day.</p>
+
+<p>Be aware that some timezones have [a 45-minute offset from
+UTC](https://en.wikipedia.org/wiki/UTC%2B05:45), and [even more
+esoteric
+timezones](https://en.wikipedia.org/wiki/UTC%E2%88%9200:25:21),
+existed in the 20th century.  You may need to test your program
+carefully to avoid incorrect behaviour in some cases.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>timezone</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    system_timezone
+                
+                </td>
+            
+
+            <td class="description last">display dates in this timezone</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>day_start</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    64800000
+                
+                </td>
+            
+
+            <td class="description last">start the first new day at this time (usually 6pm)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>day_stride</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    86400000
+                
+                </td>
+            
+
+            <td class="description last">amount of time to advance each day (usually 24 hours)</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>segment_stride</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">amount of time to advance each segment</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line1246">line 1246</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>console.log( diary.daily_activities() );
+-> [
+     {
+       "start"   : 123456789, // Unix time when the day starts
+       "end"     : 234567890, // start + day_stride - dst_change
+       "duration": 11111111, // end - start
+       "id"      : "2020-03-30T18:00:00.000 Etc/GMT" // ISO 8601 equivalent of "start"
+       "year"    : 2020,
+       "month"   : 2, // zero-based month number
+       "day"     : 29, // zero-based day of month
+       "activities": [
+         {
+           "start"       : 123459999, // time when the event started (optional)
+           "end"         : 234560000, // time when the event ended (optional)
+           "time"        : 200000000, // time associated with the event (required)
+           "offset_start": 0.1, // ( start - day.start ) / day.duration
+           "offset_end"  : 0.9, // ( end - day.start ) / day.duration
+           "offset_time" : 0.5, // ( time - day.start ) / day.duration
+           "type"        : "start-end" // see above for list of types
+           "record"      : { ... }, // associated record
+           "index"       : 0, // this is the nth activity for this record
+         },
+       ],
+       "activity_summaries": {
+         "asleep": {
+           "first_start": "2020-03-30T20:00:00.000 Etc/GMT", // start of first activity
+           "first_end"  : "2020-03-31T06:00:00.000 Etc/GMT", // end of first activity
+            "last_start": "2020-03-31T14:00:00.000 Etc/GMT", // start of last activity
+            "last_end"  : "2020-03-31T14:30:00.000 Etc/GMT", // end of last activity
+           "duration"   : 37800000, // total milliseconds (NaN if some activities have undefined duration)
+         },
+         ...
+       },
+       "segments": [
+         {
+           "dst_state": "on" // or "off" or "change-forward" or "change-back"
+           "year"  : 2020,
+           "month" : 2, // zero-based month number
+           "day"   : 29, // zero-based day of month
+           "hour"  : 18,
+           "minute": 0,
+           "second": 0,
+           "id"    : "2020-03-30T18:00:00.000 Etc/GMT"
+         },
+         ...
+       ],
+     },
+     ...
+   ]</code></pre>
 
 
 
@@ -1118,7 +1576,7 @@ console.log( diary.summarise_schedule( record => record.start > cutoff ) );
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line248">line 248</a>
+        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line285">line 285</a>
     </li></ul></dd>
     
 
@@ -1206,7 +1664,7 @@ console.log( diary.summarise_schedule( record => record.start > cutoff ) );
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Standard_format.js.html">Standard/format.js</a>, <a href="Standard_format.js.html#line894">line 894</a>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line1486">line 1486</a>
     </li></ul></dd>
     
 
@@ -1370,7 +1828,7 @@ console.log( diary.summarise_schedule( record => record.start > cutoff ) );
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line94">line 94</a>
+        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line110">line 110</a>
     </li></ul></dd>
     
 
@@ -1468,7 +1926,7 @@ console.log( diary.summarise_schedule( record => record.start > cutoff ) );
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line212">line 212</a>
+        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line249">line 249</a>
     </li></ul></dd>
     
 
@@ -1493,6 +1951,117 @@ console.log( diary.summarise_schedule( record => record.start > cutoff ) );
 
 
 
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="software_version"><span class="type-signature"></span>software_version<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Version ID for this package
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="DiaryBase.html#software_version">DiaryBase#software_version</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line615">line 615</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -1620,7 +2189,7 @@ groups records by day_number.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Standard_format.js.html">Standard/format.js</a>, <a href="Standard_format.js.html#line735">line 735</a>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line825">line 825</a>
     </li></ul></dd>
     
 
@@ -1835,7 +2404,7 @@ summaries for the data:</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Standard_format.js.html">Standard/format.js</a>, <a href="Standard_format.js.html#line697">line 697</a>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line787">line 787</a>
     </li></ul></dd>
     
 
@@ -1897,7 +2466,7 @@ summaries for the data:</p>
     
 
     
-    <h4 class="name" id="summarise_schedule"><span class="type-signature"></span>summarise_schedule<span class="signature">(filter<span class="signature-attributes">opt</span>, day_length<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    <h4 class="name" id="summarise_schedule"><span class="type-signature"></span>summarise_schedule<span class="signature">(filter<span class="signature-attributes">opt</span>, day_length<span class="signature-attributes">opt</span>, timezone<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {Object}</span></h4>
     
 
     
@@ -1915,6 +2484,15 @@ or go to sleep.</p>
 <p>Sleep/wake times are currently calculated based on the
 beginning/end time for each day's primary sleep, although this
 may change in future.</p>
+
+<p>Times are calculated according to the associated timezone.
+For example, say you woke up in New York at 8am, flew to Los
+Angeles, went to bed and woke up again at 8am local time.  You
+would be counted as waking up at 8am both days, even though 27
+hours had passed between wake events.</p>
+
+<p>Records without a timezone are treated as if they had the
+environment's default timezone</p>
 </div>
 
 
@@ -1981,6 +2559,8 @@ may change in future.</p>
             
                 <td class="default">
                 
+                    null
+                
                 </td>
             
 
@@ -2027,6 +2607,45 @@ may change in future.</p>
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>timezone</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    system_timezone
+                
+                </td>
+            
+
+            <td class="description last">default timezone for records</td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -2064,7 +2683,7 @@ may change in future.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Standard_format.js.html">Standard/format.js</a>, <a href="Standard_format.js.html#line813">line 813</a>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line992">line 992</a>
     </li></ul></dd>
     
 
@@ -2120,9 +2739,9 @@ may change in future.</p>
 
     <h5>Example</h5>
     
-    <pre class="prettyprint"><code>console.log( diary.summarise_schedule();
+    <pre class="prettyprint"><code>console.log( diary.summarise_schedule() );
 -> {
-     sleep: { // time (GMT) when the user falls asleep:
+     sleep: { // time when the user falls asleep:
                      average           : 12345.678,
                      mean              : 12356.789,
        interquartile_mean              : 12345.678,
@@ -2133,7 +2752,7 @@ may change in future.</p>
                      durations         : [ undefined, 12345, undefined, ... ],
        interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
      },
-     wake: { // time (GMT) when the user wakes up:
+     wake: { // time when the user wakes up:
                      average           : 12345.678,
                      mean              : 12356.789,
        interquartile_mean              : 12345.678,
@@ -2145,6 +2764,117 @@ may change in future.</p>
        interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
      },
    }</code></pre>
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="timezones"><span class="type-signature"></span>timezones<span class="signature">()</span><span class="type-signature"> &rarr; {Array.&lt;string>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Complete list of allowed timezones
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-overrides">Overrides:</dt>
+    <dd class="tag-overrides"><ul class="dummy"><li>
+        <a href="DiaryBase.html#timezones">DiaryBase#timezones</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line607">line 607</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;string></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
 
 
 
@@ -2169,6 +2899,7 @@ may change in future.</p>
 <ul>
   <li><tt>url</tt> - contents serialised for inclusion in a URL</li>
   <li><tt>json</tt> - contents serialised to JSON</li>
+  <li><tt>storage-line</tt> - contents serialised for inclusion in a newline-separated list of diaries</li>
   <li><tt>Standard</tt> - Standard format</li>
   <li><em>(other formats)</em> - the name of any other diary format</li>
 </ul>
@@ -2273,7 +3004,7 @@ function directly if you want to guarantee synchronous execution.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line131">line 131</a>
+        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line162">line 162</a>
     </li></ul></dd>
     
 
@@ -2455,7 +3186,7 @@ cumbersome or unnecessary in a given piece of code.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line191">line 191</a>
+        <a href="DiaryBase.js.html">DiaryBase.js</a>, <a href="DiaryBase.js.html#line228">line 228</a>
     </li></ul></dd>
     
 
@@ -2516,6 +3247,236 @@ cumbersome or unnecessary in a given piece of code.</p>
 
 
         
+            
+
+    
+
+    
+    <h4 class="name" id="total_per_day"><span class="type-signature"></span>total_per_day<span class="signature">(record_filter<span class="signature-attributes">opt</span>, day_filter<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Summary statistics about the number of times an event occurs per day
+
+<p>Similar to <a href="DiaryStandard.html#summarise_days">DiaryStandard#summarise_days</a>, but
+looks at totals instead of sums.</p>
+
+<p>The <tt>summarise_*</tt> functions examine sums, so missing
+values are treated as <tt>undefined</tt>.  This function
+examines totals, so missing values are treated as <tt>0</tt>.
+The <tt>record_filter</tt> and <tt>day_filter</tt> parameters
+allow you to exclude days and records separately.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>record_filter</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">only examine records that match this filter</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>day_filter</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">only examine days that match this filter</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line903">line 903</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="DiaryStandard.html#summarise_records">summarise_records</a></li>
+        </ul>
+    </dd>
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    MaybeDiaryStandardStatistics
+</div>
+
+
+
+    
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>console.log( diary.total_per_day(
+  record => record.status == "asleep", // only count sleep records
+  record => record.start > cutoff      // ignore old records
+) );
+-> {
+                   average           : 1.234,
+                   mean              : 1.345,
+     interquartile_mean              : 1.234,
+                   standard_deviation: 0.123,
+     interquartile_standard_deviation: 0.012,
+                   median            : 1,
+     interquartile_range             : 1,
+                   counts            : [ undefined, 1, undefined, ... ],
+     interquartile_counts            : [ 1, 1, 2, 1, 1, 0, ... ],
+     // included for compatibility with summarise_* functions:
+                   durations         : [ undefined, 1, undefined, ... ],
+     interquartile_durations         : [ 1, 1, 2, 1, 1, 0, ... ],
+   }</code></pre>
+
+
+
+        
     
 
     
@@ -2531,13 +3492,13 @@ cumbersome or unnecessary in a given piece of code.</p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DiaryBase.html">DiaryBase</a></li><li><a href="DiaryLoader.html">DiaryLoader</a></li><li><a href="DiaryPleesTracker.html">DiaryPleesTracker</a></li><li><a href="DiarySleepAsAndroid.html">DiarySleepAsAndroid</a></li><li><a href="DiarySleepChart1.html">DiarySleepChart1</a></li><li><a href="DiarySleepmeter.html">DiarySleepmeter</a></li><li><a href="DiarySpreadsheetGraph.html">DiarySpreadsheetGraph</a></li><li><a href="DiarySpreadsheetTable.html">DiarySpreadsheetTable</a></li><li><a href="DiaryStandard.html">DiaryStandard</a></li><li><a href="Spreadsheet.html">Spreadsheet</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-Graph your day lengths.html">Graph your day lengths</a></li><li><a href="tutorial-List supported formats.html">List supported formats</a></li><li><a href="tutorial-Using diary objects.html">Using diary objects</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DiaryStandardRecordStatus">DiaryStandardRecordStatus</a></li><li><a href="global.html#new_sleep_diary">new_sleep_diary</a></li><li><a href="global.html#sleep_diary_formats">sleep_diary_formats</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DiaryActivityLog.html">DiaryActivityLog</a></li><li><a href="DiaryBase.html">DiaryBase</a></li><li><a href="DiaryLoader.html">DiaryLoader</a></li><li><a href="DiaryPleesTracker.html">DiaryPleesTracker</a></li><li><a href="DiarySleepAsAndroid.html">DiarySleepAsAndroid</a></li><li><a href="DiarySleepChart1.html">DiarySleepChart1</a></li><li><a href="DiarySleepmeter.html">DiarySleepmeter</a></li><li><a href="DiarySpreadsheetGraph.html">DiarySpreadsheetGraph</a></li><li><a href="DiarySpreadsheetTable.html">DiarySpreadsheetTable</a></li><li><a href="DiaryStandard.html">DiaryStandard</a></li><li><a href="Spreadsheet.html">Spreadsheet</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-Graph your day lengths.html">Graph your day lengths</a></li><li><a href="tutorial-List supported formats.html">List supported formats</a></li><li><a href="tutorial-Using diary objects.html">Using diary objects</a></li></ul><h3>Global</h3><ul><li><a href="global.html#debugging">debugging</a></li><li><a href="global.html#DiaryStandardRecordStatus">DiaryStandardRecordStatus</a></li><li><a href="global.html#new_sleep_diary">new_sleep_diary</a></li><li><a href="global.html#sleepdiary_engines">sleepdiary_engines</a></li><li><a href="global.html#system_timezone">system_timezone</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Jun 15 2021 08:52:23 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sat Jul 24 2021 12:01:27 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>

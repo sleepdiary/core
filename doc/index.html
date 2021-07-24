@@ -43,14 +43,14 @@
 
 
     <section>
-        <article><h1>Sleep Diary Formats</h1>
+        <article><h1>Sleep Diary Library</h1>
 <h2>Browser Quick Start</h2>
 <p>In your HTML:</p>
 <pre class="prettyprint source lang-html"><code>&lt;input type=&quot;file&quot; id=&quot;diary-input&quot;>
 
 ...
 
-&lt;script src=&quot;https://sleep-diary-formats.github.io/sleep-diary-formats.js&quot;>&lt;/script>
+&lt;script src=&quot;https://sleepdiary.github.io/library/sleepdiary-library.js&quot;>&lt;/script>
 </code></pre>
 <p>In your JavaScript:</p>
 <pre class="prettyprint source lang-javascript"><code>var diary_loader = new DiaryLoader(
@@ -86,11 +86,15 @@
             console.log( &quot;Extras for graphs created in spreadsheets&quot;, diary );
             break;
 
+        case &quot;ActivityLog&quot;:
+            console.log( &quot;Extras for activity logs&quot;, diary );
+            break;
+
         }
 
     },
     (raw,source) => {
-        console.log( &quot;Failed to load&quot;, raw, source );
+        console.error( &quot;Failed to load&quot;, raw, source );
     }
 );
 
@@ -103,24 +107,24 @@ document.getElementById(&quot;diary-input&quot;)
 <pre class="prettyprint source lang-bash"><code>npm install timezonecomplete xmldom
 </code></pre>
 <p>Use the package:</p>
-<pre class="prettyprint source lang-javascript"><code>const sleep_diary_formats = require(&quot;.../sleep-diary-formats.js&quot;);
+<pre class="prettyprint source lang-javascript"><code>const sleepdiary = require(&quot;.../sleepdiary-library.js&quot;);
 
 ...
 
-let diary = sleep_diary_formats.new_sleep_diary( my_diary );
+let diary = sleepdiary.new_sleep_diary( my_diary );
 </code></pre>
 <h2>Browser support</h2>
 <p>This library is actively tested in modern versions of Firefox and Chrome.  We try to support all modern Chromium-based browsers, plus Internet Explorer 10 and 11.  Please report any bugs you find in supported browsers.</p>
 <h2>Compiling the project</h2>
-<p>Most users can us the pre-compiled <a href="../sleep-diary-formats.js">sleep-diary-formats.js</a>.  If you want to compile the project yourself, install <a href="https://www.docker.com/">Docker</a> then do:</p>
+<p>Most users can us the pre-compiled <a href="../sleepdiary-library.js">sleepdiary-library.js</a>.  If you want to compile the project yourself, install <a href="https://www.docker.com/">Docker</a> then do:</p>
 <pre class="prettyprint source lang-bash"><code># Go to the directory this file is in:
-cd .../sleep-diary-formats
+cd .../sleepdiary-library
 
 # First time only: create the build envirnoment:
-docker build -t sleep-diary-formats .
+docker build -t sleepdiary-library .
 
 # Build the project:
-docker run --rm -v &quot;$PWD&quot;:/sleep-diary-formats sleep-diary-formats
+docker run --rm -v &quot;$PWD&quot;:/sleepdiary-library sleepdiary-library
 </code></pre>
 <p>This will create a build environment that runs the <a href="Makefile">Makefile</a> in a repeatable way.  The Makefile might run on your system without Docker, but is likely to produce different results.</p></article>
     </section>
@@ -133,13 +137,13 @@ docker run --rm -v &quot;$PWD&quot;:/sleep-diary-formats sleep-diary-formats
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DiaryBase.html">DiaryBase</a></li><li><a href="DiaryLoader.html">DiaryLoader</a></li><li><a href="DiaryPleesTracker.html">DiaryPleesTracker</a></li><li><a href="DiarySleepAsAndroid.html">DiarySleepAsAndroid</a></li><li><a href="DiarySleepChart1.html">DiarySleepChart1</a></li><li><a href="DiarySleepmeter.html">DiarySleepmeter</a></li><li><a href="DiarySpreadsheetGraph.html">DiarySpreadsheetGraph</a></li><li><a href="DiarySpreadsheetTable.html">DiarySpreadsheetTable</a></li><li><a href="DiaryStandard.html">DiaryStandard</a></li><li><a href="Spreadsheet.html">Spreadsheet</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-Graph your day lengths.html">Graph your day lengths</a></li><li><a href="tutorial-List supported formats.html">List supported formats</a></li><li><a href="tutorial-Using diary objects.html">Using diary objects</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DiaryStandardRecordStatus">DiaryStandardRecordStatus</a></li><li><a href="global.html#new_sleep_diary">new_sleep_diary</a></li><li><a href="global.html#sleep_diary_formats">sleep_diary_formats</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DiaryActivityLog.html">DiaryActivityLog</a></li><li><a href="DiaryBase.html">DiaryBase</a></li><li><a href="DiaryLoader.html">DiaryLoader</a></li><li><a href="DiaryPleesTracker.html">DiaryPleesTracker</a></li><li><a href="DiarySleepAsAndroid.html">DiarySleepAsAndroid</a></li><li><a href="DiarySleepChart1.html">DiarySleepChart1</a></li><li><a href="DiarySleepmeter.html">DiarySleepmeter</a></li><li><a href="DiarySpreadsheetGraph.html">DiarySpreadsheetGraph</a></li><li><a href="DiarySpreadsheetTable.html">DiarySpreadsheetTable</a></li><li><a href="DiaryStandard.html">DiaryStandard</a></li><li><a href="Spreadsheet.html">Spreadsheet</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-Graph your day lengths.html">Graph your day lengths</a></li><li><a href="tutorial-List supported formats.html">List supported formats</a></li><li><a href="tutorial-Using diary objects.html">Using diary objects</a></li></ul><h3>Global</h3><ul><li><a href="global.html#debugging">debugging</a></li><li><a href="global.html#DiaryStandardRecordStatus">DiaryStandardRecordStatus</a></li><li><a href="global.html#new_sleep_diary">new_sleep_diary</a></li><li><a href="global.html#sleepdiary_engines">sleepdiary_engines</a></li><li><a href="global.html#system_timezone">system_timezone</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Jun 15 2021 08:52:23 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sat Jul 24 2021 12:01:27 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>

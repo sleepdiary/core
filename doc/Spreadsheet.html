@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>Spreadsheet<span class="signature">(associated, rules)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>Spreadsheet<span class="signature">(associated, rules, convert_times_to_dates<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
         
             <div class="class-description">Interface to spreadsheet libraries
 
@@ -72,7 +72,7 @@ will attempt to decode various common time-like strings
     
 
     
-    <h4 class="name" id="Spreadsheet"><span class="type-signature"></span>new Spreadsheet<span class="signature">(associated, rules)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="Spreadsheet"><span class="type-signature"></span>new Spreadsheet<span class="signature">(associated, rules, convert_times_to_dates<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
     
 
     
@@ -100,6 +100,8 @@ will attempt to decode various common time-like strings
         <th>Type</th>
 
         
+        <th>Attributes</th>
+        
 
         
 
@@ -125,6 +127,14 @@ will attempt to decode various common time-like strings
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
@@ -148,10 +158,51 @@ will attempt to decode various common time-like strings
             </td>
 
             
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
 
             
 
-            <td class="description last">rules to convert between objects and spreadsheets
+            <td class="description last">rules to convert between objects and spreadsheets</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>convert_times_to_dates</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">guess the dates associated with times
 
 <p>The spreadsheet rules can include a <tt>formats</tt> member,
 specifying how numbers will be formatted in the associated
@@ -305,7 +356,7 @@ Excel number format code, or <tt>number</tt>/<tt>time</tt>/<tt>duration</tt>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Spreadsheet.js.html">Spreadsheet.js</a>, <a href="Spreadsheet.js.html#line335">line 335</a>
+        <a href="Spreadsheet.js.html">Spreadsheet.js</a>, <a href="Spreadsheet.js.html#line353">line 353</a>
     </li></ul></dd>
     
 
@@ -367,7 +418,7 @@ Excel number format code, or <tt>number</tt>/<tt>time</tt>/<tt>duration</tt>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Spreadsheet.js.html">Spreadsheet.js</a>, <a href="Spreadsheet.js.html#line285">line 285</a>
+        <a href="Spreadsheet.js.html">Spreadsheet.js</a>, <a href="Spreadsheet.js.html#line303">line 303</a>
     </li></ul></dd>
     
 
@@ -447,7 +498,365 @@ Excel number format code, or <tt>number</tt>/<tt>time</tt>/<tt>duration</tt>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Spreadsheet.js.html">Spreadsheet.js</a>, <a href="Spreadsheet.js.html#line452">line 452</a>
+        <a href="Spreadsheet.js.html">Spreadsheet.js</a>, <a href="Spreadsheet.js.html#line428">line 428</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".create_cell"><span class="type-signature">(static) </span>create_cell<span class="signature">(value<span class="signature-attributes">opt</span>, style<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>value</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">*</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">contents of the cell</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>style</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">cell formatting</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Spreadsheet.js.html">Spreadsheet.js</a>, <a href="Spreadsheet.js.html#line145">line 145</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".parse_all_timestamps"><span class="type-signature">(static) </span>parse_all_timestamps<span class="signature">(sheet, raw_spreadsheet<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Calculate timestamps for all cells in a worksheet
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>sheet</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">sheet to process</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>raw_spreadsheet</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">raw spreadsheet object from which the value was taken</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Spreadsheet.js.html">Spreadsheet.js</a>, <a href="Spreadsheet.js.html#line408">line 408</a>
     </li></ul></dd>
     
 
@@ -584,7 +993,7 @@ Excel number format code, or <tt>number</tt>/<tt>time</tt>/<tt>duration</tt>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Spreadsheet.js.html">Spreadsheet.js</a>, <a href="Spreadsheet.js.html#line521">line 521</a>
+        <a href="Spreadsheet.js.html">Spreadsheet.js</a>, <a href="Spreadsheet.js.html#line499">line 499</a>
     </li></ul></dd>
     
 
@@ -789,7 +1198,7 @@ Excel number format code, or <tt>number</tt>/<tt>time</tt>/<tt>duration</tt>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Spreadsheet.js.html">Spreadsheet.js</a>, <a href="Spreadsheet.js.html#line372">line 372</a>
+        <a href="Spreadsheet.js.html">Spreadsheet.js</a>, <a href="Spreadsheet.js.html#line390">line 390</a>
     </li></ul></dd>
     
 
@@ -1058,7 +1467,7 @@ Excel number format code, or <tt>number</tt>/<tt>time</tt>/<tt>duration</tt>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Spreadsheet.js.html">Spreadsheet.js</a>, <a href="Spreadsheet.js.html#line719">line 719</a>
+        <a href="Spreadsheet.js.html">Spreadsheet.js</a>, <a href="Spreadsheet.js.html#line718">line 718</a>
     </li></ul></dd>
     
 
@@ -1164,7 +1573,7 @@ Excel number format code, or <tt>number</tt>/<tt>time</tt>/<tt>duration</tt>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Spreadsheet.js.html">Spreadsheet.js</a>, <a href="Spreadsheet.js.html#line675">line 675</a>
+        <a href="Spreadsheet.js.html">Spreadsheet.js</a>, <a href="Spreadsheet.js.html#line674">line 674</a>
     </li></ul></dd>
     
 
@@ -1228,13 +1637,13 @@ Excel number format code, or <tt>number</tt>/<tt>time</tt>/<tt>duration</tt>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DiaryBase.html">DiaryBase</a></li><li><a href="DiaryLoader.html">DiaryLoader</a></li><li><a href="DiaryPleesTracker.html">DiaryPleesTracker</a></li><li><a href="DiarySleepAsAndroid.html">DiarySleepAsAndroid</a></li><li><a href="DiarySleepChart1.html">DiarySleepChart1</a></li><li><a href="DiarySleepmeter.html">DiarySleepmeter</a></li><li><a href="DiarySpreadsheetGraph.html">DiarySpreadsheetGraph</a></li><li><a href="DiarySpreadsheetTable.html">DiarySpreadsheetTable</a></li><li><a href="DiaryStandard.html">DiaryStandard</a></li><li><a href="Spreadsheet.html">Spreadsheet</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-Graph your day lengths.html">Graph your day lengths</a></li><li><a href="tutorial-List supported formats.html">List supported formats</a></li><li><a href="tutorial-Using diary objects.html">Using diary objects</a></li></ul><h3>Global</h3><ul><li><a href="global.html#DiaryStandardRecordStatus">DiaryStandardRecordStatus</a></li><li><a href="global.html#new_sleep_diary">new_sleep_diary</a></li><li><a href="global.html#sleep_diary_formats">sleep_diary_formats</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="DiaryActivityLog.html">DiaryActivityLog</a></li><li><a href="DiaryBase.html">DiaryBase</a></li><li><a href="DiaryLoader.html">DiaryLoader</a></li><li><a href="DiaryPleesTracker.html">DiaryPleesTracker</a></li><li><a href="DiarySleepAsAndroid.html">DiarySleepAsAndroid</a></li><li><a href="DiarySleepChart1.html">DiarySleepChart1</a></li><li><a href="DiarySleepmeter.html">DiarySleepmeter</a></li><li><a href="DiarySpreadsheetGraph.html">DiarySpreadsheetGraph</a></li><li><a href="DiarySpreadsheetTable.html">DiarySpreadsheetTable</a></li><li><a href="DiaryStandard.html">DiaryStandard</a></li><li><a href="Spreadsheet.html">Spreadsheet</a></li></ul><h3>Tutorials</h3><ul><li><a href="tutorial-Graph your day lengths.html">Graph your day lengths</a></li><li><a href="tutorial-List supported formats.html">List supported formats</a></li><li><a href="tutorial-Using diary objects.html">Using diary objects</a></li></ul><h3>Global</h3><ul><li><a href="global.html#debugging">debugging</a></li><li><a href="global.html#DiaryStandardRecordStatus">DiaryStandardRecordStatus</a></li><li><a href="global.html#new_sleep_diary">new_sleep_diary</a></li><li><a href="global.html#sleepdiary_engines">sleepdiary_engines</a></li><li><a href="global.html#system_timezone">system_timezone</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Jun 15 2021 08:52:23 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Sat Jul 24 2021 12:01:27 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
