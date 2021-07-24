@@ -103,4 +103,4 @@ docker build -t sleepdiary-library .
 docker run --rm -v "$PWD":/sleepdiary-library sleepdiary-library
 ```
 
-This will create a build environment that runs the [Makefile](Makefile) in a repeatable way.  The Makefile might run on your system without Docker, but is likely to produce different results.
+This will create a build environment that runs the [Makefile](../Makefile) in a repeatable way.  The Makefile might run on your system without Docker, but is likely to produce different results.
