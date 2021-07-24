@@ -58,4 +58,4 @@ test: spec/support/jasmine.json sleepdiary-library.min.js test.js
 clean:
 	rm -rf README.html doc/*.html sleepdiary-library.min.js* test.js* doc/*/README.html doc/fonts doc/scripts doc/styles
 
-build: sleepdiary-library.min.js doc/index.html
+build: sleepdiary-library.min.js doc/index.html test.js
