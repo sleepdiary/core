@@ -241,7 +241,6 @@ class Spreadsheet {
 
         function importer(cell,self) {
 
-            const debug = false;
 
             const member = cell["member"];
 
@@ -276,7 +275,11 @@ class Spreadsheet {
                 const inner = ret;
                 ret = (elem,row,offset) => {
                     const result = inner(elem,row,offset);
-                    console.info(cell,row[offset]["value"],elem[member],result);
+                    if ( result ) {
+                        console.info(result,cell,elem[member]);
+                    } else {
+                        console.error(result,cell,elem[member],row[offset]?row[offset]["value"]:"(no cell at this offset)");
+                    }
                     return result;
                 };
             }
