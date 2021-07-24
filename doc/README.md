@@ -9,7 +9,7 @@ In your HTML:
 
 ...
 
-<script src="https://sleepdiary.github.io/library/sleepdiary-library.js"></script>
+<script src="https://sleepdiary.github.io/library/sleepdiary-library.min.js"></script>
 ```
 
 In your JavaScript:
@@ -77,7 +77,7 @@ npm install timezonecomplete xmldom
 Use the package:
 
 ```javascript
-const sleepdiary = require(".../sleepdiary-library.js");
+const sleepdiary = require(".../sleepdiary-library.min.js");
 
 ...
 
@@ -90,7 +90,7 @@ This library is actively tested in modern versions of Firefox and Chrome.  We tr
 
 ## Compiling the project
 
-Most users can us the pre-compiled [sleepdiary-library.js](../sleepdiary-library.js).  If you want to compile the project yourself, install [Docker](https://www.docker.com/) then do:
+Most users can us the pre-compiled [sleepdiary-library.min.js](../sleepdiary-library.min.js).  If you want to compile the project yourself, install [Docker](https://www.docker.com/) then do:
 
 ```bash
 # Go to the directory this file is in:

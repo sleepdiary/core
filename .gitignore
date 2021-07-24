@@ -11,7 +11,8 @@ README.html
 /doc/scripts
 /doc/styles
 /sleepdiary-library.js
-/sleepdiary-library.js.map
+/sleepdiary-library.min.js
+/sleepdiary-library.min.js.map
 /test.js
 /test.js.map
 /constants.js

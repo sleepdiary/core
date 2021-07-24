@@ -28,7 +28,7 @@ Here are the meanings of each member in a format definition:
 * `extension` is the default file extension for files in this format
 * `constructor` is the constructor used to generate files of this format - you should not need to use this
 
-<script src="../sleepdiary-library.js"></script>
+<script src="../sleepdiary-library.min.js"></script>
 <script>
 
 document.getElementById("currently-supported-formats").innerHTML = (
