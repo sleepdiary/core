@@ -241,7 +241,6 @@ class Spreadsheet {
 
         function importer(cell,self) {
 
-
             const member = cell["member"];
 
             let ret;
@@ -267,7 +266,10 @@ class Spreadsheet {
             if ( cell["optional"] ) {
                 const inner = ret;
                 ret = (elem,row,offset) => (
-                    ( row[offset] || { "value": null } )["value"] === null || inner(elem,row,offset)
+                    !row[offset]                  ||
+                     row[offset]["value"] == null ||
+                    inner(elem,row,offset)        ||
+                     row[offset]["value"] == ""
                 );
             }
 
