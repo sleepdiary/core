@@ -31,8 +31,8 @@ describe("SleepChart1 format", () => {
             var record = records[n];
             float_data[n* 3+0] = record[0];
             float_data[n* 3+1] = record[1];
-            uint8_data[n*12+8] = record[2];
-            uint8_data[n*12+9] = record[3];
+            uint8_data[n*12+8] = record[2]?255:0;
+            uint8_data[n*12+9] = record[3]?255:0;
         }
         return float_data.buffer;
     }
