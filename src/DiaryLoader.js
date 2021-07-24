@@ -42,6 +42,13 @@ class DiaryLoader {
     /**
      * @param {Function=} success_callback - called when a new file is loaded successfully
      * @param {Function=} error_callback - called when a file cannot be loaded
+     * @param {number=}  hash_parse_policy - how to handle URL hashes:
+     *
+     * <ul>
+     *  <li> <tt>0</tt> or <tt>undefined</tt> - always parse the URL hash
+     *  <li> <tt>1</tt> - parse each URL hash once, skip it if e.g. the user navigates away then clicks <em>back</em>
+     *  <li> <tt>2</tt> - never parse the URL hash
+     * </ul>
      *
      * @example
      * function my_success_callback( diary, source ) {
@@ -52,37 +59,52 @@ class DiaryLoader {
      * }
      * let loader = new DiaryLoader(my_success_callback,my_error_callback);
      */
-    constructor( success_callback, error_callback ) {
+    constructor( success_callback, error_callback, hash_parse_policy ) {
 
         this["success_callback"] = success_callback || ( () => {} );
         this["error_callback"] = error_callback || ( () => {} );
 
         let load_interval, self = this;
 
-        function initialise() {
-            if ( window["tc"] ) {
-                clearInterval(load_interval);
-                window.addEventListener('hashchange', () =>
+        function generate_init_callback( source ) {
+            return () => {
+                if ( !(history.state||{})["sleepdiary-library-processed"] ) {
                     location.hash.replace(
                         /(?:^#|[?&])(sleep-?diary=[^&]*)/g,
-                        (_,diary) => self["load"]({
-                            "file_format": "url",
-                            "contents": diary
-                        }, "hashchange" )
-                    ),
-                    false
-                );
-                location.hash.replace(
-                    /(?:^#|[?&])(sleep-?diary=[^&]*)/g,
-                    (_,diary) => self["load"]({
-                        "file_format": "url",
-                        "contents": diary
-                    }, "hash" )
-                );
+                        (_,diary) => {
+                            history.replaceState(
+                                Object.assign(
+                                    { "sleepdiary-library-processed": hash_parse_policy },
+                                    /** @type {Object} */(history.state||{})
+                                ),
+                                '',
+                            );
+                            self["load"]({
+                                "file_format": "url",
+                                "contents": diary
+                            }, source )
+                        }
+                    );
+                }
             }
         }
 
-        load_interval = setInterval( initialise, 100 );
+        if ( hash_parse_policy != 2 ) {
+            load_interval = setInterval(
+                () => {
+                    if ( window["tc"] ) {
+                        clearInterval(load_interval);
+                        window.addEventListener(
+                            'hashchange',
+                            generate_init_callback("hashchange"),
+                            false
+                        );
+                        generate_init_callback("hash")();
+                    }
+                },
+                100
+            );
+        }
 
         /*
          * TODO: localStorage
