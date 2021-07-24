@@ -1,8 +1,12 @@
 // load the JavaScript part of sqlite.js:
 if ( !self["initSqlJs"] ) {
-    let script = document.createElement("script");
-    script.src = "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.5.0/sql-wasm.min.js";
-    document.head.appendChild(script);
+    if ( self.importScripts ) {
+        self.importScripts( "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.5.0/sql-wasm.min.js" );
+    } else {
+        let script = document.createElement("script");
+        script.src = "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.5.0/sql-wasm.min.js";
+        document.head.appendChild(script);
+    }
 }
 
 /**

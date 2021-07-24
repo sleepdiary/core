@@ -27,15 +27,19 @@ class DiaryLoader {
 
     static load_resources() {
         try {
+            let files = [];
             DiaryLoader.resources().forEach( resource => {
-                if ( !resource[0] ) {
-                    resource.slice(1).forEach( url => {
-                        let script = document.createElement("script");
-                        script.src = url;
-                        document.head.appendChild(script);
-                    });
-                }
+                if ( !resource[0] ) files = files.concat( resource.slice(1) );
             });
+            if ( self.importScripts ) {
+                self.importScripts.apply( self, files );
+            } else {
+                files.forEach( url => {
+                    let script = document.createElement("script");
+                    script.src = url;
+                    document.head.appendChild(script);
+                });
+            }
         } catch (e) {}
     }
 
