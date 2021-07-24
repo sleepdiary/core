@@ -369,7 +369,7 @@ class DiaryBase {
 
         let dom_parser;
         try {
-            dom_parser = window.DOMParser;
+            dom_parser = self.DOMParser;
             if ( !dom_parser ) throw "";
         } catch (e) {
             dom_parser = require("xmldom").DOMParser;
@@ -517,7 +517,7 @@ class DiaryBase {
     static tc() {
         let ret;
         try {
-            ret = window["tc"];
+            ret = self["tc"];
             if ( !ret ) throw "";
         } catch (e) {
             ret = require("timezonecomplete");
@@ -605,7 +605,7 @@ class DiaryBase {
      * @return {Array<string>}
      */
     ["timezones"]() {
-        return Object.keys(window["tzdata"]["zones"]).sort();
+        return Object.keys(self["tzdata"]["zones"]).sort();
     }
 
     /**

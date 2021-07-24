@@ -10,16 +10,16 @@ class DiaryLoader {
     static resources() {
         return [
             [
-                window["JSZip"],
+                self["JSZip"],
                 "https://cdn.jsdelivr.net/npm/jszip@3.6.x/dist/jszip.min.js"
             ],
             [
-                window["tc"],
+                self["tc"],
                 "https://cdn.jsdelivr.net/npm/tzdata@1.0.x/tzdata.js",
                 "https://cdn.jsdelivr.net/npm/timezonecomplete@5.12.x/dist/timezonecomplete.min.js"
             ],
             [
-                window["ExcelJS"],
+                self["ExcelJS"],
                 "https://cdn.jsdelivr.net/npm/exceljs@4.2.x/dist/exceljs.min.js"
             ]
         ];
@@ -64,7 +64,7 @@ class DiaryLoader {
         this["success_callback"] = success_callback || ( () => {} );
         this["error_callback"] = error_callback || ( () => {} );
 
-        let load_interval, self = this;
+        let load_interval, this_ = this;
 
         function generate_init_callback( source ) {
             return () => {
@@ -79,7 +79,7 @@ class DiaryLoader {
                                 ),
                                 '',
                             );
-                            self["load"]({
+                            this_["load"]({
                                 "file_format": "url",
                                 "contents": diary
                             }, source )
@@ -92,9 +92,9 @@ class DiaryLoader {
         if ( hash_parse_policy != 2 ) {
             load_interval = setInterval(
                 () => {
-                    if ( window["tc"] ) {
+                    if ( self["tc"] ) {
                         clearInterval(load_interval);
-                        window.addEventListener(
+                        self.addEventListener(
                             'hashchange',
                             generate_init_callback("hashchange"),
                             false
@@ -147,7 +147,7 @@ class DiaryLoader {
             return setTimeout( () => this["load"](raw,source), 100 );
         }
 
-        const jszip = window["JSZip"];
+        const jszip = self["JSZip"];
 
         // wait for JSZip to load:
         if ( !jszip ) {
@@ -256,7 +256,7 @@ class DiaryLoader {
 
             let diary;
             try {
-                diary = window["new_sleep_diary"]( raw, DiaryLoader["serialiser"] );
+                diary = self["new_sleep_diary"]( raw, DiaryLoader["serialiser"] );
             } catch (e) {
                 this[  "error_callback"]( raw  , source );
                 throw e;
@@ -279,7 +279,7 @@ class DiaryLoader {
             return btoa(unescape(encodeURIComponent(data["contents"])));
         case "archive":
             const callback = (resolve,reject) => {
-                const jszip = window["JSZip"];
+                const jszip = self["JSZip"];
                 if ( !jszip ) {
                     return setTimeout( () => callback(resolve,reject), 100 );
                 }

@@ -436,7 +436,7 @@ class Spreadsheet {
 
         let spreadsheet;
         try {
-            spreadsheet = new window["ExcelJS"]["Workbook"]();
+            spreadsheet = new self["ExcelJS"]["Workbook"]();
         } catch (e) {
             spreadsheet = new ( require("exceljs")["Workbook"] )();
         }
@@ -510,7 +510,7 @@ class Spreadsheet {
 
         let spreadsheet;
         try {
-            spreadsheet = new window["ExcelJS"]["Workbook"]();
+            spreadsheet = new self["ExcelJS"]["Workbook"]();
         } catch (e) {
             spreadsheet = new ( require("exceljs")["Workbook"] )();
         }
@@ -730,7 +730,7 @@ class Spreadsheet {
 
         if ( !this.raw ) {
             try {
-                this.raw = new window["ExcelJS"]["Workbook"]();
+                this.raw = new self["ExcelJS"]["Workbook"]();
             } catch (e) {
                 this.raw = new ( require("exceljs")["Workbook"] )();
             }

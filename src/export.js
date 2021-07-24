@@ -34,5 +34,5 @@ const _sleepdiary_exports = {
 if ( typeof module !== "undefined" && module.exports ) {
     module.exports = _sleepdiary_exports;
 } else {
-    Object.keys(_sleepdiary_exports).forEach( e => window[e] = _sleepdiary_exports[e] );
+    Object.keys(_sleepdiary_exports).forEach( e => self[e] = _sleepdiary_exports[e] );
 }

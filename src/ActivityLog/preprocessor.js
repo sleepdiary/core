@@ -1,5 +1,5 @@
 // load the JavaScript part of sqlite.js:
-if ( !window["initSqlJs"] ) {
+if ( !self["initSqlJs"] ) {
     let script = document.createElement("script");
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.5.0/sql-wasm.min.js";
     document.head.appendChild(script);
@@ -91,7 +91,7 @@ function preprocess_activity_log(file) {
 // load the WebAssembly part of sqlite.js:
 preprocess_activity_log.load_sql = new Promise( (resolve,reject) => {
     let interval = setInterval(() => {
-        if ( window.hasOwnProperty("initSqlJs") ) {
+        if ( self.hasOwnProperty("initSqlJs") ) {
             clearInterval(interval);
             initSqlJs(
                 { locateFile: filename => 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.5.0/'+filename }
