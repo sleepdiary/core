@@ -28,7 +28,7 @@ Now open a text editor and create a file called `index.html` in your `day-length
     </svg>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.3.1/d3.min.js"></script>
-    <script src="https://sleep-diary-formats.github.io/sleep-diary-formats.js"></script>
+    <script src="https://sleepdiary.github.io/library/sleepdiary-library.js"></script>
     <script src="index.js"></script>
 
   </body>
@@ -75,14 +75,14 @@ Now we've loaded your data into JavaScript, we need to calculate how long your d
 Replace it with:
 
 ```javascript
-        var cutoff = new Date().getTime() - 30*24*60*60*1000; // 30 days
+        var cutoff = new Date().getTime() - 14*24*60*60*1000; // 14 days
         var summary = diary.to("Standard").summarise_days( r => r.start > cutoff );
 
         document.getElementById("svg-text").innerHTML = JSON.stringify(summary,null,' ');
         console.log(summary);
 ```
 
-Save the file, refresh the page and reload your diary.  You should see summary information about your last 30 days.  If you see `null` instead of summary information, edit the `cutoff` line to include older records.
+Save the file, refresh the page and reload your diary.  You should see summary information about your last 14 days.  If you see `null` instead of summary information, edit the `cutoff` line to include older records.
 
 Have a look around your data.  There's a lot there, but `durations` is the only part we'll use in this tutorial.
 

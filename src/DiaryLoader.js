@@ -7,37 +7,52 @@
  */
 class DiaryLoader {
 
+    static resources() {
+        return [
+            [
+                self["JSZip"],
+                "https://cdn.jsdelivr.net/npm/jszip@3.6.x/dist/jszip.min.js"
+            ],
+            [
+                self["tc"],
+                "https://cdn.jsdelivr.net/npm/tzdata@1.0.x/tzdata.js",
+                "https://cdn.jsdelivr.net/npm/timezonecomplete@5.12.x/dist/timezonecomplete.min.js"
+            ],
+            [
+                self["ExcelJS"],
+                "https://cdn.jsdelivr.net/npm/exceljs@4.2.x/dist/exceljs.min.js"
+            ]
+        ];
+    }
+
     static load_resources() {
         try {
-            [
-                [
-                    window["JSZip"],
-                    "https://cdn.jsdelivr.net/npm/jszip@3.6.x/dist/jszip.min.js"
-                ],
-                [
-                    window["tc"],
-                    "https://cdn.jsdelivr.net/npm/tzdata@1.0.x/tzdata.js",
-                    "https://cdn.jsdelivr.net/npm/timezonecomplete@5.12.x/dist/timezonecomplete.min.js"
-                ],
-                [
-                    window["ExcelJS"],
-                    "https://cdn.jsdelivr.net/npm/exceljs@4.2.x/dist/exceljs.min.js"
-                ]
-            ].forEach( resource => {
-                if ( !resource[0] ) {
-                    resource.slice(1).forEach( url => {
-                        let script = document.createElement("script");
-                        script.src = url;
-                        document.head.appendChild(script);
-                    });
-                }
+            let files = [];
+            DiaryLoader.resources().forEach( resource => {
+                if ( !resource[0] ) files = files.concat( resource.slice(1) );
             });
+            if ( self.importScripts ) {
+                self.importScripts.apply( self, files );
+            } else {
+                files.forEach( url => {
+                    let script = document.createElement("script");
+                    script.src = url;
+                    document.head.appendChild(script);
+                });
+            }
         } catch (e) {}
     }
 
     /**
      * @param {Function=} success_callback - called when a new file is loaded successfully
      * @param {Function=} error_callback - called when a file cannot be loaded
+     * @param {number=}  hash_parse_policy - how to handle URL hashes:
+     *
+     * <ul>
+     *  <li> <tt>0</tt> or <tt>undefined</tt> - always parse the URL hash
+     *  <li> <tt>1</tt> - parse each URL hash once, skip it if e.g. the user navigates away then clicks <em>back</em>
+     *  <li> <tt>2</tt> - never parse the URL hash
+     * </ul>
      *
      * @example
      * function my_success_callback( diary, source ) {
@@ -48,37 +63,52 @@ class DiaryLoader {
      * }
      * let loader = new DiaryLoader(my_success_callback,my_error_callback);
      */
-    constructor( success_callback, error_callback ) {
+    constructor( success_callback, error_callback, hash_parse_policy ) {
 
         this["success_callback"] = success_callback || ( () => {} );
         this["error_callback"] = error_callback || ( () => {} );
 
-        let load_interval, self = this;
+        let load_interval, this_ = this;
 
-        function initialise() {
-            if ( window["tc"] ) {
-                window.addEventListener('hashchange', () =>
+        function generate_init_callback( source ) {
+            return () => {
+                if ( !(history.state||{})["sleepdiary-library-processed"] ) {
                     location.hash.replace(
-                        /(?:^#|[?&])(sleep-diary=[^&]*)/g,
-                        (_,diary) => self["load"]({
-                            "file_format": "url",
-                            "contents": diary
-                        }, "hashchange" )
-                    ),
-                    false
-                );
-                location.hash.replace(
-                    /(?:^#|[?&])(sleep-diary=[^&]*)/g,
-                    (_,diary) => self["load"]({
-                        "file_format": "url",
-                        "contents": diary
-                    }, "hash" )
-                );
-                clearInterval(load_interval);
+                        /(?:^#|[?&])(sleep-?diary=[^&]*)/g,
+                        (_,diary) => {
+                            history.replaceState(
+                                Object.assign(
+                                    { "sleepdiary-library-processed": hash_parse_policy },
+                                    /** @type {Object} */(history.state||{})
+                                ),
+                                '',
+                            );
+                            this_["load"]({
+                                "file_format": "url",
+                                "contents": diary
+                            }, source )
+                        }
+                    );
+                }
             }
         }
 
-        load_interval = setInterval( initialise, 100 );
+        if ( hash_parse_policy != 2 ) {
+            load_interval = setInterval(
+                () => {
+                    if ( self["tc"] ) {
+                        clearInterval(load_interval);
+                        self.addEventListener(
+                            'hashchange',
+                            generate_init_callback("hashchange"),
+                            false
+                        );
+                        generate_init_callback("hash")();
+                    }
+                },
+                100
+            );
+        }
 
         /*
          * TODO: localStorage
@@ -117,7 +147,11 @@ class DiaryLoader {
      */
     ["load"](raw,source) {
 
-        const jszip = window["JSZip"];
+        if ( DiaryLoader.resources().some( resource => !resource[0] ) ) {
+            return setTimeout( () => this["load"](raw,source), 100 );
+        }
+
+        const jszip = self["JSZip"];
 
         // wait for JSZip to load:
         if ( !jszip ) {
@@ -128,7 +162,7 @@ class DiaryLoader {
             let xhr = new XMLHttpRequest;
             xhr.responseType = 'blob';
             xhr.onload = () => this["load"]([xhr.response],source);
-            xhr.open('GET', raw);
+            xhr.open('GET', /** @type {string} */(raw));
             return xhr.send();
         }
 
@@ -136,9 +170,21 @@ class DiaryLoader {
 
         if ( raw.target && raw.target.files ) raw = raw.target.files;
 
-        if ( raw.length ) { // looks array-like (e.g. FileList)
+        if ( raw.replace ) {
+            raw.replace(/^storage-line:([^:]+):(.*)/, (_,file_format,json) => {
+                raw = {
+                    "file_format": "storage-line",
+                    "contents": {
+                        "file_format": file_format,
+                        "contents"   : JSON.parse(json),
+                    },
+                };
+            });
+        }
 
-            Array.from(raw).forEach( file => {
+        if ( typeof(raw) != "string" && raw.length ) { // looks array-like (e.g. FileList)
+
+            Array.from(/** @type {!Iterable<*>} */(raw)).forEach( file => {
 
                 let file_reader = new FileReader(),
                     zip = new jszip()
@@ -146,7 +192,7 @@ class DiaryLoader {
 
                 // extract the file contents:
                 file_reader.onload =
-                    () => Spreadsheet["buffer_to_spreadsheet"](file_reader.result).then(
+                    () => Spreadsheet.buffer_to_spreadsheet(file_reader.result).then(
 
                         spreadsheet => this["load"]( spreadsheet, source ),
 
@@ -214,7 +260,7 @@ class DiaryLoader {
 
             let diary;
             try {
-                diary = window["new_sleep_diary"]( raw, DiaryLoader["serialiser"] );
+                diary = self["new_sleep_diary"]( raw, DiaryLoader["serialiser"] );
             } catch (e) {
                 this[  "error_callback"]( raw  , source );
                 throw e;
@@ -237,7 +283,7 @@ class DiaryLoader {
             return btoa(unescape(encodeURIComponent(data["contents"])));
         case "archive":
             const callback = (resolve,reject) => {
-                const jszip = window["JSZip"];
+                const jszip = self["JSZip"];
                 if ( !jszip ) {
                     return setTimeout( () => callback(resolve,reject), 100 );
                 }

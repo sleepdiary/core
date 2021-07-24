@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Andrew Sayers <andrew-github.com@pileofstuff.org>
+ * Copyright 2020 Andrew Sayers <sleepdiary@pileofstuff.org>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -138,13 +138,18 @@ const SpreadsheetNumberFormats = {
  */
 class Spreadsheet {
 
-    static ["create_cell"](value,style) {
+    /**
+     * @param {*=} value - contents of the cell
+     * @param {string=} style - cell formatting
+     */
+    static create_cell(value,style) {
         return { "value": value, "style": style || "" };
     }
 
     /**
      * @param {Object} associated - object to synchronise the spreadsheet with
      * @param {SpreadsheetRules} rules - rules to convert between objects and spreadsheets
+     * @param {boolean=} convert_times_to_dates - guess the dates associated with times
      *
      * <p>The spreadsheet rules can include a <tt>formats</tt> member,
      * specifying how numbers will be formatted in the associated
@@ -175,8 +180,8 @@ class Spreadsheet {
      *           "members": [ "foo", "bar" ], // names of members that will be returned by the read
      *           "formats": [ null , "duration" ], // how numbers are formatted in this member (see above)
      *           "export": (array_element,row,offset) => { // append cells to the current row
-     *             row[offset  ] = Spreadsheet["create_cell"](array_element["foo"]);
-     *             row[offset+1] = Spreadsheet["create_cell"](array_element["foo"]+array_element["bar"]);
+     *             row[offset  ] = Spreadsheet.create_cell(array_element["foo"]);
+     *             row[offset+1] = Spreadsheet.create_cell(array_element["foo"]+array_element["bar"]);
      *             return false; // indicates this value cannot be serialised
      *           },
      *           "import": (array_element,row,offset) => {
@@ -196,25 +201,25 @@ class Spreadsheet {
      *   ]
      * );
      */
-    constructor(associated,rules) {
+    constructor(associated,rules,convert_times_to_dates) {
 
         const debug = false;
 
         function exporter(cell) {
 
-            const create_cell = Spreadsheet["create_cell"];
+            const create_cell = Spreadsheet.create_cell;
             const member = cell["member"];
 
             let ret;
             switch ( cell["type"] ) {
             case "time"    : ret = (elem,row,offset) =>
-                row[offset] = create_cell( ( elem[member] === undefined ) ? undefined : new Date( elem[member] ));
+                row[offset] = Spreadsheet.create_cell( ( elem[member] === undefined ) ? undefined : new Date( elem[member] ));
                 break;
             case "duration": ret = (elem,row,offset) =>
-                row[offset] = create_cell( ( elem[member] === undefined ) ? undefined : elem[member] / (1000*60*60*24) );
+                row[offset] = Spreadsheet.create_cell( ( elem[member] === undefined ) ? undefined : elem[member] / (1000*60*60*24) );
                 break;
             default        : ret = (elem,row,offset) =>
-                row[offset] = create_cell(elem[member]);
+                row[offset] = Spreadsheet.create_cell(elem[member]);
             }
 
             if ( cell["optional"] ) {
@@ -240,7 +245,13 @@ class Spreadsheet {
 
             let ret;
             switch ( cell["type"] ) {
-            case "time"    : ret = (elem,row,offset) => !isNaN( elem[member] = Spreadsheet["parse_timestamp"](row[offset]["value"]) ); break;
+            case "time"    :
+                ret = (
+                    convert_times_to_dates
+                    ? (elem,row,offset) => !isNaN( elem[member] = row[offset]. dated_timestamp )
+                    : (elem,row,offset) => !isNaN( elem[member] = row[offset].parsed_timestamp )
+                );
+                break;
             case "duration": ret = (elem,row,offset) => !isNaN( elem[member] = row[offset]["value"].getTime() + self["epoch_offset"] ); break;
             case "number"  : ret = (elem,row,offset) => !isNaN( elem[member] = parseFloat(row[offset]["value"]) ); break;
             case "boolean" : ret = (elem,row,offset) => !isNaN( elem[member] = !!row[offset]["value"] ); break;
@@ -255,7 +266,10 @@ class Spreadsheet {
             if ( cell["optional"] ) {
                 const inner = ret;
                 ret = (elem,row,offset) => (
-                    ( row[offset] || { "value": null } )["value"] === null || inner(elem,row,offset)
+                    !row[offset]                  ||
+                     row[offset]["value"] == null ||
+                    inner(elem,row,offset)        ||
+                     row[offset]["value"] == ""
                 );
             }
 
@@ -263,7 +277,11 @@ class Spreadsheet {
                 const inner = ret;
                 ret = (elem,row,offset) => {
                     const result = inner(elem,row,offset);
-                    console.info(cell,row[offset]["value"],elem[member],result);
+                    if ( result ) {
+                        console.info(result,cell,elem[member]);
+                    } else {
+                        console.error(result,cell,elem[member],row[offset]?row[offset]["value"]:"(no cell at this offset)");
+                    }
                     return result;
                 };
             }
@@ -354,7 +372,7 @@ class Spreadsheet {
                 "name": name,
                 "number_formats": number_formats.map( type => type ? SpreadsheetNumberFormats[ type ] || type : "General" ),
                 "cells": [
-                    headers.map( header => Spreadsheet["create_cell"](header,"#FFEEEEEE,#FFEEEEEE") )
+                    headers.map( header => Spreadsheet.create_cell(header,"#FFEEEEEE,#FFEEEEEE") )
                 ],
             };
             return [ true, ret ];
@@ -369,11 +387,9 @@ class Spreadsheet {
      * @param {Object=} raw_spreadsheet - raw spreadsheet object from which the value was taken
      * @return {number} Unix timestamp (if parseable)
      */
-    static ["parse_timestamp"](value,raw_spreadsheet) {
-
-        const hours_to_milliseconds = 60 * 60 * 1000;
-
-        const epoch_offset = (
+    static parse_timestamp(value,raw_spreadsheet) {
+        return DiaryBase.parse_timestamp(
+            (value||{}).hasOwnProperty("value") ? value["value"] : value,
             raw_spreadsheet
             ? (
                 ( raw_spreadsheet["properties"] || {} ) ["date1904"]
@@ -382,74 +398,34 @@ class Spreadsheet {
             )
             : 0
         );
+    }
 
-
-        if ( value === null || value === undefined || ( typeof(value) == "number" && isNaN(value) ) ) return NaN;
-
-        // value is actually a cell:
-        if ( value.hasOwnProperty("value") ) value = value["value"];
-
-        // try to find the timestamp based on the type:
-        if ( value === null || value === undefined || ( typeof(value) == "number" && isNaN(value) ) ) return NaN;
-        if ( value["getTime"] ) {
-            let time = value["getTime"]();
-            if ( time <= 24*hours_to_milliseconds ) time += epoch_offset;
-            return time;
-        }
-        if ( typeof(value) == "number" ) return value;
-        if ( !value || !value.search ) return NaN;
-        if ( !value.search(/^[0-9]{4,}$/) ) {
-            // string looks like a large number
-            const ret = parseInt(value,10);
-            return ret * (
-                ( ret < new Date().getTime()/100 )
-                ? 1000 // assume the time is in seconds
-                : 1
-            );
-        }
-
-        // treat e.g. "MidNight - 01:00" as "midnight", but leave "2010-11-12T13:14Z" alone:
-        let cleaned_value = (
-          ( value.search( /[a-su-y]/i ) == -1 && value.search( /-.*-/ ) != -1 )
-          ? value
-          : value.replace( /\s*(-|to).*/, "" )
-        ).replace(/([ap])\s*(m)/i, "$1$2").toLowerCase();
-
-        // common strings that don't match any pattern:
-        if ( cleaned_value.search(/midnight/i) != -1 ) return 0;
-        if ( cleaned_value.search(/midd?ay|noon|12pm/i) != -1 ) return 12*hours_to_milliseconds;
-
-        // the value is e.g. "1am" or "2pm":
-        let hour_match = cleaned_value.match(/^([0-9]*)(:([0-9]*))?\s*([ap])m$/);
-        if ( hour_match ) {
-            return (
-                parseInt(hour_match[1],10) +
-                parseInt(hour_match[3]||'0',10)/60 +
-                ( hour_match[4] == 'p' ? 12 : 0 )
-            ) * hours_to_milliseconds;
-        }
-
-        // the value is e.g. "00:00" or "14:30":
-        let hhmm_match = cleaned_value.match(/^([0-9]*)(:([0-9]*))?$/);
-        if ( hhmm_match ) {
-            return (
-                parseInt(hhmm_match[1],10) +
-                    parseInt(hhmm_match[3]||'0',10)/60
-            ) * hours_to_milliseconds
-        }
-
-        // try to parse this as a date string:
-        try { return new Date(cleaned_value).getTime(); } catch (e) {};
-        try { return new Date(        value).getTime(); } catch (e) {};
-
-        return NaN;
-
+    /**
+     * Calculate timestamps for all cells in a worksheet
+     * @param {Array} sheet - sheet to process
+     * @param {Object=} raw_spreadsheet - raw spreadsheet object from which the value was taken
+     */
+    static parse_all_timestamps(sheet,raw_spreadsheet) {
+        let prev_date = 0;
+        sheet.forEach( row => row.forEach( cell => {
+            let timestamp = cell.parsed_timestamp = Spreadsheet.parse_timestamp(cell,raw_spreadsheet),
+                dated_timestamp
+                = cell.dated_timestamp
+                = ( isNaN(timestamp) || timestamp < 0 || timestamp > 86400000 )
+                ? timestamp
+                : timestamp + prev_date - (prev_date%86400000)
+            ;
+            if ( dated_timestamp < prev_date ) {
+                cell.dated_timestamp = dated_timestamp += 86400000;
+            }
+            prev_date = dated_timestamp;
+        }));
     }
 
     /**
      * Read data from a buffer (e.g. a file input)
      */
-    static ["buffer_to_spreadsheet"](buffer) {
+    static buffer_to_spreadsheet(buffer) {
 
         function encode_style(style) {
             if      ( style.hasOwnProperty("argb"   ) ) return '#' + style["argb"];
@@ -460,7 +436,7 @@ class Spreadsheet {
 
         let spreadsheet;
         try {
-            spreadsheet = new window["ExcelJS"]["Workbook"]();
+            spreadsheet = new self["ExcelJS"]["Workbook"]();
         } catch (e) {
             spreadsheet = new ( require("exceljs")["Workbook"] )();
         }
@@ -494,10 +470,12 @@ class Spreadsheet {
                                         cell["value"] = new Date( time+1 );
                                     }
                                 }
-                                row[col_number-1] = Spreadsheet["create_cell"](cell["value"],style);
+                                row[col_number-1] = Spreadsheet.create_cell(cell["value"],style);
                             })
                         });
                     });
+
+                    sheets.forEach( sheet => Spreadsheet.parse_all_timestamps( sheet["cells"], spreadsheet ) );
 
                     return {
                         "file_format": "spreadsheet",
@@ -518,60 +496,82 @@ class Spreadsheet {
      * @param {string} contents - CSV file to load from
      * @return {Object|undefined} spreadsheet information
      */
-    static ["parse_csv"](contents) {
+    static parse_csv(contents) {
 
-        const value = "([^\",\\n]*|\"\([^\"]|\"\")*\")";
+        const value = "([^\",\\r\\n]*|\"\([^\"]|\"\")*\")";
 
         // Excel requires a byte order mark, which we ignore:
         if ( contents[0] == "\u{FEFF}" ) contents = contents.substr(1);
-        // reduce the complexity of the regexp by guaranteeing a trailing newline:
-        if ( contents.search(/\n$/) == -1 ) contents += "\n";
+        // reduce the complexity of the regexps by guaranteeing a trailing newline:
+        if ( contents.search(/[\r\n]$/) == -1 ) contents += "\n";
 
         // does this look like a valid CSV file?
-        if ( contents.search(new RegExp(`^(${value}(,${value})*\n)*$`) ) ) return;
+        if ( contents.search(new RegExp(`^(${value}(,${value})*(?:\r\n|\r|\n))*$`) ) ) return;
 
         let spreadsheet;
         try {
-            spreadsheet = new window["ExcelJS"]["Workbook"]();
+            spreadsheet = new self["ExcelJS"]["Workbook"]();
         } catch (e) {
             spreadsheet = new ( require("exceljs")["Workbook"] )();
         }
 
-        let raw_sheet = spreadsheet["addWorksheet"]("Records");
-        let sheet = [];
+        let raw_records  = spreadsheet["addWorksheet"]("Records"),
+            raw_settings = spreadsheet["addWorksheet"]("Settings"),
+            records = [],
+            row_number=0,
+            settings = [ [ Spreadsheet.create_cell("Setting"), Spreadsheet.create_cell("Value") ] ]
+        ;
+        // CSV can start with key=value lines...
+        while ( !contents.search(/^([A-Za-z_][A-Za-z0-9_]*)=[^,]*\n/) ) {
+            contents = contents.replace(
+                /([^=]*?)=(.*)\n/,
+                (_,key,value) => {
+                    settings.push([key,value].map( v => Spreadsheet.create_cell(v) ));
+                    raw_settings["addRow"]([ key, value ]);
+                    return '';
+                }
+            );
+        }
 
-        let row_number=0;
         contents.replace(
-            new RegExp(`${value}(,${value})*\n`, 'g'),
+            new RegExp(`${value}(,${value})*(?:\r\n|\r|\n)`, 'g'),
             line_str => {
-                let raw_row = raw_sheet["getRow"](row_number+1);
-                let row = [];
-                sheet.push(row);
-                let n=0;
+                let raw_row = raw_records["getRow"](++row_number),
+                    row = [],
+                    n=0
+                ;
+                records.push(row);
                 line_str
-                    .replace( new RegExp(value+'[,\n]','g'), value => {
-                        let raw_cell = raw_row["getCell"](n+1);
+                    .replace( new RegExp(value+'[,\r\n]','g'), value => {
+                        let raw_cell = raw_row["getCell"](++n);
                         if ( value[0] == '"' ) {
                             raw_cell["value"] = value.substr(1,value.length-3).replace( /""/g, '"' );
                         } else {
                             raw_cell["value"] = value.substr(0,value.length-1);
                         }
-                        row.push(Spreadsheet["create_cell"](raw_cell["value"]));
+                        row.push(Spreadsheet.create_cell(raw_cell["value"]));
                     });
             }
         );
 
+        Spreadsheet.parse_all_timestamps(records);
+
         return {
             "spreadsheet": spreadsheet,
-            "sheets": [{ "name": "Records", "cells": sheet }],
+            "sheets": [
+                { "name": "Records" , "cells": records  },
+                { "name": "Settings", "cells": settings }
+            ],
         }
 
     }
 
-    static ["escape_csv_component"]( value ) {
+    static escape_csv_component( value ) {
         return (
             ( value === undefined )
             ? ''
+            : ( value["getTime"] )
+            ? DiaryBase.date(value.getTime())["format"]("yyyy-MM-ddTHH:mm:ss.SSS")+'Z'
             : ( value.toString().search(/[",\n]/) == -1 )
             ? value
             : '"'+value.replace(/"/g, '""')+'"'
@@ -613,11 +613,9 @@ class Spreadsheet {
 
                 // ensure that all headers are present:
                 const header_row = cells[0].slice(0);
-                const header_length = header_row.length;
-
                 if (
                     !sheet_rule["cells"].every(
-                        cell => cell["members"].every( member => member == header_row.shift()["value"] )
+                        cell => cell["members"].every( member => member == (header_row.shift()||{"value":NaN})["value"] )
                     )
                 ) {
                     return false;
@@ -626,6 +624,7 @@ class Spreadsheet {
                 // calculate array and check the values actually match:
                 let array = [];
                 if ( !cells.slice(1).every( row => {
+                    if ( !row.length ) return true;
                     let offset = 0;
                     let array_element = {};
                     array.push(array_element);
@@ -688,7 +687,7 @@ class Spreadsheet {
             const added = added_sheet[0];
             const sheet = added_sheet[1];
             let cells = sheet["cells"] = [
-                headers.map(header => Spreadsheet["create_cell"](header,"#FFEEEEEE,#FFEEEEEE"))
+                headers.map(header => Spreadsheet.create_cell(header,"#FFEEEEEE,#FFEEEEEE"))
             ];
 
             const associated = this.associated[sheet_rule["member"] || sheet_rule["sheet"]];
@@ -731,7 +730,7 @@ class Spreadsheet {
 
         if ( !this.raw ) {
             try {
-                this.raw = new window["ExcelJS"]["Workbook"]();
+                this.raw = new self["ExcelJS"]["Workbook"]();
             } catch (e) {
                 this.raw = new ( require("exceljs")["Workbook"] )();
             }
@@ -757,7 +756,7 @@ class Spreadsheet {
 
         // Add/update worksheets:
         this["sheets"].forEach( sheet => {
-            let raw_sheet = raw_sheets[sheet["name"]] || this.raw["addWorksheet"](sheet["name"]);
+            let raw_sheet = raw_sheets[sheet["name"]] || this.raw["addWorksheet"](sheet["name"],sheet["options"]);
 
             // Remove deleted cells:
             raw_sheet["eachRow"]( { "includeEmpty": true }, (raw_row, row_number) => {
@@ -781,10 +780,12 @@ class Spreadsheet {
                     } else {
                         raw_cell["value"] = cell["value"];
                     }
-                    let style = cell["style"].split(',');
-                    if ( style[0] || style[1] ) {
+                    let style = cell["style"].split(','),
+                        raw_style = raw_cell["style"] = raw_cell["style"] || {},
+                        column_font = ((sheet["styles"]||[])[n]||{})["font"]
+                    ;
+                    if ( style[0] || style[1] || style[2] ) {
                         // Note: we remove any existing style, in case it interacts with the style we add:
-                        const raw_style = raw_cell["style"] = {};
                         raw_style["fill"] = raw_style["fill"] || {};
                         raw_style["fill"]["type"] = "pattern";
                         raw_style["fill"]["pattern"] = "solid";
@@ -798,26 +799,77 @@ class Spreadsheet {
                         } else {
                             delete raw_style["fill"]["fgColor"];
                         }
+                        if ( style[2] ) {
+                            raw_style["font"] = raw_style["font"] || {};
+                            raw_style["font"]["color"] = decode_style(style[2]);
+                        } else {
+                            delete raw_style["font"];
+                        }
                     } else {
-                        const raw_style = raw_cell;
                         if ( raw_style && raw_style["fill"] ) {
                             delete raw_style["fill"]["bgColor"];
                             delete raw_style["fill"]["fgColor"];
                         }
                     }
+                    /*
+                     * Cell styles override column styles, so we need to copy them in.
+                     * "font" is the only property we actually use right now.
+                     */
+                    if ( column_font ) {
+                        Object.assign( raw_style["font"] = raw_style["font"] || {}, column_font );
+                    }
                 });
                 raw_row["commit"]();
             });
 
-            ( sheet["widths"] || [] ).forEach( (w,n) => raw_sheet["columns"][n]["width"] = w );
+            if ( sheet["widths"] ) {
+                sheet["widths"].forEach( (w,n) => raw_sheet["columns"][n]["width"] = w );
+            } else {
+                raw_sheet["columns"].forEach( col => col["width"] = 18 );
+            }
 
-            sheet["number_formats"].forEach (
+            if ( sheet["styles"] ) {
+                sheet["styles"].forEach( (s,n) => raw_sheet["columns"][n]["style"] = s );
+            }
+
+            (sheet["number_formats"]||[]).forEach (
                 (format,n) => raw_sheet["getColumn"](n+1)["numFmt"] = format
             );
 
         });
 
         return this.raw["xlsx"]["writeBuffer"]();
+
+    }
+
+    output_csv() {
+
+        const sheet_rule = this.rules[0];
+
+        return (
+
+            // Settings:
+            (this.associated["settings"]||[])
+            .map( row => row["Setting"] + "=" + row["Value"] + "\n" )
+            .concat(
+
+                // header:
+                [sheet_rule["cells"].map( cell => cell["members"].join(',') ).join(',') + "\n"],
+
+                // Records:
+                this.associated[sheet_rule["member"]].map(
+                    r => {
+                        let row = [], offset = 0;
+                        sheet_rule["cells"].forEach(
+                            cell => cell["export"]( r, row, ( offset += cell["members"].length ) - cell["members"].length )
+                        );
+                        return row.map( v => Spreadsheet.escape_csv_component( v["value"] )).join(',') + "\n"
+                    }
+                )
+
+            ).join("")
+
+        );
 
     }
 

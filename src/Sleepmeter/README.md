@@ -15,7 +15,7 @@ This documentation was written by testing the app's behaviour in practice.  Alth
 
 This directory contains some examples you might want to use in your own code:
 
-* [JavaScript example code](format.js)
+* [JavaScript example code](engine.js)
 * [Test cases](test.js)
 * [Examples](examples/)
 
@@ -70,7 +70,7 @@ The individual fields are discussed below.
 
 ### `custom_aid_id`, `custom_hindrance_id` and `custom_tag_id`
 
-This is a unique string of the form `CUSTOM_nnnn`.  These fields are guaranteed to be unique within the same custom value type, but are reused between value types.  For example, there `CUSTOM_0001` could be both a `custom_aid_id` and a `custom_tag_id` in the same CSV file.
+This is a unique string of the form `CUSTOM_nnnn`.  These fields are guaranteed to be unique within the same custom value type, but are reused between value types.  For example, `CUSTOM_0001` could be both a `custom_aid_id` and a `custom_tag_id` in the same CSV file.
 
 ### `class`
 
@@ -243,7 +243,6 @@ The values are either a `CUSTOM_nnnn` value from the list of custom aids, or cho
 
 The SleepMeter app always lists built-in values in the (alphabetical) order specified above.  Custom values are inserted in case-insensitive alphabetical order by the value's name.  For example, if `CUSTOM_0001` was named `cloverleaf`, it would be inserted between `CIRCADIAN` and `CPAP`.  Your program should always generate values in this order, but should not assume other programs will do the same.
 
-
 ### `hindrance`
 
 This is a list of things that hindered the user's sleep.  This is either the string `NONE` or a list of pipe-separated values.  Here are some examples:
@@ -321,7 +320,6 @@ This indicates the quality of sleep.  It is an integer in the range `0` to `10` 
 ### `notes`
 
 This is the user's free-text description of the sleep.  This field contains a UTF-8 string that is always between double quotes, but does not not escape special characters.  See [the discussion of CSV formats](../CSV.md) for information about escaping special characters.  Here are some example values:
-
 
     ""
     "note"

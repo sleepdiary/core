@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Andrew Sayers <andrew-github.com@pileofstuff.org>
+ * Copyright 2020 Andrew Sayers <sleepdiary@pileofstuff.org>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -221,8 +221,8 @@ class DiaryExample extends DiaryBase {
                             "members": ["member1", "member2"],
                             "export": (array_element,row,offset) => {
                                 // put data into the spreadsheet:
-                                row[offset  ] = Spreadsheet["create_cell"]( new Date( array_element["member1"] ) );
-                                row[offset+1] = Spreadsheet["create_cell"](           array_element["member2"]   );
+                                row[offset  ] = Spreadsheet.create_cell( new Date( array_element["member1"] ) );
+                                row[offset+1] = Spreadsheet.create_cell(           array_element["member2"]   );
                                 // indicates the export was successful:
                                 return true;
                             },
@@ -232,8 +232,8 @@ class DiaryExample extends DiaryBase {
                                 array_element["member2"] = row[offset+1]["value"];
                             },
                         },
-                    ]
-                }
+                    ],
+                },
             ]
         );
 
@@ -410,13 +410,14 @@ class DiaryExample extends DiaryBase {
             );
         }
 
-        let existing_ids = {};
-        this["records"].forEach( r => existing_ids[create_id(r)] = 1 );
-
         this["records"] = this["records"].concat(
-            other["records"].filter( r => !existing_ids.hasOwnProperty(create_id(r)) )
+            DiaryBase.unique(
+                this["records"],
+                other["records"],
+                ["Id"] // or record => record["something"].map( ... )
+            )
         )
-            //.sort( (a,b) => a["start"] - b["start"] ) // if your format expects records to be sorted
+        //.sort( (a,b) => a["start"] - b["start"] ) // if your format expects records to be sorted
         ;
 
         return this;

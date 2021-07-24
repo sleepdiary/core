@@ -1,4 +1,4 @@
-# Sleep Diary Formats
+# Sleep Diary Library
 
 ## Browser Quick Start
 
@@ -9,7 +9,7 @@ In your HTML:
 
 ...
 
-<script src="https://sleep-diary-formats.github.io/sleep-diary-formats.js"></script>
+<script src="https://sleepdiary.github.io/library/sleepdiary-library.js"></script>
 ```
 
 In your JavaScript:
@@ -48,11 +48,15 @@ var diary_loader = new DiaryLoader(
             console.log( "Extras for graphs created in spreadsheets", diary );
             break;
 
+        case "ActivityLog":
+            console.log( "Extras for activity logs", diary );
+            break;
+
         }
 
     },
     (raw,source) => {
-        console.log( "Failed to load", raw, source );
+        console.error( "Failed to load", raw, source );
     }
 );
 
@@ -73,11 +77,11 @@ npm install timezonecomplete xmldom
 Use the package:
 
 ```javascript
-const sleep_diary_formats = require(".../sleep-diary-formats.js");
+const sleepdiary = require(".../sleepdiary-library.js");
 
 ...
 
-let diary = sleep_diary_formats.new_sleep_diary( my_diary );
+let diary = sleepdiary.new_sleep_diary( my_diary );
 ```
 
 ## Browser support
@@ -86,17 +90,17 @@ This library is actively tested in modern versions of Firefox and Chrome.  We tr
 
 ## Compiling the project
 
-Most users can us the pre-compiled [sleep-diary-formats.js](../sleep-diary-formats.js).  If you want to compile the project yourself, install [Docker](https://www.docker.com/) then do:
+Most users can us the pre-compiled [sleepdiary-library.js](../sleepdiary-library.js).  If you want to compile the project yourself, install [Docker](https://www.docker.com/) then do:
 
 ```bash
 # Go to the directory this file is in:
-cd .../sleep-diary-formats
+cd .../sleepdiary-library
 
 # First time only: create the build envirnoment:
-docker build -t sleep-diary-formats .
+docker build -t sleepdiary-library .
 
 # Build the project:
-docker run --rm -v "$PWD":/sleep-diary-formats sleep-diary-formats
+docker run --rm -v "$PWD":/sleepdiary-library sleepdiary-library
 ```
 
 This will create a build environment that runs the [Makefile](Makefile) in a repeatable way.  The Makefile might run on your system without Docker, but is likely to produce different results.

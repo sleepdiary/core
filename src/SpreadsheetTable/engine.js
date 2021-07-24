@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Andrew Sayers <andrew-github.com@pileofstuff.org>
+ * Copyright 2020 Andrew Sayers <sleepdiary@pileofstuff.org>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -63,7 +63,7 @@ class DiarySpreadsheetTable extends DiaryBase {
 
         let member_map = {};
 
-        const status_matches = DiaryBase["status_matches"]();
+        const status_matches = DiaryBase.status_matches();
 
         const status_rule = member => ({
             "type": "text",
@@ -75,7 +75,7 @@ class DiarySpreadsheetTable extends DiaryBase {
                 'i'
             ),
             "export": (array_element,row,offset) => (
-                row[offset] = Spreadsheet["create_cell"](array_element[member])
+                row[offset] = Spreadsheet.create_cell(array_element[member])
             ),
             "import": (array_element,row,offset) => (
                 status_matches.some(
@@ -99,7 +99,7 @@ class DiarySpreadsheetTable extends DiaryBase {
             return {
                 "export": (array_element,row,offset) => {
                     array_element[member].forEach(
-                        comment => row[offset++] = Spreadsheet["create_cell"]( comment )
+                        comment => row[offset++] = Spreadsheet.create_cell( comment )
                     );
                     return true;
                 },
@@ -122,7 +122,7 @@ class DiarySpreadsheetTable extends DiaryBase {
                 switch ( key ) {
                 case "start":
                 case "end":
-                    rules[value[1]] = { "member": value[0], "type": "time" };
+                    rules[value[1]] = { "member": value[0], "type": "time", "optional": true };
                     break;
                 case "status":
                     rules[value[1]] = Object.assign( { "members": [ value[0] ] }, status_rule(value[0]) );
@@ -155,12 +155,12 @@ class DiarySpreadsheetTable extends DiaryBase {
             };
 
             rules = [
-                { "member": "start", "type": "time" },
-                { "member": "end"  , "type": "time" },
+                { "member": "start", "type": "time", "optional": true },
+                { "member": "end"  , "type": "time", "optional": true },
                 status_rule("status"),
                 {
                     "members": ["comments"],
-                    "export": (array_element,row,offset) => row[offset] = Spreadsheet["create_cell"](
+                    "export": (array_element,row,offset) => row[offset] = Spreadsheet.create_cell(
                         (array_element["comments"]||[]).join("; ")
                     ),
                     "import": (array_element,row,offset) => {
@@ -197,7 +197,7 @@ class DiarySpreadsheetTable extends DiaryBase {
                                 if ( value.search(column_match[1]) == -1 ) return false;
                                 if ( !member_map.hasOwnProperty(column_match[0]) ) {
                                     member_map[column_match[0]] = [ value, cell_n[1] ];
-                                    rules[cell_n[1]] = { "member": value, "type": "time" };
+                                    rules[cell_n[1]] = { "member": value, "type": "time", "optional": true };
                                 }
                                 return true;
                             })
@@ -235,10 +235,12 @@ class DiarySpreadsheetTable extends DiaryBase {
 
                         if ( !member_map.hasOwnProperty("start") ) {
                             member_map["start"] = [ value, cell_n[1] ];
-                            rules[cell_n[1]] = { "member": value, "type": "time" };
+                            rules[cell_n[1]] = { "member": value, "type": "time", "optional": true };
                         } else if ( !member_map.hasOwnProperty("end") ) {
                             member_map["end"] = [ value, cell_n[1] ];
-                            rules[cell_n[1]] = { "member": value, "type": "time" };
+                            rules[cell_n[1]] = { "member": value, "type": "time", "optional": true };
+                        } else if ( (/date|time/i).test(value) ) {
+                            rules[cell_n[1]] = { "member": value, "optional": true, is_date: true };
                         } else {
                             return true;
                         }
@@ -320,7 +322,8 @@ class DiarySpreadsheetTable extends DiaryBase {
                     "member" : "records",
                     "cells": rules
                 }
-            ]
+            ],
+            true, // convert_times_to_dates
         );
 
         if ( !this.initialise_from_common_formats(file) ) {
@@ -385,16 +388,16 @@ class DiarySpreadsheetTable extends DiaryBase {
             return this.serialise({
                 "file_format": () => "string",
                 "contents": (
-                    columns.join() + "\n" +
+                    columns.filter( column => column !== undefined ).join() + "\n" +
                         this["records"]
                         .map( r => {
                             let ret = [];
                             members.forEach( c => {
                                 const value = r[c];
                                 if ( Array.isArray(value) ) {
-                                    ret = ret.concat(value.map(Spreadsheet["escape_csv_component"]));
+                                    ret = ret.concat(value.map(Spreadsheet.escape_csv_component));
                                 } else {
-                                    ret.push(Spreadsheet["escape_csv_component"](value));
+                                    ret.push(Spreadsheet.escape_csv_component(value));
                                 }
                             });
                             return ret.join() + "\n";
@@ -469,6 +472,7 @@ class DiarySpreadsheetTable extends DiaryBase {
             "title": "Spreadsheet Table",
             "url": "/src/SpreadsheetTable",
             "extension": ".xlsx",
+            "icon": "mdi-file-excel"
         }
     }
 

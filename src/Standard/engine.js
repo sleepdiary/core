@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Andrew Sayers <andrew-github.com@pileofstuff.org>
+ * Copyright 2020 Andrew Sayers <sleepdiary@pileofstuff.org>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -35,6 +35,10 @@ const DiaryStandardRecordStatus = {
     in_bed: "in bed",
     /** user is asleep */
     asleep: "asleep",
+    /** user is currently turning off the lights in preparation to go to bed */
+    "lights off": "lights off",
+    /** user is currently turning on the lights after getting out of bed */
+    "lights on": "lights on",
     /** user is eating some food, but not a full meal */
     snack: "snack",
     /** user is eating a full meal */
@@ -95,7 +99,9 @@ let DiaryStandardRecord;
  *                 median            : number,
  *   interquartile_range             : number,
  *                 durations         : Array<number|undefined>,
- *   interquartile_durations         : Array<number|undefined>
+ *   interquartile_durations         : Array<number|undefined>,
+ *         rolling_average           : Array<number|undefined>,
+ *                 timestamps        : Array<number|undefined>
  * }} DiaryStandardStatistics
  *
  * Information about records from a diary
@@ -188,8 +194,8 @@ let MaybeDiaryStandardStatistics;
  *      interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
  *    }
  *
- * // Print the user's day length statistics for the past 30 days:
- * let cutoff = new Date().getTime() - 1000*60*60*24*30;
+ * // Print the user's day length statistics for the past 14 days:
+ * let cutoff = new Date().getTime() - 1000*60*60*24*14;
  * console.log( diary.summarise_days( record => record.start > cutoff ) );
  * -> {
  *                    average           : 12345.678,
@@ -230,8 +236,8 @@ let MaybeDiaryStandardStatistics;
  *      },
  *    }
  *
- * // Print the user's daily schedule on a 24-hour clock for the past 30 days:
- * let cutoff = new Date().getTime() - 1000*60*60*24*30;
+ * // Print the user's daily schedule on a 24-hour clock for the past 14 days:
+ * let cutoff = new Date().getTime() - 1000*60*60*24*14;
  * console.log( diary.summarise_schedule( record => record.start > cutoff ) );
  * -> {
  *      sleep: { // time (GMT) when the user falls asleep:
@@ -257,6 +263,34 @@ let MaybeDiaryStandardStatistics;
  *        interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
  *      },
  *    }
+
+ * // Print the user's daily schedule on a 25-hour clock, defaulting to Cairo's timezone:
+ * console.log( diary.summarise_schedule( null, 25*60*60*1000, "Africa/Cairo" ) );
+ * -> {
+ *      sleep: { // time (Cairo) when the user falls asleep:
+ *                      average           : 12345.678,
+ *                      mean              : 12356.789,
+ *        interquartile_mean              : 12345.678,
+ *                      standard_deviation: 12.56,
+ *        interquartile_standard_deviation: 12.45,
+ *                      median            : 12345,
+ *        interquartile_range             : 12,
+ *                      durations         : [ undefined, 12345, undefined, ... ],
+ *        interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
+ *      },
+ *      wake: { // time (Cairo) when the user wakes up:
+ *                      average           : 12345.678,
+ *                      mean              : 12356.789,
+ *        interquartile_mean              : 12345.678,
+ *                      standard_deviation: 12.56,
+ *        interquartile_standard_deviation: 12.45,
+ *                      median            : 12345,
+ *        interquartile_range             : 12,
+ *                      durations         : [ undefined, 12345, undefined, ... ],
+ *        interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
+ *      },
+ *    }
+
  */
 class DiaryStandard extends DiaryBase {
 
@@ -320,7 +354,7 @@ class DiaryStandard extends DiaryBase {
                     },
                     {
                         "members": ["tags"],
-                        "export": (array_element,row,offset) => row[offset] = Spreadsheet["create_cell"]( (array_element["tags"]||[]).join("; ") ),
+                        "export": (array_element,row,offset) => row[offset] = Spreadsheet.create_cell( (array_element["tags"]||[]).join("; ") ),
                         "import": (array_element,row,offset) => {
                             if ( row[offset]["value"] ) {
                                 const tags = row[offset]["value"].split(/ *; */);
@@ -331,7 +365,7 @@ class DiaryStandard extends DiaryBase {
                     },
                     {
                         "members": ["comments"],
-                        "export": (array_element,row,offset) => row[offset] = Spreadsheet["create_cell"](
+                        "export": (array_element,row,offset) => row[offset] = Spreadsheet.create_cell(
                             (array_element["comments"]||[])
                                 .map( c => c["time"] ? `TIME=${c["time"]} ${c["text"]}` : c )
                                 .join("; ")
@@ -433,7 +467,7 @@ class DiaryStandard extends DiaryBase {
             ;
 
             const settings = contents["settings"]||contents,
-                  minimum_day_duration = settings["minimum_day_duration"] || 20*60*60*1000,
+                  minimum_day_duration = settings["minimum_day_duration"] || 16*60*60*1000,
                   maximum_day_duration = settings["maximum_day_duration"] || minimum_day_duration*2
             ;
 
@@ -595,11 +629,15 @@ class DiaryStandard extends DiaryBase {
 
     /**
      * Internal function used by summarise_*
+     * @param {Array<Array<number>>} durations_and_timestamps - event durations and associated timestamps
+     * @param {number=} rolling_average_max - maximum allowed value for the rolling average (e.g. 24 hours)
      * @private
      */
-    static summarise(durations) {
+    static summarise(durations_and_timestamps,rolling_average_max) {
 
-        let defined_durations = durations.filter( r => r !== undefined ),
+        let defined_durations = durations_and_timestamps
+            .map( r => r[0] )
+            .filter( r => r !== undefined ),
             total_durations   = defined_durations.length
         ;
 
@@ -608,6 +646,7 @@ class DiaryStandard extends DiaryBase {
         let a_plus_b        = (a,b) => a+b,
             a_minus_b       = (a,b) => a-b,
             sum_of_squares  = (a,r) => a + Math.pow(r - mean, 2) ,
+            rolling_window = [],
 
             sorted_durations  = defined_durations.sort(a_minus_b),
             interquartile_durations = sorted_durations.slice(
@@ -630,8 +669,59 @@ class DiaryStandard extends DiaryBase {
                     interquartile_durations[0]
                 ),
 
-                              "durations":               durations,
+                              "durations": durations_and_timestamps.map( r => r ? r[0] : undefined ),
+                             "timestamps": durations_and_timestamps.map( r => r ? r[1] : undefined ),
                 "interquartile_durations": interquartile_durations,
+                        "rolling_average": durations_and_timestamps.map(
+                    rolling_average_max
+                    ? (_,n) => {
+                        /*
+                         * work around a similar issue to that described in summarise_schedule(),
+                         * but using a different approach.
+                         *
+                         * Unlike summarise_schedule(), we want to switch between earlier and later
+                         * values for every calculation, and can assume the rolling average
+                         * has values in a relatively small range.
+                         */
+                        if ( n < 14 ) return undefined;
+                        const rolling_window = durations_and_timestamps
+                              .slice(Math.max(0,n-13),n+1)
+                              .map( r => r[0] )
+                              .filter( r => r !== undefined ),
+                              extremes = [ 0, 0 ]
+                              ;
+                        rolling_window.forEach( duration => {
+                            if ( duration<rolling_average_max*1/4 ) {
+                                ++extremes[0]
+                            } else if ( duration>rolling_average_max*3/4 ) {
+                                ++extremes[1];
+                            }
+                        });
+                        return (
+                            rolling_window.length
+                            ? (
+                                rolling_window.reduce( (a,b) => a + b )
+                                    + ( extremes[0] < extremes[1]
+                                        ? extremes[0]* rolling_average_max
+                                        : extremes[1]*-rolling_average_max
+                                      )
+                            ) / rolling_window.length
+                            : undefined
+                        );
+                    }
+                    : (_,n) => {
+                        const rolling_window = durations_and_timestamps
+                              .slice(Math.max(0,n-13),n+1)
+                              .map( r => r[0] )
+                              .filter( r => r !== undefined )
+                        ;
+                        return (
+                            ( n >= 14 && rolling_window.length )
+                            ? rolling_window.reduce( (a,b) => a+b ) / rolling_window.length
+                            : undefined
+                        );
+                    }
+                ),
         };
 
         // calculate standard deviations:
@@ -698,7 +788,7 @@ class DiaryStandard extends DiaryBase {
 
         return DiaryStandard.summarise(
             ( filter ? this["records"].filter(filter) : this["records"] )
-                .map( r => r["duration"] )
+                .map( r => [ r["duration"], r["start"]||r["end"] ] )
         );
 
     }
@@ -734,12 +824,22 @@ class DiaryStandard extends DiaryBase {
      */
     ["summarise_days"](filter) {
 
+        let starts = [],
+            cutoff = (
+                this["records"].length
+                ? this["records"][this["records"].length-1]["day_number"]
+                : 0
+            );
         // get the earliest start time for each day:
-        let starts = [];
         ( filter ? this["records"].filter(filter) : this["records"] )
             .forEach( r => {
-                if ( starts[r["day_number"]]||0 < r["start"] )
-                    starts[r["day_number"]] = r["start"];
+                const day_number = r["day_number"];
+                if (
+                    (starts[day_number]||0) < r["start"]
+                    // duration cannot be calculated for an incomplete day:
+                    && day_number > 0 && day_number < cutoff
+                )
+                    starts[day_number] = r["start"];
             });
 
         // remove leading undefined start times:
@@ -751,11 +851,80 @@ class DiaryStandard extends DiaryBase {
         let durations = [];
         for ( let n=1; n<starts.length; ++n ) {
             if ( starts[n] && starts[n-1] ) {
-                durations[n-1] = starts[n] - starts[n-1];
+                durations[n-1] = [ starts[n] - starts[n-1], starts[n-1] ];
             }
         }
 
         return DiaryStandard.summarise(durations);
+
+    }
+
+    /**
+     * Summary statistics about the number of times an event occurs per day
+     *
+     * <p>Similar to {@link DiaryStandard#summarise_days}, but
+     * looks at totals instead of sums.</p>
+     *
+     * <p>The <tt>summarise_*</tt> functions examine sums, so missing
+     * values are treated as <tt>undefined</tt>.  This function
+     * examines totals, so missing values are treated as <tt>0</tt>.
+     * The <tt>record_filter</tt> and <tt>day_filter</tt> parameters
+     * allow you to exclude days and records separately.</p>
+     *
+     * @public
+     *
+     * @see [summarise_records]{@link DiaryStandard#summarise_records}
+     *
+     * @param {function(*)=} record_filter - only examine records that match this filter
+     * @param {function(*)=}    day_filter - only examine days that match this filter
+     *
+     * @return MaybeDiaryStandardStatistics
+     *
+     * @example
+     * console.log( diary.total_per_day(
+     *   record => record.status == "asleep", // only count sleep records
+     *   record => record.start > cutoff      // ignore old records
+     * ) );
+     * -> {
+     *                    average           : 1.234,
+     *                    mean              : 1.345,
+     *      interquartile_mean              : 1.234,
+     *                    standard_deviation: 0.123,
+     *      interquartile_standard_deviation: 0.012,
+     *                    median            : 1,
+     *      interquartile_range             : 1,
+     *                    counts            : [ undefined, 1, undefined, ... ],
+     *      interquartile_counts            : [ 1, 1, 2, 1, 1, 0, ... ],
+     *      // included for compatibility with summarise_* functions:
+     *                    durations         : [ undefined, 1, undefined, ... ],
+     *      interquartile_durations         : [ 1, 1, 2, 1, 1, 0, ... ],
+     *    }
+     */
+    ["total_per_day"](record_filter,day_filter) {
+
+        let counts = [],
+            cutoff = (
+                // duration cannot be calculated for an incomplete day:
+                this["records"].length
+                    ? this["records"][this["records"].length-1]["day_number"]
+                    : 0
+            );
+
+        ( day_filter ? this["records"].filter(day_filter) : this["records"] )
+            .forEach( r =>
+                (
+                    counts[r["day_number"]] = counts[r["day_number"]] || [ 0, r["start"] ]
+                )[0] += ( record_filter && !record_filter(r) ? 0 : 1 )
+            );
+
+        counts = counts.slice( 1, cutoff );
+
+        // remove leading undefined start times:
+        while ( counts.length && counts[0] === undefined ) {
+            counts.shift();
+        }
+
+        return DiaryStandard.summarise(counts);
 
     }
 
@@ -771,12 +940,22 @@ class DiaryStandard extends DiaryBase {
      * beginning/end time for each day's primary sleep, although this
      * may change in future.</p>
      *
+     * <p>Times are calculated according to the associated timezone.
+     * For example, say you woke up in New York at 8am, flew to Los
+     * Angeles, went to bed and woke up again at 8am local time.  You
+     * would be counted as waking up at 8am both days, even though 27
+     * hours had passed between wake events.</p>
+     *
+     * <p>Records without a timezone are treated as if they had the
+     * environment's default timezone</p>
+     *
      * @public
      *
      * @see [summarise_records]{@link DiaryStandard#summarise_records}
      *
-     * @param {function(*)=} filter - only examine records that match this filter
-     * @param {number} [day_length=86400000] - times of day are calculated relative to this amount of time
+     * @param {function(*)=} [filter=null] - only examine records that match this filter
+     * @param {number=} [day_length=86400000] - times of day are calculated relative to this amount of time
+     * @param {string=} [timezone=system_timezone] - default timezone for records
      *
      * @return {{
      *   sleep : MaybeDiaryStandardStatistics,
@@ -784,9 +963,9 @@ class DiaryStandard extends DiaryBase {
      * }}
      *
      * @example
-     * console.log( diary.summarise_schedule();
+     * console.log( diary.summarise_schedule() );
      * -> {
-     *      sleep: { // time (GMT) when the user falls asleep:
+     *      sleep: { // time when the user falls asleep:
      *                      average           : 12345.678,
      *                      mean              : 12356.789,
      *        interquartile_mean              : 12345.678,
@@ -797,7 +976,7 @@ class DiaryStandard extends DiaryBase {
      *                      durations         : [ undefined, 12345, undefined, ... ],
      *        interquartile_durations         : [ 10000, 10001 ... 19998, 19999 ],
      *      },
-     *      wake: { // time (GMT) when the user wakes up:
+     *      wake: { // time when the user wakes up:
      *                      average           : 12345.678,
      *                      mean              : 12356.789,
      *        interquartile_mean              : 12345.678,
@@ -810,22 +989,23 @@ class DiaryStandard extends DiaryBase {
      *      },
      *    }
      */
-    ["summarise_schedule"](filter,day_length) {
+    ["summarise_schedule"](filter,day_length,timezone) {
 
         /*
          * Note: this function needs to work around a weird issue.
          *
-         * If a user went to sleep at 11:50pm one day and 00:10am the
-         * next, a naive algorithm might calculate the user's mean
-         * sleep time to be noon.  To avoid this problem, we calculate
-         * values twice - once normally and once with all numbers
-         * rotated by half the day length.  Then we use whichever
-         * one has the lowest standard deviation.
+         * If a user went to sleep at 00:10am then at 11:50pm, a naive
+         * algorithm might calculate the user's mean sleep time to be
+         * midday instead of midnight.  To avoid this problem, we
+         * calculate values twice - once normally and once with all
+         * numbers rotated by half the day length.  Then we use
+         * whichever one has the lowest standard deviation.
          */
 
         const hours = 60*60*1000;
 
         day_length = day_length || 24*hours;
+        timezone   = timezone   || system_timezone;
 
         const half_day_length = day_length/2;
 
@@ -839,20 +1019,30 @@ class DiaryStandard extends DiaryBase {
             .forEach( r => {
                 if ( r["is_primary_sleep"] ) {
                     if ( r["start"] ) {
-                        sleep_early.push( r["start"]                 %day_length);
-                        sleep_late .push((r["start"]+half_day_length)%day_length);
+                        let time = r["start"],
+                            tz = r["start_timezone"]||timezone;
+                        time += (
+                            DiaryBase.date(time,tz)["offset"]()
+                        ) * 60000;
+                        sleep_early.push([ time                 %day_length, time ]);
+                        sleep_late .push([(time+half_day_length)%day_length, time ]);
                     }
                     if ( r["end"] ) {
-                        wake_early .push( r["end"  ]                 %day_length);
-                        wake_late  .push((r["end"  ]+half_day_length)%day_length);
+                        let time = r["end"],
+                            tz = r["end_timezone"]||timezone;
+                        time += (
+                            DiaryBase.date(time,tz)["offset"]()
+                        ) * 60000;
+                        wake_early .push([ time                 %day_length, time ]);
+                        wake_late  .push([(time+half_day_length)%day_length, time ]);
                     }
                 }
             });
 
-        let sleep_stats_early = DiaryStandard.summarise(sleep_early),
-            sleep_stats_late  = DiaryStandard.summarise(sleep_late ),
-             wake_stats_early = DiaryStandard.summarise( wake_early),
-             wake_stats_late  = DiaryStandard.summarise( wake_late )
+        let sleep_stats_early = DiaryStandard.summarise(sleep_early,day_length),
+            sleep_stats_late  = DiaryStandard.summarise(sleep_late ,day_length),
+             wake_stats_early = DiaryStandard.summarise( wake_early,day_length),
+             wake_stats_late  = DiaryStandard.summarise( wake_late ,day_length)
         ;
 
         [
@@ -866,6 +1056,7 @@ class DiaryStandard extends DiaryBase {
                 [ "durations", "interquartile_durations" ].forEach(
                     key => stats[0][key] = stats[1][key]
                 );
+                stats[0]["rolling_average"] = stats[1]["rolling_average"];
             }
         });
 
@@ -885,6 +1076,407 @@ class DiaryStandard extends DiaryBase {
     }
 
     /**
+     * List of activities, grouped by day
+     *
+     * <p>It can be useful to display a diary as a series of columns
+     * or rows, each containing the activities for that day.  This
+     * function returns a structure that accounts for the following
+     * issues:</p>
+     *
+     * <p><strong>Multi-day records</strong> - the function returns a
+     * list of <em>days</em>, which contain <em>activities</em> -
+     * parts of a record confined within that day.</p>
+     *
+     * <p><strong>Daylight savings time</strong> - if the timezone
+     * observes daylight savings time (e.g. `Europe/London` instead of
+     * `Etc/GMT`), the function will modify days to account for DST
+     * changes (so a 24-hour diary will start at the same time
+     * every day, even if that means having a 23- or 25-hour day).</p>
+     *
+     * <p><strong>Missing days</strong> - if a user skips a day, or
+     * stops recording altogether for months or even years, the
+     * function will leave a gap in the array for each missing
+     * day.</p>
+     *
+     * <p>Not including workarounds for a few edge cases, the start
+     * and end times for days are calculated like this:</p>
+     *
+     * <ol>
+     *  <li>Find the start of the first day:
+     *   <ol>
+     *    <li>find the earliest date in the list of records
+     *    <li>find the last time at or before that date
+     *     where the time equals `day_start` in `timezone`
+     *    <li>if that date would be invalid (because a DST change
+     *     causes that time to be skipped), move backwards by the DST
+     *     change duration.
+     *   </ol>
+     *  </li>
+     *  <li>Find the start of the next day:
+     *   <ol>
+     *    <li>move forwards in time by `day_stride`
+     *    <li>move backwards by the difference between the start and end timezone offsets<br>
+     *     (so a 24-hour `day_stride` will always start at the same time of day)
+     *   </ol>
+     *  </li>
+     *  <li>Create a new day object with the start of the current and next day</li>
+     *  <li>Continue moving forward one day at a time until we reach the final record
+     * </ul>
+     *
+     * <p>An activity represents the fraction of a record that exists
+     * within the current day.  For example, a record that lasted two
+     * days would have two associated records.  Activity times are
+     * decided like this:</p>
+     *
+     * <ul>
+     *  <li>if a record has neither a `start` nor `end` time, no activities are created
+     *  <li>if a record has exactly one `start` or `end` time, one activity is created.
+     *   The activity has a `time` equal to whichever was defined.
+     *  <li>if a record has both `start` and `end`, and both are within the same day,
+     *   one activity is created. The activity has a `time` halfway between the two.
+     *  <li>if a record has both `start` and `end` that span multiple days,
+     *   one activity is created for each day the record is active.  The first
+     *   activity has a `time` halfway between `start` and the end of that day.
+     *   middle activities have a `time` equal to the middle of the day.  The final
+     *   activity has a `time` halfway between the start of that day and `end`
+     * </ul>
+     *
+     * <p>Each activity includes a `type`, which is one of:</p>
+     *
+     * <ul>
+     *  <li>`start-end` - complete duration of an event
+     *  <li>`start-mid` - start of an event that spans multiple days
+     *  <li>`mid-mid` - middle of an event that spans multiple days
+     *  <li>`mid-end` - end of an event that spans multiple days
+     *  <li>`start-unknown` - start of an event with an undefined end time
+     *  <li>`unknown-end` - end of an event with an undefined start time
+     * </ul>
+     *
+     * <p>If a `segment_stride` argument is passed, segments for a day
+     * are calculated like this:</p>
+     *
+     * <ol>
+     *  <li>create a segment that starts at the `start` time
+     *  <li>check whether the DST offset is the same at the start and end of the day
+     *  <ul>
+     *   <li>if not, create segments `segment_stride` apart
+     *   <li>otherwise...
+     *    <ul>
+     *     <li>continue forwards until the current segment's end time is
+     *      greater than the `end` time, or the timezone's DST status
+     *      changes
+     *     <li>stop unless a DST change was crossed
+     *     <li>create a new segment that ends at the `end` time
+     *     <li>continue backwards until the current segment's start time
+     *      is less than or equal to the last segment from amove
+     *     <li>sort all segments by start time
+     *    </ul>
+     *   </li>
+     * </ol>
+     *
+     * <p>The algorithm above should produce intuitive dates in most
+     *  cases, but produces unexpected behaviour if there is more than
+     *  one DST change in a single day.</p>
+     *
+     * <p>Be aware that some timezones have [a 45-minute offset from
+     * UTC](https://en.wikipedia.org/wiki/UTC%2B05:45), and [even more
+     * esoteric
+     * timezones](https://en.wikipedia.org/wiki/UTC%E2%88%9200:25:21),
+     * existed in the 20th century.  You may need to test your program
+     * carefully to avoid incorrect behaviour in some cases.</p>
+     *
+     * @public
+     *
+     * @param {string} [timezone=system_timezone] - display dates in this timezone
+     * @param {number} [day_start=64800000] - start the first new day at this time (usually 6pm)
+     * @param {number} [day_stride=86400000] - amount of time to advance each day (usually 24 hours)
+     * @param {number=} [segment_stride] - amount of time to advance each segment
+     *
+     * @example
+     * console.log( diary.daily_activities() );
+     * -> [
+     *      {
+     *        "start"   : 123456789, // Unix time when the day starts
+     *        "end"     : 234567890, // start + day_stride - dst_change
+     *        "duration": 11111111, // end - start
+     *        "id"      : "2020-03-30T18:00:00.000 Etc/GMT" // ISO 8601 equivalent of "start"
+     *        "year"    : 2020,
+     *        "month"   : 2, // zero-based month number
+     *        "day"     : 29, // zero-based day of month
+     *        "activities": [
+     *          {
+     *            "start"       : 123459999, // time when the event started (optional)
+     *            "end"         : 234560000, // time when the event ended (optional)
+     *            "time"        : 200000000, // time associated with the event (required)
+     *            "offset_start": 0.1, // ( start - day.start ) / day.duration
+     *            "offset_end"  : 0.9, // ( end - day.start ) / day.duration
+     *            "offset_time" : 0.5, // ( time - day.start ) / day.duration
+     *            "type"        : "start-end" // see above for list of types
+     *            "record"      : { ... }, // associated record
+     *            "index"       : 0, // this is the nth activity for this record
+     *          },
+     *        ],
+     *        "activity_summaries": {
+     *          "asleep": {
+     *            "first_start": "2020-03-30T20:00:00.000 Etc/GMT", // start of first activity
+     *            "first_end"  : "2020-03-31T06:00:00.000 Etc/GMT", // end of first activity
+     *             "last_start": "2020-03-31T14:00:00.000 Etc/GMT", // start of last activity
+     *             "last_end"  : "2020-03-31T14:30:00.000 Etc/GMT", // end of last activity
+     *            "duration"   : 37800000, // total milliseconds (NaN if some activities have undefined duration)
+     *          },
+     *          ...
+     *        },
+     *        "segments": [
+     *          {
+     *            "dst_state": "on" // or "off" or "change-forward" or "change-back"
+     *            "year"  : 2020,
+     *            "month" : 2, // zero-based month number
+     *            "day"   : 29, // zero-based day of month
+     *            "hour"  : 18,
+     *            "minute": 0,
+     *            "second": 0,
+     *            "id"    : "2020-03-30T18:00:00.000 Etc/GMT"
+     *          },
+     *          ...
+     *        ],
+     *      },
+     *      ...
+     *    ]
+     */
+    ["daily_activities"]( timezone, day_start, day_stride, segment_stride ) {
+
+        timezone   = timezone   || system_timezone;
+        day_start  = ( day_start === undefined ) ? 1000*60*60*18 : day_start; // 6pm
+        day_stride = day_stride || 1000*60*60*24; // 24 hours
+
+        let records = this["records"].sort( (a,b) => (a["start"]||a["end"]) - (b["start"]||b["end"]) ),
+            today = records.find( r => r["start"]||r["end"] ),
+            next_dst_change = DiaryBase.next_dst_change( today?(today["start"]||today["end"])-1:0, timezone ),
+            timezone_str  = timezone.replace(/^([A-Za-z])/," $1"),
+            offset,
+            offset_ms,
+            is_dst,
+            tomorrow,
+            day_index = 0,
+            days = [],
+            current_activities,
+            record_index
+        ;
+        const milliseconds = DiaryBase.tc()["TimeUnit"]["Millisecond"],
+              advance_to = timestamp => {
+                  let segment_dst_change = next_dst_change;
+                  while ( tomorrow["unixUtcMillis"]() <= timestamp ) {
+                      segment_dst_change = next_dst_change;
+                      current_activities = 0;
+                      ++day_index;
+                      today = tomorrow;
+                      tomorrow = tomorrow["add"]( day_stride, milliseconds );
+                      if ( tomorrow["unixUtcMillis"]() >= next_dst_change ) {
+                          next_dst_change = DiaryBase.next_dst_change(today["unixUtcMillis"](),timezone);
+                          const offset_tomorrow = tomorrow["add"]( ( today["offset"]() - tomorrow["offset"]() ) * 60 * 1000, milliseconds );
+                          if ( today["lessThan"](offset_tomorrow) ) {
+                              // just in case someone e.g. sets a stride less than the DST change amount
+                              const passed_timestamp = tomorrow["unixUtcMillis"]() > timestamp;
+                              tomorrow = offset_tomorrow;
+                              if ( passed_timestamp ) break;
+                          }
+                      }
+                  }
+                  if ( !current_activities ) {
+                      const    today_ms = today["unixUtcMillis"](),
+                            tomorrow_ms = tomorrow["unixUtcMillis"](),
+                            day = days[day_index] = {
+                                "start"     : today_ms,
+                                "end"       : tomorrow_ms,
+                                "duration"  : tomorrow_ms - today_ms,
+                                "id"        : today.toString(),
+                                "year"      : today["year"] ()  ,
+                                "month"     : today["month"]()-1,
+                                "day"       : today["day"]  ()-1,
+                                "activities": current_activities = [],
+                            }
+                      ;
+                      if ( segment_stride > 0 ) {
+                          let segments  = day["segments"] = [],
+                              segment_start = today_ms
+                          ;
+                          while ( segment_start < tomorrow_ms ) {
+
+                              const dt = new Date( segment_start + offset_ms );
+
+                              segments.push({
+                                  "dst_state": is_dst?"on":"off",
+                                  "id"       : dt.toISOString().replace(/Z/,timezone_str),
+                                  "year"     : dt.getUTCFullYear()  ,
+                                  "month"    : dt.getUTCMonth   (),
+                                  "day"      : dt.getUTCDate    ()-1,
+                                  "hour"     : dt.getUTCHours   (),
+                                  "minute"   : dt.getUTCMinutes (),
+                                  "second"   : dt.getUTCSeconds (),
+                              });
+
+                              segment_start += segment_stride;
+
+                              if ( segment_start >= segment_dst_change ) {
+                                  const time = DiaryBase.date( segment_start, today["zone"]()["name"]() );
+                                  segments[segments.length-1]["dst_state"] = (
+                                      "change-"
+                                      + ( is_dst ? "back" : "forward" )
+                                  );
+                                  offset    = time["offsetDuration"]();
+                                  offset_ms = offset["milliseconds"]();
+                                  is_dst    = !offset["equals"]( today["standardOffsetDuration"]() );
+                                  segment_dst_change = DiaryBase.next_dst_change(time["unixUtcMillis"](),timezone);
+                              }
+
+                          }
+                      }
+                  }
+              },
+              build_activity = (record,activity) => {
+                  activity["time"] = (
+                      (activity["start"]||activity["end"]) +
+                      (activity["end"]||activity["start"])
+                  ) / 2;
+                  activity["record"] = record;
+                  activity["index"] = record_index++;
+                  //activity["related"] = related; // NO!  Would make `days` impossible to stringify
+                  const day = days[days.length-1],
+                        start = day["start"],
+                        duration = day["duration"]
+                  ;
+                  [ "start", "end", "time" ].forEach( key => {
+                      if ( activity[key] ) {
+                          activity["offset_"+key] = ( activity[key] - start ) / duration
+                      }
+                  });
+                  return activity;
+              }
+        ;
+
+        if ( today ) {
+
+            // get the base date:
+            today = DiaryBase.date(today["start"]||today["end"],timezone);
+            const base_time = today["unixUtcMillis"]() - today["startOfDay"]()["unixUtcMillis"]();
+            today = today["sub"](
+                ( ( base_time < day_start ) ? 1000*60*60*24 : 0 ) +
+                base_time - day_start, milliseconds,
+            );
+            tomorrow = today["add"]( day_stride, milliseconds );
+
+            const offset_tomorrow = tomorrow["add"]( ( today["offset"]() - tomorrow["offset"]() ) * 60 * 1000, milliseconds );
+            if ( offset_tomorrow["greaterThan"](today) ) {
+                // just in case someone e.g. sets a stride less than the DST change amount
+                tomorrow = offset_tomorrow;
+            }
+
+            offset    = today["offsetDuration"]();
+            offset_ms = offset["milliseconds"]();
+            is_dst    = !offset["equals"]( today["standardOffsetDuration"]() );
+
+            // convert records to days
+            records.forEach(
+                record => {
+
+                    record_index = 0;
+
+                    let start_timestamp = record["start"],
+                        end_timestamp   = record["end"],
+                        related = []
+                    ;
+
+                    if ( start_timestamp ) {
+
+                        advance_to(start_timestamp);
+
+                        if ( end_timestamp ) {
+                            if ( tomorrow["unixUtcMillis"]() >= end_timestamp ) {
+                                current_activities.push(build_activity(record,{
+                                    "start": start_timestamp,
+                                    "end"  : end_timestamp,
+                                    "type" : "start-end",
+                                }));
+                            } else {
+                                current_activities.push(build_activity(record,{
+                                    "start": start_timestamp,
+                                    "end"  : tomorrow["unixUtcMillis"](),
+                                    "type" : "start-mid",
+                                }));
+                                for (;;) {
+                                    advance_to(tomorrow["unixUtcMillis"]()+1);
+                                    if ( tomorrow["unixUtcMillis"]() >= end_timestamp ) break;
+                                    current_activities.push(build_activity(record,{
+                                        "start": today["unixUtcMillis"](),
+                                        "end"  : tomorrow["unixUtcMillis"](),
+                                        "type" : "mid-mid",
+                                    }));
+                                }
+                                current_activities.push(build_activity(record,{
+                                    "start": today["unixUtcMillis"](),
+                                    "end"  : end_timestamp,
+                                    "type" : "mid-end",
+                                }));
+                            }
+                        } else {
+                            current_activities.push(build_activity(record,{
+                                "start": start_timestamp,
+                                "type" : "start-unknown",
+                            }));
+                        }
+
+                    } else if ( end_timestamp ) {
+
+                        advance_to(end_timestamp);
+
+                        current_activities.push(build_activity(record,{
+                            "end" : end_timestamp,
+                            "type": "unknown-end",
+                        }));
+
+                    }
+
+                });
+
+        }
+
+        days.forEach( day => {
+
+            const activity_summaries = day["activity_summaries"] = {};
+
+            day["activities"].forEach( activity => {
+                const status = activity["record"]["status"],
+                      summary = (
+                          activity_summaries[status] =
+                          activity_summaries[status] || {
+                              "duration": 0,
+                          }
+                      )
+                ;
+                ["start","end"].forEach( se => {
+                    let time = activity[se];
+                    if ( time !== undefined ) {
+                        time = DiaryBase.date( time, timezone ).toString();
+                        summary["last_"+se] = time;
+                        if ( summary["first_"+se] == undefined ) {
+                            summary["first_"+se] = time;
+                        }
+                    }
+                });
+                if ( activity["start"] && activity["end"] ) {
+                    summary["duration"] += activity["end"] - activity["start"];
+                } else {
+                    summary["duration"] = NaN;
+                }
+            });
+
+        });
+
+        return days;
+
+    }
+
+    /**
      * Latest sleep/wake status
      *
      * @public
@@ -894,7 +1486,7 @@ class DiaryStandard extends DiaryBase {
     ["latest_sleep_status"]() {
 
         for ( let n=this["records"].length-1; n>=0; --n ) {
-            let status = this["records"][n].status;
+            let status = this["records"][n]["status"];
             if ( status == "awake" || status == "asleep" ) return status;
         }
         return "";

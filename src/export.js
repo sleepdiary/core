@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Andrew Sayers <andrew-github.com@pileofstuff.org>
+ * Copyright 2020 Andrew Sayers <sleepdiary@pileofstuff.org>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,16 +24,15 @@
 
 "use strict";
 
+const _sleepdiary_exports = {
+    "new_sleep_diary"   : new_sleep_diary,
+    "sleepdiary_engines": sleepdiary_engines,
+    "DiaryLoader"       : DiaryLoader,
+    "Spreadsheet"       : Spreadsheet,
+};
+
 if ( typeof module !== "undefined" && module.exports ) {
-    module.exports = {
-        "new_sleep_diary"    : new_sleep_diary,
-        "sleep_diary_formats": sleep_diary_formats,
-        "DiaryLoader"        : DiaryLoader,
-        "Spreadsheet"        : Spreadsheet,
-    };
+    module.exports = _sleepdiary_exports;
 } else {
-    window["new_sleep_diary"    ] = new_sleep_diary;
-    window["sleep_diary_formats"] = sleep_diary_formats;
-    window["DiaryLoader"        ] = DiaryLoader;
-    window["Spreadsheet"        ] = Spreadsheet;
+    Object.keys(_sleepdiary_exports).forEach( e => self[e] = _sleepdiary_exports[e] );
 }

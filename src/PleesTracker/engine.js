@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Andrew Sayers <andrew-github.com@pileofstuff.org>
+ * Copyright 2020 Andrew Sayers <sleepdiary@pileofstuff.org>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -114,6 +114,7 @@ class DiaryPleesTracker extends DiaryBase {
             return this.serialise({
                 "file_format": () => "string",
                 "contents": (
+                    // can't use output_csv() here, because PleesTracker requires numeric times
                     "sid,start,stop,rating\n" +
                         this["records"]
                         .map(
@@ -151,11 +152,12 @@ class DiaryPleesTracker extends DiaryBase {
 
         other = other["to"](this["file_format"]());
 
-        let existing_ids = {};
-        this["records"].forEach( record => existing_ids[record["start"] + ' ' + record["stop"]] = 1 );
-
         this["records"] = this["records"].concat(
-            other["records"].filter( record => !existing_ids.hasOwnProperty(record["start"] + ' ' + record["stop"]) )
+            DiaryBase.unique(
+                this["records"],
+                other["records"],
+                ["start","stop"]
+            )
         );
 
         this["records"].forEach( (record,n) => record["sid"]=n+1 );

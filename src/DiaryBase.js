@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Andrew Sayers <andrew-github.com@pileofstuff.org>
+ * Copyright 2020 Andrew Sayers <sleepdiary@pileofstuff.org>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -25,10 +25,16 @@
 "use strict";
 
 /**
+ * @define {boolean} debugging mode
+ * @package
+ */
+const DEBUG = false;
+
+/**
  * Functions for converting from the current type to some other type
  * @private
  */
-const sleep_diary_converters = {};
+const sleepdiary_converters = {};
 
 /**
  * @typedef {{
@@ -36,20 +42,30 @@ const sleep_diary_converters = {};
  *   constructor : Function,
  *   title       : string,
  *   url         : string
- * }} DiaryFormat
+ * }} DiaryEngine
  */
-let DiaryFormat;
+let DiaryEngine;
 
 /**
- * List of known formats for sleep diaries
- * @type Array<DiaryFormat>
- * @tutorial List supported formats
+ * List of known engines for sleep diaries
+ * @type Array<DiaryEngine>
+ * @tutorial List supported engines
  * @public
  */
-const sleep_diary_formats = [];
+const sleepdiary_engines = [];
 
 /**
- * @class Base class for sleep diary formats
+ * Default timezone for this system
+ *
+ * This is constant in normal operation, but can be overridden
+ * by unit tests
+ */
+let system_timezone = (
+    tz => ( tz == "UTC" ) ? "Etc/GMT" : tz
+)( new Intl.DateTimeFormat().resolvedOptions().timeZone );
+
+/**
+ * @class Base class for sleep diary engines
  *
  * @unrestricted
  * @abstract
@@ -101,7 +117,21 @@ class DiaryBase {
      * Create a deep copy of the current object
      */
     ["clone"]() {
-        return new_sleep_diary(this["to"]("url"),this.serialiser);
+        return new_sleep_diary(
+            {
+                "file_format": "storage-line",
+                "contents": {
+                    "file_format": this["file_format"](),
+                    "contents"   : JSON.parse(
+                        JSON.stringify(
+                            this,
+                            (key,value) => ( key == "spreadsheet" ) ? undefined : value
+                        )
+                    ),
+                }
+            },
+            this.serialiser
+        );
     }
 
     /**
@@ -112,6 +142,7 @@ class DiaryBase {
      * <ul>
      *   <li><tt>url</tt> - contents serialised for inclusion in a URL</li>
      *   <li><tt>json</tt> - contents serialised to JSON</li>
+     *   <li><tt>storage-line</tt> - contents serialised for inclusion in a newline-separated list of diaries</li>
      *   <li><tt>Standard</tt> - Standard format</li>
      *   <li><em>(other formats)</em> - the name of any other diary format</li>
      * </ul>
@@ -136,7 +167,7 @@ class DiaryBase {
             return this;
 
         case "url":
-            return "sleep-diary=" + encodeURIComponent(JSON.stringify(
+            return "sleepdiary=" + encodeURIComponent(JSON.stringify(
                 {
                     "file_format": this["file_format"](),
                     "contents"   : this,
@@ -150,9 +181,15 @@ class DiaryBase {
                 (key,value) => ( key == "spreadsheet" ) ? undefined : value
             );
 
+        case "storage-line":
+            return "storage-line:" + this["file_format"]() + ':' + JSON.stringify(
+                this,
+                (key,value) => ( key == "spreadsheet" ) ? undefined : value
+            );
+
         default:
-            if ( sleep_diary_converters.hasOwnProperty(to_format) ) {
-                return new sleep_diary_converters[to_format](
+            if ( sleepdiary_converters.hasOwnProperty(to_format) ) {
+                return new sleepdiary_converters[to_format](
                     this["to"]("Standard"),
                     this.serialiser,
                 );
@@ -218,24 +255,24 @@ class DiaryBase {
      */
 
     /**
-     * Register a new format
+     * Register a new engine
      *
      * @public
      *
-     * @param {Function} constructor - sleep diary format
+     * @param {Function} constructor - sleep diary engine
      *
      * @example
      *   DiaryBase.register(MyClass);
      */
     static register( constructor ) {
-        let format = constructor["prototype"]["format_info"]();
-        format["constructor"] = constructor;
-        sleep_diary_formats.push(format);
-        if ( format["url"][0] == '/' ) {
-            format["url"] = "https://sleep-diary-formats.github.io" + format["url"];
+        let engine = constructor["prototype"]["format_info"]();
+        engine["constructor"] = constructor;
+        sleepdiary_engines.push(engine);
+        if ( engine["url"][0] == '/' ) {
+            engine["url"] = "https://sleepdiary.github.io/library/" + engine["url"];
         }
-        if ( format.name != "Standard" ) {
-            sleep_diary_converters[format.name] = format.constructor;
+        if ( engine.name != "Standard" ) {
+            sleepdiary_converters[engine.name] = engine.constructor;
         }
 
     };
@@ -302,8 +339,6 @@ class DiaryBase {
     /**
      * Convert a string to a number with leading zeros
      *
-     * @public
-     *
      * @param {number} n - number to pad
      * @param {number=} [length=2] - length of the output string
      *
@@ -311,7 +346,7 @@ class DiaryBase {
      * DiaryBase.zero_pad( 1    ) // ->   "01"
      * DiaryBase.zero_pad( 1, 4 ) // -> "0001"
      */
-    static ["zero_pad"]( n, length ) {
+    static zero_pad( n, length ) {
         let zeros = '';
         if ( n ) {
             for ( let m=Math.pow( 10, (length||2)-1 ); m>n; m/=10 ) zeros += '0';
@@ -325,16 +360,16 @@ class DiaryBase {
      * parse an XML string to a DOM
      *
      * @param {string} string - XML string to parse
-     * @public
+     * @protected
      *
      * @example
      *   let xml = DiaryBase.parse_xml("<foo>");
      */
-    static ["parse_xml"]( string ) {
+    static parse_xml( string ) {
 
         let dom_parser;
         try {
-            dom_parser = window.DOMParser;
+            dom_parser = self.DOMParser;
             if ( !dom_parser ) throw "";
         } catch (e) {
             dom_parser = require("xmldom").DOMParser;
@@ -345,37 +380,149 @@ class DiaryBase {
     }
 
     /**
+     * parse a timestamp in various formats
+     *
+     * @param {Object|number} value - value to analyse
+     * @param {number=} epoch_offset - milliseconds between the unix epoch and the native offset
+     * @return {number} Unix timestamp in milliseconds, or NaN if not parseable
+     * @public
+     *
+     * @example
+     *   let xml = DiaryBase.parse_xml("<foo>");
+     */
+    static parse_timestamp(value,epoch_offset) {
+
+        const hours_to_milliseconds = 60 * 60 * 1000;
+
+        if ( value === null ||
+             value === undefined
+           ) {
+            return NaN;
+        }
+
+        if ( value["getTime"] ) {
+            let time = value["getTime"]();
+            if ( time <= 24*hours_to_milliseconds ) time += (epoch_offset||0);
+            return time;
+        }
+
+        if ( value.match ) {
+
+            const match = value.match(
+                /^((19|20)[0-9]{2})[-.]?([0-9]{2})[-.]?([0-9]{2})[T ]?([0-9]{2})[.:]?([0-9]{2})(?:[.:]?([0-9]{2}))?Z?$/
+            );
+            if ( match ) {
+                // YYYY-MM-DDThh:mm:ss
+                return new Date(
+                    parseInt(match[1],10),
+                    parseInt(match[3],10)-1,
+                    parseInt(match[4],10),
+                    parseInt(match[5],10),
+                    parseInt(match[6],10),
+                    parseInt(match[7]||0,10)
+                ).getTime();
+            }
+
+            if ( !value.search(/^[0-9]{4,}$/) ) {
+                // string looks like a large number
+                value = parseInt(value,10);
+            }
+
+        }
+
+        if ( typeof(value) == "number" ) {
+            // convert the number to milliseconds:
+            const power_correction = 12 - Math.floor(Math.log10(/** @type {number} */(value)));
+            return (
+                value
+                    * Math.pow(
+                        10,
+                        ( value && Math.abs(power_correction) > 2 )
+                        ? power_correction
+                        : 0
+                    )
+            );
+        }
+
+        // only string manipulation allowed beyond this point:
+        if ( !value || !value.search ) return NaN;
+
+        // treat e.g. "MidNight - 01:00" as "midnight", but leave "2010-11-12T13:14Z" alone:
+        let cleaned_value = (
+          ( value.search( /[a-su-y]/i ) == -1 && value.search( /-.*-/ ) != -1 )
+          ? value
+          : value.replace( /\s*(-|to).*/, "" )
+        ).replace(/([ap])\s*(m)/i, "$1$2").toLowerCase();
+
+        // common strings that don't match any pattern:
+        if ( cleaned_value.search(/midnight/i) != -1 ) return 0;
+        if ( cleaned_value.search(/midd?ay|noon|12pm/i) != -1 ) return 12*hours_to_milliseconds;
+
+        // the value is e.g. "1am" or "2pm":
+        let hour_match = cleaned_value.match(/^([0-9]*)(:([0-9]*))?\s*([ap])m$/);
+        if ( hour_match ) {
+            return (
+                parseInt(hour_match[1],10) +
+                parseInt(hour_match[3]||'0',10)/60 +
+                ( hour_match[4] == 'p' ? 12 : 0 )
+            ) * hours_to_milliseconds;
+        }
+
+        // the value is e.g. "00:00" or "14:30":
+        let hhmmss_match = cleaned_value.match(/^([0-9]*)(:([0-9]*))?(:([0-9]*))?$/);
+        if ( hhmmss_match ) {
+            return (
+                parseInt(hhmmss_match[1],10) +
+                parseInt(hhmmss_match[3]||'0',10)/60 +
+                parseInt(hhmmss_match[5]||'0',10)/3600
+            ) * hours_to_milliseconds
+        }
+
+        // try to parse this as a date string:
+        return (
+            Date.parse(cleaned_value) ||
+            Date.parse(        value)
+        );
+
+    }
+
+    /**
      * return values that exist in the second argument but not the first
      *
      * @param {Array} list1 - first list of values
      * @param {Array} list2 - second list of values
-     * @param {function(*)} unique_id - function that returns the unique ID for a list item
+     * @param {Array|function(*)} unique_id - function that returns the unique ID for a list item
      * @return {Array}
-     * @public
+     * @protected
      *
      * @example
      *   let filtered = DiaryBase.unique(["a","b"],["b","c"],l=>l);
      *   -> ["c"]
      */
-    static ["unique"]( list1, list2, unique_id ) {
+    static unique( list1, list2, unique_id ) {
+        if ( typeof(unique_id) != "function" ) {
+            const keys = unique_id;
+            unique_id = r => keys.map( k => r[k] ).join("\uE000")
+        }
         let list1_ids = {};
-        list1.forEach( l => list1_ids[unique_id(l)] = 1 );
-        return list2.filter( l => !list1_ids.hasOwnProperty(unique_id(l)) )
+        list1.forEach( l => list1_ids[/** @type (function(*)) */(unique_id)(l)] = 1 );
+        return list2.filter( l => !list1_ids.hasOwnProperty(/** @type (function(*)) */(unique_id)(l)) )
     }
 
     /**
-     * Escape a string for use in an XML (or HTML) file
+     * Get the main object for managing timezones
      *
-     * @param {string} string - unescaped string
-     * @return {string}
-     * @public
-     *
-     * @example
-     *   let escaped = DiaryBase.escape("<foo>");
-     *   -> "&#60;foo&#62;"
+     * This object may change in future - prefer date() whenever possible.
      */
-    static ["escape_xml"]( string ) {
-        return string.replace( /[&<>"']/g, c => `&#${c.charCodeAt(0)};` );
+    static tc() {
+        let ret;
+        try {
+            ret = self["tc"];
+            if ( !ret ) throw "";
+        } catch (e) {
+            ret = require("timezonecomplete");
+        }
+        return ret;
     }
 
     /**
@@ -388,41 +535,84 @@ class DiaryBase {
      * @example
      *   let date = DiaryBase.date(123456789,"Etc/GMT");
      */
-    static ["date"]( date, timezone ) {
-        let tc;
-        try {
-            tc = window["tc"];
-            if ( !tc ) throw "";
-        } catch (e) {
-            tc = require("timezonecomplete");
-        }
-        const ret = new tc["DateTime"](date||0,tc["zone"]("Etc/UTC"));
+    static date( date, timezone ) {
+        const tc = DiaryBase.tc(),
+              ret = new tc["DateTime"](date||0,tc["zone"]("Etc/UTC"));
         return timezone ? ret["toZone"](tc["zone"](timezone)) : ret;
     }
 
     /**
-     * Array of status strings and associated regular expressions
+     * Get the time of the next DST change after the specified date
+     *
+     * @param {number|string} date - the date to parse
+     * @param {string=} timezone - timezone (e.g. "Europe/London")
+     * @return {number} - tranisition time, or Infinity if no transitions are expected
+     * @public
      */
-    static ["status_matches"]() {
+    static next_dst_change( date, timezone ) {
+        const tzdata = DiaryBase.tc()["TzDatabase"]["instance"]();
+        /*
+         * As of 2021-06-10, timezonecomplete has a weird bug
+         * that causes it to miscalculate DST changes shortly before
+         * the change itself.  This works around that issue:
+         */
+        for ( let time = date - 1000*60*60*48; time < date; time += 1000*60*60 ) {
+            try {
+                const ret = tzdata["nextDstChange"]( timezone, time );
+                if ( !ret ) return Infinity;
+                if ( ret > date ) return ret;
+            } catch ( e ) {
+                /*
+                 * timezonecomplete has been seen to throw timezonecomplete.InvalidTimeZoneData
+                 * when calling e.g. tzdata["nextDstChange"]( "Europe/London", 0 )
+
+                 */
+                return Infinity;
+            }
+        }
+        return tzdata["nextDstChange"]( timezone, date ) || Infinity;
+    }
+
+    /**
+     * Array of status strings and associated regular expressions
+     * @protected
+     */
+    static status_matches() {
         return [
-            /* status       must match                 style */
+            /* status       must match                 style (BG, FG, text) */
             [ "awake"     , "w.ke"                    , ""                    ],
-            [ "asleep"    , "sle*p(?!.*aid)"          , "#FFFFFF00,#FF0000FF" ],
+            [ "asleep"    , "sle*p(?!.*aid)"          , "#FFFFFF00,#FF0000FF,#FFFFFFFF" ],
+            [ "lights off", "light.*(?:out|off)"      , "#FFFFFFFF,#FF000080,#FFFFFFFF" ],
+            [ "lights on" , "light.*on"               , "#FFFFFFFF,#FFE6E6FF" ],
             [ "snack"     , "snack"                   , "#FFFF7FFF,#FF7FFF7F" ],
             [ "meal"      , "meal|eat"                , "#FFFF00FF,#FF00FF00" ],
-            [ "alcohol"   , "alco"                    , "#FF1FAFEF,#FFE05010" ],
-            [ "chocolate" , "choc"                    , "#FF84C0FF,#FF7B3F00" ],
+            [ "alcohol"   , "alco"                    , "#FF1FAFEF,#FFE05010,#FFFFFFFF" ],
+            [ "chocolate" , "choc"                    , "#FF84C0FF,#FF7B3F00,#FFFFFFFF" ],
             [ "caffeine"  , "caffeine|coffee|tea|cola", "#FF0B3B8B,#FFF4C474" ],
-            [ "drink"     , "drink"                   , "#FFDF8F5F,#FF2070a0" ],
-            [ "sleep aid" , "sle*p.*aid|pill|tranq"   , "#FFAFFF7F,#FF500080" ],
+            [ "drink"     , "drink"                   , "#FFDF8F5F,#FF2070a0,#FFFFFFFF" ],
+            [ "sleep aid" , "sle*p.*aid|pill|tranq"   , "#FFAFFF7F,#FF500080,#FFFFFFFF" ],
             [ "exercise"  , "exercise"                , "#FF00C0C0,#FFFF3F3F" ],
             [ "toilet"    , "toilet|bathroom|loo"     , "#FF363636,#FFC9C9C9" ],
-            [ "noise"     , "noise"                   , "#FF8F8F8F,#FF707070" ],
+            [ "noise"     , "noise"                   , "#FF8F8F8F,#FF707070,#FFFFFFFF" ],
             [ "alarm"     , "alarm"                   , "#FF000000,#FFFF0000" ],
             [ "in bed"    , "down|(in|to).*bed"       , "#FFA0A000,#FF5f5fff" ],
-            [ "out of bed", "up|out.*bed"             , "#FF0000FF,#FFFFFF00" ],
+            [ "out of bed", "up|out.*bed"             , "#FF0000FF,#FFFFFFCC" ],
         ];
     }
+
+    /**
+     * Complete list of allowed timezones
+     * @return {Array<string>}
+     */
+    ["timezones"]() {
+        return Object.keys(self["tzdata"]["zones"]).sort();
+    }
+
+    /**
+     * Version ID for this package
+     * @return {string}
+     */
+    ["software_version"]() { return SOFTWARE_VERSION; }
 
 }
 
@@ -461,7 +651,10 @@ function new_sleep_diary(file,serialiser) {
         }
 
         if ( file_format == "url" ) {
-            file["contents"] = JSON.parse(decodeURIComponent(file["contents"].substr(12)));
+            file["contents"] = JSON.parse(decodeURIComponent(file["contents"].replace(/^sleep-?diary=/,'')));
+        } else if ( file_format == "storage-line" ) {
+            // these two formats behave identically after this point:
+            file_format = "url";
         }
 
     } else {
@@ -471,21 +664,21 @@ function new_sleep_diary(file,serialiser) {
     }
 
     if ( file_format == "string" ) {
-        Object.assign(file,Spreadsheet["parse_csv"](file["contents"]));
+        Object.assign(file,Spreadsheet.parse_csv(file["contents"]));
     }
 
-    for ( let n=0; n!=sleep_diary_formats.length; ++n ) {
+    for ( let n=0; n!=sleepdiary_engines.length; ++n ) {
         try {
-            return new sleep_diary_formats[n]["constructor"](file,serialiser);
+            return new sleepdiary_engines[n]["constructor"](file,serialiser);
         } catch (e) {
             if ( e ) { // SleepDiary.invalid() throws null to indicate the file is in the wrong format
-                if ( ENABLE_DEBUG ) console.error(e);
+                if ( DEBUG ) console.error(e);
                 error = e;
             }
         }
     }
 
-    if ( ENABLE_DEBUG ) {
+    if ( DEBUG ) {
         // this can cause false positives when e.g. DiaryLoader calls it on an ArrayBuffer,
         // before converting the file to text
         console.error( "Failed to read sleep diary", file, error );

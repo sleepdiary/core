@@ -1,11 +1,12 @@
 register_roundtrip_modifier("Sleepmeter",function(our_diary,roundtripped_diary,other_format) {
     switch ( other_format.name ) {
+    case "ActivityLog":
     case "SleepChart1":
     case "PleesTracker":
     case "SpreadsheetGraph":
     case "SpreadsheetTable":
         [our_diary,roundtripped_diary].forEach(function(diary) {
-            diary.records.forEach( function(record) {
+            diary["records"].forEach( function(record) {
                 /*
                  * Sleepmeter stores explicit timezones, durations and tags.
                  * These formats do not support those values.
@@ -18,10 +19,11 @@ register_roundtrip_modifier("Sleepmeter",function(our_diary,roundtripped_diary,o
         });
     }
     switch ( other_format.name ) {
+    case "ActivityLog":
     case "SleepChart1":
     case "PleesTracker":
         [our_diary,roundtripped_diary].forEach(function(diary) {
-            diary.records.forEach( function(record) {
+            diary["records"].forEach( function(record) {
                 /*
                  * Values not supported - and guessed incorrectly - in these formats
                  */
@@ -39,9 +41,9 @@ describe("Sleepmeter format", () => {
 
     test_parse({
         file_format: "Sleepmeter",
-        "name": "simple diary from README.md",
-        "input": "wake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:14+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
-        "expected": {
+        name: "simple diary from README.md",
+        input: "wake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:14+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
+        expected: {
             "custom_aids": [],
             "custom_hindrances": [],
             "custom_tags": [],
@@ -245,9 +247,9 @@ describe("Sleepmeter format", () => {
 
     test_parse({
         file_format: "Sleepmeter",
-        "name": "multi-line strings",
-        "input": "custom_aid_id,class,name\nCUSTOM_0001,HERBAL,\",\", <-- those the commas and quotation mark do not mark a field boundary.\nHere are some more things that are hard to parse:\n1. a quote at the end of a line (does not end the comment because the next line still looks like a comment): \"\n2. a pair of blank lines (does not end the comment because the next line still looks like a comment):\n\n3. another quote at the end of a line (ends the comment because the next line looks like a header): \"\n\ncustom_hindrance_id,class,name\nCUSTOM_0001,NOISE,\",\", <-- those the commas and quotation mark do not mark a field boundary.\nHere are some more things that are hard to parse:\n1. a quote at the end of a line (does not end the comment because the next line still looks like a comment): \"\n2. a pair of blank lines (does not end the comment because the next line still looks like a comment):\n\n3. another quote at the end of a line (ends the comment because the next line looks like a header): \"\n\ncustom_tag_id,name\nCUSTOM_0001,\",\", <-- those the commas and quotation mark do not mark a field boundary.\nHere are some more things that are hard to parse:\n1. a quote at the end of a line (does not end the comment because the next line still looks like a comment): \"\n2. a pair of blank lines (does not end the comment because the next line still looks like a comment):\n\n3. another quote at the end of a line (ends the comment because the next line looks like a header): \"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2099-12-31 23:57+1000\",\"2099-12-31 23:58+1000\",\"2099-12-31 23:59+1000\",,NIGHT_SLEEP,NONE,CUSTOM_0001,CUSTOM_0001,CUSTOM_0001,5,\",\", <-- those the commas and quotation mark do not mark a field boundary.\nHere are some more things that are hard to parse:\n1. a quote at the end of a line (does not end the comment because the next line still looks like a comment): \"\n2. a pair of blank lines (does not end the comment because the next line still looks like a comment):\n\n3. another quote at the end of a line (ends the comment because the next line looks like a header): \"\n",
-        "expected": {
+        name: "multi-line strings",
+        input: "custom_aid_id,class,name\nCUSTOM_0001,HERBAL,\",\", <-- those the commas and quotation mark do not mark a field boundary.\nHere are some more things that are hard to parse:\n1. a quote at the end of a line (does not end the comment because the next line still looks like a comment): \"\n2. a pair of blank lines (does not end the comment because the next line still looks like a comment):\n\n3. another quote at the end of a line (ends the comment because the next line looks like a header): \"\n\ncustom_hindrance_id,class,name\nCUSTOM_0001,NOISE,\",\", <-- those the commas and quotation mark do not mark a field boundary.\nHere are some more things that are hard to parse:\n1. a quote at the end of a line (does not end the comment because the next line still looks like a comment): \"\n2. a pair of blank lines (does not end the comment because the next line still looks like a comment):\n\n3. another quote at the end of a line (ends the comment because the next line looks like a header): \"\n\ncustom_tag_id,name\nCUSTOM_0001,\",\", <-- those the commas and quotation mark do not mark a field boundary.\nHere are some more things that are hard to parse:\n1. a quote at the end of a line (does not end the comment because the next line still looks like a comment): \"\n2. a pair of blank lines (does not end the comment because the next line still looks like a comment):\n\n3. another quote at the end of a line (ends the comment because the next line looks like a header): \"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2099-12-31 23:57+1000\",\"2099-12-31 23:58+1000\",\"2099-12-31 23:59+1000\",,NIGHT_SLEEP,NONE,CUSTOM_0001,CUSTOM_0001,CUSTOM_0001,5,\",\", <-- those the commas and quotation mark do not mark a field boundary.\nHere are some more things that are hard to parse:\n1. a quote at the end of a line (does not end the comment because the next line still looks like a comment): \"\n2. a pair of blank lines (does not end the comment because the next line still looks like a comment):\n\n3. another quote at the end of a line (ends the comment because the next line looks like a header): \"\n",
+        expected: {
             "custom_aids": [
                 {
                     "custom_aid_id": "CUSTOM_0001",
@@ -328,933 +330,945 @@ describe("Sleepmeter format", () => {
     });
 
     test_merge({
+        name: "two empty diaries",
         left: empty_diary,
         right: empty_diary,
         expected: {
-            custom_aids: [],
-            custom_hindrances: [],
-            custom_tags: [],
-            records: [],
+            "custom_aids": [],
+            "custom_hindrances": [],
+            "custom_tags": [],
+            "records": [],
         },
     });
     test_merge({
+        name: "right empty, left non-empty",
         left: "wake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:14+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         right: empty_diary,
         expected: {
-            custom_aids: [],
-            custom_hindrances: [],
-            custom_tags: [],
-            records: [{
-                end: 1289567640000,
-                wake: {
-                    string: '"2010-11-12 13:14+0000"',
-                    year: 2010,
-                    month: 11,
-                    day: 12,
-                    hour: 13,
-                    minute: 14,
-                    offset: 0
+            "custom_aids": [],
+            "custom_hindrances": [],
+            "custom_tags": [],
+            "records": [{
+                "end": 1289567640000,
+                "wake": {
+                    "string": '"2010-11-12 13:14+0000"',
+                    "year": 2010,
+                    "month": 11,
+                    "day": 12,
+                    "hour": 13,
+                    "minute": 14,
+                    "offset": 0
                 },
                 //"sleep timestamp": 1289574960000,
-                sleep: {
-                    string: '"2010-11-12 15:16+0000"',
-                    year: 2010,
-                    month: 11,
-                    day: 12,
-                    hour: 15,
-                    minute: 16,
-                    offset: 0
+                "sleep": {
+                    "string": '"2010-11-12 15:16+0000"',
+                    "year": 2010,
+                    "month": 11,
+                    "day": 12,
+                    "hour": 15,
+                    "minute": 16,
+                    "offset": 0
                 },
-                start: 1289582280000,
-                bedtime: {
-                    string: '"2010-11-12 17:18+0000"',
-                    year: 2010,
-                    month: 11,
-                    day: 12,
-                    hour: 17,
-                    minute: 18,
-                    offset: 0
+                "start": 1289582280000,
+                "bedtime": {
+                    "string": '"2010-11-12 17:18+0000"',
+                    "year": 2010,
+                    "month": 11,
+                    "day": 12,
+                    "hour": 17,
+                    "minute": 18,
+                    "offset": 0
                 },
-                holes: [],
-                duration: -7320000,
-                type: 'NIGHT_SLEEP',
-                dreams: [],
-                aids: [],
-                hindrances: [],
-                tags: [],
-                quality:
-                5, notes: ''
+                "holes": [],
+                "duration": -7320000,
+                "type": 'NIGHT_SLEEP',
+                "dreams": [],
+                "aids": [],
+                "hindrances": [],
+                "tags": [],
+                "quality":
+                5, "notes": ''
             }],
         },
     });
     test_merge({
+        name: "left empty, right non-empty",
         left: empty_diary,
         right: "wake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:14+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         expected: {
-            custom_aids: [],
-            custom_hindrances: [],
-            custom_tags: [],
-            records: [{
-                end: 1289567640000,
-                wake: {
-                    string: '"2010-11-12 13:14+0000"',
-                    year: 2010,
-                    month: 11,
-                    day: 12,
-                    hour: 13,
-                    minute: 14,
-                    offset: 0
+            "custom_aids": [],
+            "custom_hindrances": [],
+            "custom_tags": [],
+            "records": [{
+                "end": 1289567640000,
+                "wake": {
+                    "string": '"2010-11-12 13:14+0000"',
+                    "year": 2010,
+                    "month": 11,
+                    "day": 12,
+                    "hour": 13,
+                    "minute": 14,
+                    "offset": 0
                 },
                 //"sleep timestamp": 1289574960000,
-                sleep: {
-                    string: '"2010-11-12 15:16+0000"',
-                    year: 2010,
-                    month: 11,
-                    day: 12,
-                    hour: 15,
-                    minute: 16,
-                    offset: 0
+                "sleep": {
+                    "string": '"2010-11-12 15:16+0000"',
+                    "year": 2010,
+                    "month": 11,
+                    "day": 12,
+                    "hour": 15,
+                    "minute": 16,
+                    "offset": 0
                 },
-                start: 1289582280000,
-                bedtime: {
-                    string: '"2010-11-12 17:18+0000"',
-                    year: 2010,
-                    month: 11,
-                    day: 12,
-                    hour: 17,
-                    minute: 18,
-                    offset: 0
+                "start": 1289582280000,
+                "bedtime": {
+                    "string": '"2010-11-12 17:18+0000"',
+                    "year": 2010,
+                    "month": 11,
+                    "day": 12,
+                    "hour": 17,
+                    "minute": 18,
+                    "offset": 0
                 },
-                duration: -7320000,
-                holes: [],
-                type: 'NIGHT_SLEEP',
-                dreams: [],
-                aids: [],
-                hindrances: [],
-                tags: [],
-                quality:
-                5, notes: ''
+                "duration": -7320000,
+                "holes": [],
+                "type": 'NIGHT_SLEEP',
+                "dreams": [],
+                "aids": [],
+                "hindrances": [],
+                "tags": [],
+                "quality":
+                5, "notes": ''
             }],
         },
     });
     test_merge({
+        name: "both non-empty",
         left: "wake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:14+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         right: "wake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:14+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         expected: {
-            custom_aids: [],
-            custom_hindrances: [],
-            custom_tags: [],
-            records: [{
-                end: 1289567640000,
-                wake: {
-                    string: '"2010-11-12 13:14+0000"',
-                    year: 2010,
-                    month: 11,
-                    day: 12,
-                    hour: 13,
-                    minute: 14,
-                    offset: 0
+            "custom_aids": [],
+            "custom_hindrances": [],
+            "custom_tags": [],
+            "records": [{
+                "end": 1289567640000,
+                "wake": {
+                    "string": '"2010-11-12 13:14+0000"',
+                    "year": 2010,
+                    "month": 11,
+                    "day": 12,
+                    "hour": 13,
+                    "minute": 14,
+                    "offset": 0
                 },
                 //"sleep timestamp": 1289574960000,
-                sleep: {
-                    string: '"2010-11-12 15:16+0000"',
-                    year: 2010,
-                    month: 11,
-                    day: 12,
-                    hour: 15,
-                    minute: 16,
-                    offset: 0
+                "sleep": {
+                    "string": '"2010-11-12 15:16+0000"',
+                    "year": 2010,
+                    "month": 11,
+                    "day": 12,
+                    "hour": 15,
+                    "minute": 16,
+                    "offset": 0
                 },
-                start: 1289582280000,
-                bedtime: {
-                    string: '"2010-11-12 17:18+0000"',
-                    year: 2010,
-                    month: 11,
-                    day: 12,
-                    hour: 17,
-                    minute: 18,
-                    offset: 0
+                "start": 1289582280000,
+                "bedtime": {
+                    "string": '"2010-11-12 17:18+0000"',
+                    "year": 2010,
+                    "month": 11,
+                    "day": 12,
+                    "hour": 17,
+                    "minute": 18,
+                    "offset": 0
                 },
-                duration: -7320000,
-                holes: [],
-                type: 'NIGHT_SLEEP',
-                dreams: [],
-                aids: [],
-                hindrances: [],
-                tags: [],
-                quality:
-                5, notes: ''
+                "duration": -7320000,
+                "holes": [],
+                "type": 'NIGHT_SLEEP',
+                "dreams": [],
+                "aids": [],
+                "hindrances": [],
+                "tags": [],
+                "quality":
+                5, "notes": ''
             }],
         },
     });
     test_merge({
+        name: "both non-empty (2)",
         left: "wake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:15+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         right: "wake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:14+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         expected: {
-            custom_aids: [],
-            custom_hindrances: [],
-            custom_tags: [],
-            records: [
+            "custom_aids": [],
+            "custom_hindrances": [],
+            "custom_tags": [],
+            "records": [
                 {
-                    end: 1289567700000,
-                    wake: {
-                        string: '"2010-11-12 13:15+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 13,
-                        minute: 15,
-                        offset: 0
+                    "end": 1289567700000,
+                    "wake": {
+                        "string": '"2010-11-12 13:15+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 13,
+                        "minute": 15,
+                        "offset": 0
                     },
                     //"sleep timestamp": 1289574960000,
-                    sleep: {
-                        string: '"2010-11-12 15:16+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 15,
-                        minute: 16,
-                        offset: 0
+                    "sleep": {
+                        "string": '"2010-11-12 15:16+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 15,
+                        "minute": 16,
+                        "offset": 0
                     },
-                    start: 1289582280000,
-                    bedtime: {
-                        string: '"2010-11-12 17:18+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 17,
-                        minute: 18,
-                        offset: 0
+                    "start": 1289582280000,
+                    "bedtime": {
+                        "string": '"2010-11-12 17:18+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 17,
+                        "minute": 18,
+                        "offset": 0
                     },
-                    duration: -7260000,
-                    holes: [],
-                    type: 'NIGHT_SLEEP',
-                    dreams: [],
-                    aids: [],
-                    hindrances: [],
-                    tags: [],
-                    quality: 5,
-                    notes: ''
+                    "duration": -7260000,
+                    "holes": [],
+                    "type": 'NIGHT_SLEEP',
+                    "dreams": [],
+                    "aids": [],
+                    "hindrances": [],
+                    "tags": [],
+                    "quality": 5,
+                    "notes": ''
                 },
                 {
-                    end: 1289567640000,
-                    wake: {
-                        string: '"2010-11-12 13:14+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 13,
-                        minute: 14,
-                        offset: 0
+                    "end": 1289567640000,
+                    "wake": {
+                        "string": '"2010-11-12 13:14+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 13,
+                        "minute": 14,
+                        "offset": 0
                     },
                     //"sleep timestamp": 1289574960000,
-                    sleep: {
-                        string: '"2010-11-12 15:16+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 15,
-                        minute: 16,
-                        offset: 0
+                    "sleep": {
+                        "string": '"2010-11-12 15:16+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 15,
+                        "minute": 16,
+                        "offset": 0
                     },
-                    start: 1289582280000,
-                    bedtime: {
-                        string: '"2010-11-12 17:18+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 17,
-                        minute: 18,
-                        offset: 0
+                    "start": 1289582280000,
+                    "bedtime": {
+                        "string": '"2010-11-12 17:18+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 17,
+                        "minute": 18,
+                        "offset": 0
                     },
-                    duration: -7320000,
-                    holes: [],
-                    type: 'NIGHT_SLEEP',
-                    dreams: [],
-                    aids: [],
-                    hindrances: [],
-                    tags: [],
-                    quality: 5,
-                    notes: ''
+                    "duration": -7320000,
+                    "holes": [],
+                    "type": 'NIGHT_SLEEP',
+                    "dreams": [],
+                    "aids": [],
+                    "hindrances": [],
+                    "tags": [],
+                    "quality": 5,
+                    "notes": ''
                 }
             ],
         },
     });
 
     test_merge({
+        name: "both non-empty (3)",
         left: "custom_aid_id,class,name\nCUSTOM_0001,RELAXATION,\"value 1\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:15+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         right: "custom_aid_id,class,name\nCUSTOM_0001,RELAXATION,\"value 1\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:14+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         expected: {
-            custom_aids: [
-                { custom_aid_id: 'CUSTOM_0001', class: 'RELAXATION', name: 'value 1' },
+            "custom_aids": [
+                { "custom_aid_id": 'CUSTOM_0001', "class": 'RELAXATION', "name": 'value 1' },
             ],
-            custom_hindrances: [],
-            custom_tags: [],
-            records: [
+            "custom_hindrances": [],
+            "custom_tags": [],
+            "records": [
                 {
-                    end: 1289567700000,
-                    wake: {
-                        string: '"2010-11-12 13:15+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 13,
-                        minute: 15,
-                        offset: 0
+                    "end": 1289567700000,
+                    "wake": {
+                        "string": '"2010-11-12 13:15+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 13,
+                        "minute": 15,
+                        "offset": 0
                     },
                     //"sleep timestamp": 1289574960000,
-                    sleep: {
-                        string: '"2010-11-12 15:16+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 15,
-                        minute: 16,
-                        offset: 0
+                    "sleep": {
+                        "string": '"2010-11-12 15:16+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 15,
+                        "minute": 16,
+                        "offset": 0
                     },
-                    start: 1289582280000,
-                    bedtime: {
-                        string: '"2010-11-12 17:18+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 17,
-                        minute: 18,
-                        offset: 0
+                    "start": 1289582280000,
+                    "bedtime": {
+                        "string": '"2010-11-12 17:18+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 17,
+                        "minute": 18,
+                        "offset": 0
                     },
-                    duration: -7260000,
-                    holes: [],
-                    type: 'NIGHT_SLEEP',
-                    dreams: [],
-                    aids: [],
-                    hindrances: [],
-                    tags: [],
-                    quality: 5,
-                    notes: ''
+                    "duration": -7260000,
+                    "holes": [],
+                    "type": 'NIGHT_SLEEP',
+                    "dreams": [],
+                    "aids": [],
+                    "hindrances": [],
+                    "tags": [],
+                    "quality": 5,
+                    "notes": ''
                 },
                 {
-                    end: 1289567640000,
-                    wake: {
-                        string: '"2010-11-12 13:14+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 13,
-                        minute: 14,
-                        offset: 0
+                    "end": 1289567640000,
+                    "wake": {
+                        "string": '"2010-11-12 13:14+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 13,
+                        "minute": 14,
+                        "offset": 0
                     },
                     //"sleep timestamp": 1289574960000,
-                    sleep: {
-                        string: '"2010-11-12 15:16+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 15,
-                        minute: 16,
-                        offset: 0
+                    "sleep": {
+                        "string": '"2010-11-12 15:16+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 15,
+                        "minute": 16,
+                        "offset": 0
                     },
-                    start: 1289582280000,
-                    bedtime: {
-                        string: '"2010-11-12 17:18+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 17,
-                        minute: 18,
-                        offset: 0
+                    "start": 1289582280000,
+                    "bedtime": {
+                        "string": '"2010-11-12 17:18+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 17,
+                        "minute": 18,
+                        "offset": 0
                     },
-                    duration: -7320000,
-                    holes: [],
-                    type: 'NIGHT_SLEEP',
-                    dreams: [],
-                    aids: [],
-                    hindrances: [],
-                    tags: [],
-                    quality: 5,
-                    notes: ''
+                    "duration": -7320000,
+                    "holes": [],
+                    "type": 'NIGHT_SLEEP',
+                    "dreams": [],
+                    "aids": [],
+                    "hindrances": [],
+                    "tags": [],
+                    "quality": 5,
+                    "notes": ''
                 }
             ],
         },
     });
     test_merge({
+        name: "both non-empty (4)",
         left: "custom_aid_id,class,name\nCUSTOM_0001,RELAXATION,\"value 1\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:15+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         right: "custom_aid_id,class,name\nCUSTOM_0001,RELAXATION,\"value 2\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:14+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         expected: {
-            custom_aids: [
-                { custom_aid_id: 'CUSTOM_0001', class: 'RELAXATION', name: 'value 1' },
-                { custom_aid_id: 'CUSTOM_0002', class: 'RELAXATION', name: 'value 2' },
+            "custom_aids": [
+                { "custom_aid_id": 'CUSTOM_0001', "class": 'RELAXATION', "name": 'value 1' },
+                { "custom_aid_id": 'CUSTOM_0002', "class": 'RELAXATION', "name": 'value 2' },
             ],
-            custom_hindrances: [],
-            custom_tags: [],
-            records: [
+            "custom_hindrances": [],
+            "custom_tags": [],
+            "records": [
                 {
-                    end: 1289567700000,
-                    wake: {
-                        string: '"2010-11-12 13:15+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 13,
-                        minute: 15,
-                        offset: 0
+                    "end": 1289567700000,
+                    "wake": {
+                        "string": '"2010-11-12 13:15+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 13,
+                        "minute": 15,
+                        "offset": 0
                     },
                     //"sleep timestamp": 1289574960000,
-                    sleep: {
-                        string: '"2010-11-12 15:16+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 15,
-                        minute: 16,
-                        offset: 0
+                    "sleep": {
+                        "string": '"2010-11-12 15:16+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 15,
+                        "minute": 16,
+                        "offset": 0
                     },
-                    start: 1289582280000,
-                    bedtime: {
-                        string: '"2010-11-12 17:18+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 17,
-                        minute: 18,
-                        offset: 0
+                    "start": 1289582280000,
+                    "bedtime": {
+                        "string": '"2010-11-12 17:18+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 17,
+                        "minute": 18,
+                        "offset": 0
                     },
-                    duration: -7260000,
-                    holes: [],
-                    type: 'NIGHT_SLEEP',
-                    dreams: [],
-                    aids: [],
-                    hindrances: [],
-                    tags: [],
-                    quality: 5,
-                    notes: ''
+                    "duration": -7260000,
+                    "holes": [],
+                    "type": 'NIGHT_SLEEP',
+                    "dreams": [],
+                    "aids": [],
+                    "hindrances": [],
+                    "tags": [],
+                    "quality": 5,
+                    "notes": ''
                 },
                 {
-                    end: 1289567640000,
-                    wake: {
-                        string: '"2010-11-12 13:14+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 13,
-                        minute: 14,
-                        offset: 0
+                    "end": 1289567640000,
+                    "wake": {
+                        "string": '"2010-11-12 13:14+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 13,
+                        "minute": 14,
+                        "offset": 0
                     },
                     //"sleep timestamp": 1289574960000,
-                    sleep: {
-                        string: '"2010-11-12 15:16+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 15,
-                        minute: 16,
-                        offset: 0
+                    "sleep": {
+                        "string": '"2010-11-12 15:16+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 15,
+                        "minute": 16,
+                        "offset": 0
                     },
-                    start: 1289582280000,
-                    bedtime: {
-                        string: '"2010-11-12 17:18+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 17,
-                        minute: 18,
-                        offset: 0
+                    "start": 1289582280000,
+                    "bedtime": {
+                        "string": '"2010-11-12 17:18+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 17,
+                        "minute": 18,
+                        "offset": 0
                     },
-                    duration: -7320000,
-                    holes: [],
-                    type: 'NIGHT_SLEEP',
-                    dreams: [],
-                    aids: [],
-                    hindrances: [],
-                    tags: [],
-                    quality: 5,
-                    notes: ''
+                    "duration": -7320000,
+                    "holes": [],
+                    "type": 'NIGHT_SLEEP',
+                    "dreams": [],
+                    "aids": [],
+                    "hindrances": [],
+                    "tags": [],
+                    "quality": 5,
+                    "notes": ''
                 }
             ],
         },
     });
 
     test_merge({
+        name: "both non-empty (5)",
         left: "custom_hindrance_id,class,name\nCUSTOM_0001,NOISE,\"value 1\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:15+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         right: "custom_hindrance_id,class,name\nCUSTOM_0001,NOISE,\"value 1\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:14+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         expected: {
-            custom_aids: [],
-            custom_hindrances: [
-                { custom_hindrance_id: 'CUSTOM_0001', class: 'NOISE', name: 'value 1' },
+            "custom_aids": [],
+            "custom_hindrances": [
+                { "custom_hindrance_id": 'CUSTOM_0001', "class": 'NOISE', "name": 'value 1' },
             ],
-            custom_tags: [],
-            records: [
+            "custom_tags": [],
+            "records": [
                 {
-                    end: 1289567700000,
-                    wake: {
-                        string: '"2010-11-12 13:15+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 13,
-                        minute: 15,
-                        offset: 0
+                    "end": 1289567700000,
+                    "wake": {
+                        "string": '"2010-11-12 13:15+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 13,
+                        "minute": 15,
+                        "offset": 0
                     },
                     //"sleep timestamp": 1289574960000,
-                    sleep: {
-                        string: '"2010-11-12 15:16+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 15,
-                        minute: 16,
-                        offset: 0
+                    "sleep": {
+                        "string": '"2010-11-12 15:16+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 15,
+                        "minute": 16,
+                        "offset": 0
                     },
-                    start: 1289582280000,
-                    bedtime: {
-                        string: '"2010-11-12 17:18+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 17,
-                        minute: 18,
-                        offset: 0
+                    "start": 1289582280000,
+                    "bedtime": {
+                        "string": '"2010-11-12 17:18+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 17,
+                        "minute": 18,
+                        "offset": 0
                     },
-                    duration: -7260000,
-                    holes: [],
-                    type: 'NIGHT_SLEEP',
-                    dreams: [],
-                    aids: [],
-                    hindrances: [],
-                    tags: [],
-                    quality: 5,
-                    notes: ''
+                    "duration": -7260000,
+                    "holes": [],
+                    "type": 'NIGHT_SLEEP',
+                    "dreams": [],
+                    "aids": [],
+                    "hindrances": [],
+                    "tags": [],
+                    "quality": 5,
+                    "notes": ''
                 },
                 {
-                    end: 1289567640000,
-                    wake: {
-                        string: '"2010-11-12 13:14+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 13,
-                        minute: 14,
-                        offset: 0
+                    "end": 1289567640000,
+                    "wake": {
+                        "string": '"2010-11-12 13:14+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 13,
+                        "minute": 14,
+                        "offset": 0
                     },
                     //"sleep timestamp": 1289574960000,
-                    sleep: {
-                        string: '"2010-11-12 15:16+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 15,
-                        minute: 16,
-                        offset: 0
+                    "sleep": {
+                        "string": '"2010-11-12 15:16+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 15,
+                        "minute": 16,
+                        "offset": 0
                     },
-                    start: 1289582280000,
-                    bedtime: {
-                        string: '"2010-11-12 17:18+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 17,
-                        minute: 18,
-                        offset: 0
+                    "start": 1289582280000,
+                    "bedtime": {
+                        "string": '"2010-11-12 17:18+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 17,
+                        "minute": 18,
+                        "offset": 0
                     },
-                    duration: -7320000,
-                    holes: [],
-                    type: 'NIGHT_SLEEP',
-                    dreams: [],
-                    aids: [],
-                    hindrances: [],
-                    tags: [],
-                    quality: 5,
-                    notes: ''
+                    "duration": -7320000,
+                    "holes": [],
+                    "type": 'NIGHT_SLEEP',
+                    "dreams": [],
+                    "aids": [],
+                    "hindrances": [],
+                    "tags": [],
+                    "quality": 5,
+                    "notes": ''
                 }
             ],
         },
     });
     test_merge({
+        name: "both non-empty (6)",
         left: "custom_hindrance_id,class,name\nCUSTOM_0001,NOISE,\"value 1\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:15+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         right: "custom_hindrance_id,class,name\nCUSTOM_0001,NOISE,\"value 2\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:14+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         expected: {
-            custom_aids: [],
-            custom_hindrances: [
-                { custom_hindrance_id: 'CUSTOM_0001', class: 'NOISE', name: 'value 1' },
-                { custom_hindrance_id: 'CUSTOM_0002', class: 'NOISE', name: 'value 2' },
+            "custom_aids": [],
+            "custom_hindrances": [
+                { "custom_hindrance_id": 'CUSTOM_0001', "class": 'NOISE', "name": 'value 1' },
+                { "custom_hindrance_id": 'CUSTOM_0002', "class": 'NOISE', "name": 'value 2' },
             ],
-            custom_tags: [],
-            records: [
+            "custom_tags": [],
+            "records": [
                 {
-                    end: 1289567700000,
-                    wake: {
-                        string: '"2010-11-12 13:15+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 13,
-                        minute: 15,
-                        offset: 0
+                    "end": 1289567700000,
+                    "wake": {
+                        "string": '"2010-11-12 13:15+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 13,
+                        "minute": 15,
+                        "offset": 0
                     },
                     //"sleep timestamp": 1289574960000,
-                    sleep: {
-                        string: '"2010-11-12 15:16+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 15,
-                        minute: 16,
-                        offset: 0
+                    "sleep": {
+                        "string": '"2010-11-12 15:16+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 15,
+                        "minute": 16,
+                        "offset": 0
                     },
-                    start: 1289582280000,
-                    bedtime: {
-                        string: '"2010-11-12 17:18+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 17,
-                        minute: 18,
-                        offset: 0
+                    "start": 1289582280000,
+                    "bedtime": {
+                        "string": '"2010-11-12 17:18+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 17,
+                        "minute": 18,
+                        "offset": 0
                     },
-                    duration: -7260000,
-                    holes: [],
-                    type: 'NIGHT_SLEEP',
-                    dreams: [],
-                    aids: [],
-                    hindrances: [],
-                    tags: [],
-                    quality: 5,
-                    notes: ''
+                    "duration": -7260000,
+                    "holes": [],
+                    "type": 'NIGHT_SLEEP',
+                    "dreams": [],
+                    "aids": [],
+                    "hindrances": [],
+                    "tags": [],
+                    "quality": 5,
+                    "notes": ''
                 },
                 {
-                    end: 1289567640000,
-                    wake: {
-                        string: '"2010-11-12 13:14+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 13,
-                        minute: 14,
-                        offset: 0
+                    "end": 1289567640000,
+                    "wake": {
+                        "string": '"2010-11-12 13:14+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 13,
+                        "minute": 14,
+                        "offset": 0
                     },
                     //"sleep timestamp": 1289574960000,
-                    sleep: {
-                        string: '"2010-11-12 15:16+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 15,
-                        minute: 16,
-                        offset: 0
+                    "sleep": {
+                        "string": '"2010-11-12 15:16+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 15,
+                        "minute": 16,
+                        "offset": 0
                     },
-                    start: 1289582280000,
-                    bedtime: {
-                        string: '"2010-11-12 17:18+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 17,
-                        minute: 18,
-                        offset: 0
+                    "start": 1289582280000,
+                    "bedtime": {
+                        "string": '"2010-11-12 17:18+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 17,
+                        "minute": 18,
+                        "offset": 0
                     },
-                    duration: -7320000,
-                    holes: [],
-                    type: 'NIGHT_SLEEP',
-                    dreams: [],
-                    aids: [],
-                    hindrances: [],
-                    tags: [],
-                    quality: 5,
-                    notes: ''
+                    "duration": -7320000,
+                    "holes": [],
+                    "type": 'NIGHT_SLEEP',
+                    "dreams": [],
+                    "aids": [],
+                    "hindrances": [],
+                    "tags": [],
+                    "quality": 5,
+                    "notes": ''
                 }
             ],
         },
     });
 
     test_merge({
+        name: "both non-empty (7)",
         left: "custom_tag_id,name\nCUSTOM_0001,\"value 1\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:15+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         right: "custom_tag_id,name\nCUSTOM_0001,\"value 1\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:14+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         expected: {
-            custom_aids: [],
-            custom_hindrances: [],
-            custom_tags: [
-                { custom_tag_id: 'CUSTOM_0001', name: 'value 1' },
+            "custom_aids": [],
+            "custom_hindrances": [],
+            "custom_tags": [
+                { "custom_tag_id": 'CUSTOM_0001', "name": 'value 1' },
             ],
-            records: [
+            "records": [
                 {
-                    end: 1289567700000,
-                    wake: {
-                        string: '"2010-11-12 13:15+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 13,
-                        minute: 15,
-                        offset: 0
+                    "end": 1289567700000,
+                    "wake": {
+                        "string": '"2010-11-12 13:15+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 13,
+                        "minute": 15,
+                        "offset": 0
                     },
                     //"sleep timestamp": 1289574960000,
-                    sleep: {
-                        string: '"2010-11-12 15:16+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 15,
-                        minute: 16,
-                        offset: 0
+                    "sleep": {
+                        "string": '"2010-11-12 15:16+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 15,
+                        "minute": 16,
+                        "offset": 0
                     },
-                    start: 1289582280000,
-                    bedtime: {
-                        string: '"2010-11-12 17:18+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 17,
-                        minute: 18,
-                        offset: 0
+                    "start": 1289582280000,
+                    "bedtime": {
+                        "string": '"2010-11-12 17:18+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 17,
+                        "minute": 18,
+                        "offset": 0
                     },
-                    duration: -7260000,
-                    holes: [],
-                    type: 'NIGHT_SLEEP',
-                    dreams: [],
-                    aids: [],
-                    hindrances: [],
-                    tags: [],
-                    quality: 5,
-                    notes: ''
+                    "duration": -7260000,
+                    "holes": [],
+                    "type": 'NIGHT_SLEEP',
+                    "dreams": [],
+                    "aids": [],
+                    "hindrances": [],
+                    "tags": [],
+                    "quality": 5,
+                    "notes": ''
                 },
                 {
-                    end: 1289567640000,
-                    wake: {
-                        string: '"2010-11-12 13:14+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 13,
-                        minute: 14,
-                        offset: 0
+                    "end": 1289567640000,
+                    "wake": {
+                        "string": '"2010-11-12 13:14+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 13,
+                        "minute": 14,
+                        "offset": 0
                     },
                     //"sleep timestamp": 1289574960000,
-                    sleep: {
-                        string: '"2010-11-12 15:16+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 15,
-                        minute: 16,
-                        offset: 0
+                    "sleep": {
+                        "string": '"2010-11-12 15:16+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 15,
+                        "minute": 16,
+                        "offset": 0
                     },
-                    start: 1289582280000,
-                    bedtime: {
-                        string: '"2010-11-12 17:18+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 17,
-                        minute: 18,
-                        offset: 0
+                    "start": 1289582280000,
+                    "bedtime": {
+                        "string": '"2010-11-12 17:18+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 17,
+                        "minute": 18,
+                        "offset": 0
                     },
-                    duration: -7320000,
-                    holes: [],
-                    type: 'NIGHT_SLEEP',
-                    dreams: [],
-                    aids: [],
-                    hindrances: [],
-                    tags: [],
-                    quality: 5,
-                    notes: ''
+                    "duration": -7320000,
+                    "holes": [],
+                    "type": 'NIGHT_SLEEP',
+                    "dreams": [],
+                    "aids": [],
+                    "hindrances": [],
+                    "tags": [],
+                    "quality": 5,
+                    "notes": ''
                 }
             ],
         },
     });
     test_merge({
+        name: "both non-empty (8)",
         left: "custom_tag_id,name\nCUSTOM_0001,\"value 1\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:15+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         right: "custom_tag_id,name\nCUSTOM_0001,\"value 2\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:14+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,NONE,NONE,NONE,5,\"\"\n",
         expected: {
-            custom_aids: [],
-            custom_hindrances: [],
-            custom_tags: [
-                { custom_tag_id: 'CUSTOM_0001', name: 'value 1' },
-                { custom_tag_id: 'CUSTOM_0002', name: 'value 2' },
+            "custom_aids": [],
+            "custom_hindrances": [],
+            "custom_tags": [
+                { "custom_tag_id": 'CUSTOM_0001', "name": 'value 1' },
+                { "custom_tag_id": 'CUSTOM_0002', "name": 'value 2' },
             ],
-            records: [
+            "records": [
                 {
-                    end: 1289567700000,
-                    wake: {
-                        string: '"2010-11-12 13:15+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 13,
-                        minute: 15,
-                        offset: 0
+                    "end": 1289567700000,
+                    "wake": {
+                        "string": '"2010-11-12 13:15+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 13,
+                        "minute": 15,
+                        "offset": 0
                     },
                     //"sleep timestamp": 1289574960000,
-                    sleep: {
-                        string: '"2010-11-12 15:16+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 15,
-                        minute: 16,
-                        offset: 0
+                    "sleep": {
+                        "string": '"2010-11-12 15:16+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 15,
+                        "minute": 16,
+                        "offset": 0
                     },
-                    start: 1289582280000,
-                    bedtime: {
-                        string: '"2010-11-12 17:18+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 17,
-                        minute: 18,
-                        offset: 0
+                    "start": 1289582280000,
+                    "bedtime": {
+                        "string": '"2010-11-12 17:18+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 17,
+                        "minute": 18,
+                        "offset": 0
                     },
-                    duration: -7260000,
-                    holes: [],
-                    type: 'NIGHT_SLEEP',
-                    dreams: [],
-                    aids: [],
-                    hindrances: [],
-                    tags: [],
-                    quality: 5,
-                    notes: ''
+                    "duration": -7260000,
+                    "holes": [],
+                    "type": 'NIGHT_SLEEP',
+                    "dreams": [],
+                    "aids": [],
+                    "hindrances": [],
+                    "tags": [],
+                    "quality": 5,
+                    "notes": ''
                 },
                 {
-                    end: 1289567640000,
-                    wake: {
-                        string: '"2010-11-12 13:14+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 13,
-                        minute: 14,
-                        offset: 0
+                    "end": 1289567640000,
+                    "wake": {
+                        "string": '"2010-11-12 13:14+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 13,
+                        "minute": 14,
+                        "offset": 0
                     },
                     //"sleep timestamp": 1289574960000,
-                    sleep: {
-                        string: '"2010-11-12 15:16+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 15,
-                        minute: 16,
-                        offset: 0
+                    "sleep": {
+                        "string": '"2010-11-12 15:16+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 15,
+                        "minute": 16,
+                        "offset": 0
                     },
-                    start: 1289582280000,
-                    bedtime: {
-                        string: '"2010-11-12 17:18+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 17,
-                        minute: 18,
-                        offset: 0
+                    "start": 1289582280000,
+                    "bedtime": {
+                        "string": '"2010-11-12 17:18+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 17,
+                        "minute": 18,
+                        "offset": 0
                     },
-                    duration: -7320000,
-                    holes: [],
-                    type: 'NIGHT_SLEEP',
-                    dreams: [],
-                    aids: [],
-                    hindrances: [],
-                    tags: [],
-                    quality: 5,
-                    notes: ''
+                    "duration": -7320000,
+                    "holes": [],
+                    "type": 'NIGHT_SLEEP',
+                    "dreams": [],
+                    "aids": [],
+                    "hindrances": [],
+                    "tags": [],
+                    "quality": 5,
+                    "notes": ''
                 }
             ],
         },
     });
 
     test_merge({
+        name: "both non-empty (9)",
         left: "custom_aid_id,class,name\nCUSTOM_0001,RELAXATION,\"value 1\"\n\ncustom_hindrance_id,class,name\nCUSTOM_0001,NOISE,\"value 1\"\n\ncustom_tag_id,name\nCUSTOM_0001,\"value 1\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:15+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,CUSTOM_0001,CUSTOM_0001,CUSTOM_0001,5,\"\"\n",
         right: "custom_aid_id,class,name\nCUSTOM_0001,RELAXATION,\"value 2\"\n\ncustom_hindrance_id,class,name\nCUSTOM_0001,NOISE,\"value 2\"\n\ncustom_tag_id,name\nCUSTOM_0001,\"value 2\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 13:14+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 17:18+0000\",,NIGHT_SLEEP,NONE,CUSTOM_0001,CUSTOM_0001,CUSTOM_0001,5,\"\"\n",
         expected: {
-            custom_aids: [
-                { custom_aid_id: 'CUSTOM_0001', class: 'RELAXATION', name: 'value 1' },
-                { custom_aid_id: 'CUSTOM_0002', class: 'RELAXATION', name: 'value 2' },
+            "custom_aids": [
+                { "custom_aid_id": 'CUSTOM_0001', "class": 'RELAXATION', "name": 'value 1' },
+                { "custom_aid_id": 'CUSTOM_0002', "class": 'RELAXATION', "name": 'value 2' },
             ],
-            custom_hindrances: [
-                { custom_hindrance_id: 'CUSTOM_0001', class: 'NOISE', name: 'value 1' },
-                { custom_hindrance_id: 'CUSTOM_0002', class: 'NOISE', name: 'value 2' },
+            "custom_hindrances": [
+                { "custom_hindrance_id": 'CUSTOM_0001', "class": 'NOISE', "name": 'value 1' },
+                { "custom_hindrance_id": 'CUSTOM_0002', "class": 'NOISE', "name": 'value 2' },
             ],
-            custom_tags: [
-                { custom_tag_id: 'CUSTOM_0001', name: 'value 1' },
-                { custom_tag_id: 'CUSTOM_0002', name: 'value 2' },
+            "custom_tags": [
+                { "custom_tag_id": 'CUSTOM_0001', "name": 'value 1' },
+                { "custom_tag_id": 'CUSTOM_0002', "name": 'value 2' },
             ],
-            records: [
+            "records": [
                 {
-                    end: 1289567700000,
-                    wake: {
-                        string: '"2010-11-12 13:15+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 13,
-                        minute: 15,
-                        offset: 0
+                    "end": 1289567700000,
+                    "wake": {
+                        "string": '"2010-11-12 13:15+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 13,
+                        "minute": 15,
+                        "offset": 0
                     },
                     //"sleep timestamp": 1289574960000,
-                    sleep: {
-                        string: '"2010-11-12 15:16+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 15,
-                        minute: 16,
-                        offset: 0
+                    "sleep": {
+                        "string": '"2010-11-12 15:16+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 15,
+                        "minute": 16,
+                        "offset": 0
                     },
-                    start: 1289582280000,
-                    bedtime: {
-                        string: '"2010-11-12 17:18+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 17,
-                        minute: 18,
-                        offset: 0
+                    "start": 1289582280000,
+                    "bedtime": {
+                        "string": '"2010-11-12 17:18+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 17,
+                        "minute": 18,
+                        "offset": 0
                     },
-                    duration: -7260000,
-                    holes: [],
-                    type: 'NIGHT_SLEEP',
-                    dreams: [],
-                    aids: [ "CUSTOM_0001" ],
-                    hindrances: [ "CUSTOM_0001" ],
-                    tags: [ "CUSTOM_0001" ],
-                    quality: 5,
-                    notes: ''
+                    "duration": -7260000,
+                    "holes": [],
+                    "type": 'NIGHT_SLEEP',
+                    "dreams": [],
+                    "aids": [ "CUSTOM_0001" ],
+                    "hindrances": [ "CUSTOM_0001" ],
+                    "tags": [ "CUSTOM_0001" ],
+                    "quality": 5,
+                    "notes": ''
                 },
                 {
-                    end: 1289567640000,
-                    wake: {
-                        string: '"2010-11-12 13:14+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 13,
-                        minute: 14,
-                        offset: 0
+                    "end": 1289567640000,
+                    "wake": {
+                        "string": '"2010-11-12 13:14+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 13,
+                        "minute": 14,
+                        "offset": 0
                     },
                     //"sleep timestamp": 1289574960000,
-                    sleep: {
-                        string: '"2010-11-12 15:16+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 15,
-                        minute: 16,
-                        offset: 0
+                    "sleep": {
+                        "string": '"2010-11-12 15:16+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 15,
+                        "minute": 16,
+                        "offset": 0
                     },
-                    start: 1289582280000,
-                    bedtime: {
-                        string: '"2010-11-12 17:18+0000"',
-                        year: 2010,
-                        month: 11,
-                        day: 12,
-                        hour: 17,
-                        minute: 18,
-                        offset: 0
+                    "start": 1289582280000,
+                    "bedtime": {
+                        "string": '"2010-11-12 17:18+0000"',
+                        "year": 2010,
+                        "month": 11,
+                        "day": 12,
+                        "hour": 17,
+                        "minute": 18,
+                        "offset": 0
                     },
-                    duration: -7320000,
-                    holes: [],
-                    type: 'NIGHT_SLEEP',
-                    dreams: [],
-                    aids: [ "CUSTOM_0002" ],
-                    hindrances: [ "CUSTOM_0002" ],
-                    tags: [ "CUSTOM_0002" ],
-                    quality: 5,
-                    notes: ''
+                    "duration": -7320000,
+                    "holes": [],
+                    "type": 'NIGHT_SLEEP',
+                    "dreams": [],
+                    "aids": [ "CUSTOM_0002" ],
+                    "hindrances": [ "CUSTOM_0002" ],
+                    "tags": [ "CUSTOM_0002" ],
+                    "quality": 5,
+                    "notes": ''
                 }
             ],
         },
@@ -1273,26 +1287,26 @@ describe("Sleepmeter format", () => {
         input: "custom_aid_id,class,name\nCUSTOM_0001,RELAXATION,\"value 1\"\n\ncustom_hindrance_id,class,name\nCUSTOM_0001,NOISE,\"value 2\"\n\ncustom_tag_id,name\nCUSTOM_0001,\"value 3\"\n\nwake,sleep,bedtime,holes,type,dreams,aid,hindrances,tags,quality,notes\n\"2010-11-12 17:18+0000\",\"2010-11-12 15:16+0000\",\"2010-11-12 13:14+0000\",,NIGHT_SLEEP,NONE,CUSTOM_0001,CUSTOM_0001,CUSTOM_0001,5,\"\"\n",
         expected: [
             {
-                status: 'in bed',
-                start: 1289567640000,
-                end: 1289574960000,
-                start_timezone: 'Etc/GMT',
-                  end_timezone: 'Etc/GMT',
-                duration: 7320000,
-                start_of_new_day: false,
-                day_number: 0,
+                "status": 'in bed',
+                "start": 1289567640000,
+                "end": 1289574960000,
+                "start_timezone": 'Etc/GMT',
+                  "end_timezone": 'Etc/GMT',
+                "duration": 7320000,
+                "start_of_new_day": false,
+                "day_number": 0,
             },
             {
-                status: 'asleep',
-                start: 1289574960000,
-                end  : 1289582280000,
-                start_timezone: 'Etc/GMT',
-                  end_timezone: 'Etc/GMT',
-                tags: [ 'value 1', 'value 2', 'value 3' ],
-                is_primary_sleep: true,
-                duration: 7320000,
-                start_of_new_day: true,
-                day_number: 2,
+                "status": 'asleep',
+                "start": 1289574960000,
+                "end"  : 1289582280000,
+                "start_timezone": 'Etc/GMT',
+                  "end_timezone": 'Etc/GMT',
+                "tags": [ 'value 1', 'value 2', 'value 3' ],
+                "is_primary_sleep": true,
+                "duration": 7320000,
+                "start_of_new_day": true,
+                "day_number": 2,
             },
         ],
     });
@@ -1309,23 +1323,23 @@ describe("Sleepmeter format", () => {
         format: 'Sleepmeter',
         input: [
             {
-                status: 'asleep',
-                start: 1289574960000,
-                end  : 1289567700000,
-                tags: [ 'SOUND_MACHINE', 'BUNKMATE_SNORING', 'OUT_OF_TOWN' ],
-                comments: [],
-                is_primary_sleep: true,
-                duration: -7260000,
-                start_of_new_day: true,
-                day_number: 2,
+                "status": 'asleep',
+                "start": 1289574960000,
+                "end"  : 1289567700000,
+                "tags": [ 'SOUND_MACHINE', 'BUNKMATE_SNORING', 'OUT_OF_TOWN' ],
+                "comments": [],
+                "is_primary_sleep": true,
+                "duration": -7260000,
+                "start_of_new_day": true,
+                "day_number": 2,
             },
             {
-                status: 'in bed',
-                start: 1289582280000,
-                end: 1289574960000,
-                duration: -7320000,
-                start_of_new_day: false,
-                day_number: 2
+                "status": 'in bed',
+                "start": 1289582280000,
+                "end": 1289574960000,
+                "duration": -7320000,
+                "start_of_new_day": false,
+                "day_number": 2
             },
         ],
         expected:

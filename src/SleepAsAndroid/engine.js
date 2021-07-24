@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Andrew Sayers <andrew-github.com@pileofstuff.org>
+ * Copyright 2020 Andrew Sayers <sleepdiary@pileofstuff.org>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -303,19 +303,19 @@ class DiarySleepAsAndroid extends DiaryBase {
         }
 
         function parse_timestamp(timestamp,timezone) {
-            const date = DiaryBase["date"](timestamp,timezone);
+            const date = DiaryBase.date(timestamp,timezone);
             return {
                 "string": (
                     '"' +
-                        DiaryBase["zero_pad"]( date["day"]() ) +
+                        DiaryBase.zero_pad( date["day"]() ) +
                         '. ' +
-                        DiaryBase["zero_pad"]( date["month"]() ) +
+                        DiaryBase.zero_pad( date["month"]() ) +
                         '. ' +
                         date["year"]() +
                         ' ' +
                         date["hour"]() + // not padded
                         ':' +
-                        DiaryBase["zero_pad"]( date["minute"]() ) +
+                        DiaryBase.zero_pad( date["minute"]() ) +
                     '"'
                 ),
                 "year"     : date["year"](),
@@ -374,7 +374,7 @@ class DiarySleepAsAndroid extends DiaryBase {
 
         function parse_prefs_xml(xml) {
             let ret = {},
-                root = DiaryBase["parse_xml"](xml).documentElement,
+                root = DiaryBase.parse_xml(xml).documentElement,
                 longs   = Array.from(root.getElementsByTagName("long")),
                 ints    = Array.from(root.getElementsByTagName("int")),
                 bools   = Array.from(root.getElementsByTagName("boolean")),
@@ -469,10 +469,10 @@ class DiarySleepAsAndroid extends DiaryBase {
                 ;
 
                 function calc_date( date ) {
-                    return DiaryBase["date"](
-                        [ "year", "month", "day" ].map( v => DiaryBase["zero_pad"](date[v]) ).join('-') +
+                    return DiaryBase.date(
+                        [ "year", "month", "day" ].map( v => DiaryBase.zero_pad(date[v]) ).join('-') +
                         'T' +
-                        [ "hour", "minute" ].map( v => DiaryBase["zero_pad"](date[v]) ).join(':'),
+                        [ "hour", "minute" ].map( v => DiaryBase.zero_pad(date[v]) ).join(':'),
                         record["Tz"]
                     )["unixUtcMillis"]();
                 }
@@ -593,7 +593,7 @@ class DiarySleepAsAndroid extends DiaryBase {
                                      const hour   = Math.floor( cell["value"] *     24  );
                                      const minute = Math.floor( cell["value"] * (60*24) ) % 60;
                                      times.push({
-                                         "header_string": `${hour}:${DiaryBase["zero_pad"](minute)}`,
+                                         "header_string": `${hour}:${DiaryBase.zero_pad(minute)}`,
                                          "hours"        : hour,
                                          "minutes"      : minute,
                                          "actigraphy"   : null,
@@ -856,18 +856,18 @@ class DiarySleepAsAndroid extends DiaryBase {
                                     `"${record["Tz"]}"`,
                                 ],
                                 [ "start", "end", "alarm" ].map( h => {
-                                    let date = DiaryBase["date"](record[h],record["Tz"]);
+                                    let date = DiaryBase.date(record[h],record["Tz"]);
                                     return (
                                         '"' +
-                                            DiaryBase["zero_pad"]( date["day"]() ) +
+                                            DiaryBase.zero_pad( date["day"]() ) +
                                             '. ' +
-                                            DiaryBase["zero_pad"]( date["month"]() ) +
+                                            DiaryBase.zero_pad( date["month"]() ) +
                                             '. ' +
                                             date["year"]() +
                                             ' ' +
                                             date["hour"]() + // not padded
                                             ':' +
-                                            DiaryBase["zero_pad"]( date["minute"]() ) +
+                                            DiaryBase.zero_pad( date["minute"]() ) +
                                             '"'
                                     );
                                 }),
@@ -1011,7 +1011,7 @@ class DiarySleepAsAndroid extends DiaryBase {
                                     record["times" ].map( time => ( time["hours"]*60 + time["minutes"] ) / (60*24) ),
                                     record["events"].map( event => "Event"              ),
                                 )
-                                .map( c => Spreadsheet["create_cell"](c,"#FFEEEEEE,#FFEEEEEE") )
+                                .map( c => Spreadsheet.create_cell(c,"#FFEEEEEE,#FFEEEEEE") )
                         );
 
                         // line 2:
@@ -1040,7 +1040,7 @@ class DiarySleepAsAndroid extends DiaryBase {
                                     record["times" ].map( time => time["actigraphy"] ),
                                     record["events"].map( event => `${event["label"]}-${event["timestamp"]}${event.hasOwnProperty("value")?'-'+event["value"]:''}` ),
                                 )
-                                .map( c => Spreadsheet["create_cell"](c) )
+                                .map( c => Spreadsheet.create_cell(c) )
                         );
 
                         // line 3:
@@ -1050,7 +1050,7 @@ class DiarySleepAsAndroid extends DiaryBase {
                                     Array(13).fill(''),
                                     record["times"].map( time => time["noise"] )
                                 )
-                                    .map( c => Spreadsheet["create_cell"](c) )
+                                    .map( c => Spreadsheet.create_cell(c) )
                             );
                         }
 
@@ -1075,7 +1075,7 @@ class DiarySleepAsAndroid extends DiaryBase {
                 const cells = sheet["cells"];
                 cells.splice(1);
 
-                this["alarms"].forEach( alarm => cells.push([ Spreadsheet["create_cell"](JSON.stringify(alarm)) ]) );
+                this["alarms"].forEach( alarm => cells.push([ Spreadsheet.create_cell(JSON.stringify(alarm)) ]) );
                 if ( added ) spreadsheet["sheets"].push(sheet);
 
             }
@@ -1091,7 +1091,7 @@ class DiarySleepAsAndroid extends DiaryBase {
                 const sheet = added_sheet[1];
                 const cells = sheet["cells"];
                 cells.splice(1);
-                cells.push([ Spreadsheet["create_cell"](JSON.stringify(this["prefs"])) ]);
+                cells.push([ Spreadsheet.create_cell(JSON.stringify(this["prefs"])) ]);
                 if ( added ) spreadsheet["sheets"].push(sheet);
 
             }
@@ -1111,10 +1111,10 @@ class DiarySleepAsAndroid extends DiaryBase {
         other = other["to"](this["file_format"]());
 
         this["records"] = this["records"].concat(
-            DiaryBase["unique"](
+            DiaryBase.unique(
                 this["records"],
                 other["records"],
-                record => record["Id"]
+                ["Id"]
             )
         );
 
@@ -1130,6 +1130,7 @@ class DiarySleepAsAndroid extends DiaryBase {
             "url": "/src/SleepAsAndroid",
             "statuses": [ "asleep" ],
             "extension": ".zip",
+            "logo": "https://docs.sleep.urbandroid.org/assets/images/logo.png",
         }
     }
 

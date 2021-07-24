@@ -1,9 +1,10 @@
 register_roundtrip_modifier("SleepAsAndroid",function(our_diary,roundtripped_diary,other_format) {
     switch ( other_format.name ) {
+    case "ActivityLog":
     case "SleepChart1":
     case "PleesTracker":
         [our_diary,roundtripped_diary].forEach(function(diary) {
-            diary.records.forEach( function(record) {
+            diary["records"].forEach( function(record) {
                 /*
                  * Sleep As Android requires exactly one string comment.
                  * PleesTracker does not support comments.
@@ -18,7 +19,7 @@ register_roundtrip_modifier("SleepAsAndroid",function(our_diary,roundtripped_dia
     case "SpreadsheetTable":
     case "Sleepmeter":
         [our_diary,roundtripped_diary].forEach(function(diary) {
-            diary.records.forEach( function(record) {
+            diary["records"].forEach( function(record) {
                 /*
                  * Sleep As Android requires timezones.
                  * These formats do not support timezones.
@@ -59,10 +60,10 @@ describe("SleepAsAndroid format", () => {
             "</map>\n"
     );
     var prefs_xml_expected = {
-        bool_value: false,
-        string_value: "my_string",
-        long_value: Math.pow(2,31),
-        int_value: 0,
+        "bool_value": false,
+        "string_value": "my_string",
+        "long_value": Math.pow(2,31),
+        "int_value": 0,
     };
 
 
@@ -72,9 +73,9 @@ describe("SleepAsAndroid format", () => {
         input: empty_diary,
         spreadsheetify: 'disable',
         expected: {
-            prefs: {},
-            alarms: [],
-            records: [],
+            "prefs": {},
+            "alarms": [],
+            "records": [],
         }
     });
 
@@ -86,55 +87,55 @@ describe("SleepAsAndroid format", () => {
             '"1044072300000","Europe/London","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
         ,
         expected: {
-            alarms: [],
-            prefs: {},
-            records: [
+            "alarms": [],
+            "prefs": {},
+            "records": [
                 {
 
-                    start: 1044072300000,
-                    end: 1044075961200,
-                    alarm: 1044079620000,
-                    duration: 3661200,
+                    "start": 1044072300000,
+                    "end": 1044075961200,
+                    "alarm": 1044079620000,
+                    "duration": 3661200,
 
-                    Id: '1044072300000',
-                    Tz: 'Europe/London',
-                    From: {
-                        string: '"01. 02. 2003 4:05"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 4,
-                        minute: 5
+                    "Id": '1044072300000',
+                    "Tz": 'Europe/London',
+                    "From": {
+                        "string": '"01. 02. 2003 4:05"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 4,
+                        "minute": 5
                     },
-                    To: {
-                        string: '"01. 02. 2003 5:06"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 5,
-                        minute: 6
+                    "To": {
+                        "string": '"01. 02. 2003 5:06"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 5,
+                        "minute": 6
                     },
-                    Sched: {
-                        string: '"01. 02. 2003 6:07"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 6,
-                        minute: 7
+                    "Sched": {
+                        "string": '"01. 02. 2003 6:07"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 6,
+                        "minute": 7
                     },
 
-                    Hours: 1.017,
-                    Rating: 0,
-                    Comment: { string: 'Comment text', tags: [], notags: 'Comment text' },
-                    Framerate: '10000',
-                    Snore: null,
-                    Noise: null,
-                    Cycles: null,
-                    DeepSleep: null,
-                    LenAdjust: 0,
-                    Geo: '',
-                    times: [],
-                    events: []
+                    "Hours": 1.017,
+                    "Rating": 0,
+                    "Comment": { "string": 'Comment text', "tags": [], "notags": 'Comment text' },
+                    "Framerate": '10000',
+                    "Snore": null,
+                    "Noise": null,
+                    "Cycles": null,
+                    "DeepSleep": null,
+                    "LenAdjust": 0,
+                    "Geo": '',
+                    "times": [],
+                    "events": []
 
                 }
             ],
@@ -153,55 +154,55 @@ describe("SleepAsAndroid format", () => {
             ,
         }),
         expected: {
-            alarms: alarms_json_expected,
-            prefs: prefs_xml_expected,
-            records: [
+            "alarms": alarms_json_expected,
+            "prefs": prefs_xml_expected,
+            "records": [
                 {
 
-                    start: 1044072300000,
-                    end: 1044075961200,
-                    alarm: 1044079620000,
-                    duration: 3661200,
+                    "start": 1044072300000,
+                    "end": 1044075961200,
+                    "alarm": 1044079620000,
+                    "duration": 3661200,
 
-                    Id: '1044072300000',
-                    Tz: 'Europe/London',
-                    From: {
-                        string: '"01. 02. 2003 4:05"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 4,
-                        minute: 5
+                    "Id": '1044072300000',
+                    "Tz": 'Europe/London',
+                    "From": {
+                        "string": '"01. 02. 2003 4:05"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 4,
+                        "minute": 5
                     },
-                    To: {
-                        string: '"01. 02. 2003 5:06"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 5,
-                        minute: 6
+                    "To": {
+                        "string": '"01. 02. 2003 5:06"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 5,
+                        "minute": 6
                     },
-                    Sched: {
-                        string: '"01. 02. 2003 6:07"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 6,
-                        minute: 7
+                    "Sched": {
+                        "string": '"01. 02. 2003 6:07"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 6,
+                        "minute": 7
                     },
 
-                    Hours: 1.017,
-                    Rating: 0,
-                    Comment: { string: 'Comment text', tags: [], notags: 'Comment text' },
-                    Framerate: '10000',
-                    Snore: null,
-                    Noise: null,
-                    Cycles: null,
-                    DeepSleep: null,
-                    LenAdjust: 0,
-                    Geo: '',
-                    times: [],
-                    events: []
+                    "Hours": 1.017,
+                    "Rating": 0,
+                    "Comment": { "string": 'Comment text', "tags": [], "notags": 'Comment text' },
+                    "Framerate": '10000',
+                    "Snore": null,
+                    "Noise": null,
+                    "Cycles": null,
+                    "DeepSleep": null,
+                    "LenAdjust": 0,
+                    "Geo": '',
+                    "times": [],
+                    "events": []
 
                 }
             ],
@@ -216,55 +217,55 @@ describe("SleepAsAndroid format", () => {
             '"1044072300000","Europe/London","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0.0","""Comment \\n ""text","10000","-1","-1.0","-1","-1.0","0",""\n'
         ,
         expected: {
-            alarms: [],
-            prefs: {},
-            records: [
+            "alarms": [],
+            "prefs": {},
+            "records": [
                 {
 
-                    start: 1044072300000,
-                    end: 1044075961200,
-                    alarm: 1044079620000,
-                    duration: 3661200,
+                    "start": 1044072300000,
+                    "end": 1044075961200,
+                    "alarm": 1044079620000,
+                    "duration": 3661200,
 
-                    Id: '1044072300000',
-                    Tz: 'Europe/London',
-                    From: {
-                        string: '"01. 02. 2003 4:05"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 4,
-                        minute: 5
+                    "Id": '1044072300000',
+                    "Tz": 'Europe/London',
+                    "From": {
+                        "string": '"01. 02. 2003 4:05"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 4,
+                        "minute": 5
                     },
-                    To: {
-                        string: '"01. 02. 2003 5:06"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 5,
-                        minute: 6
+                    "To": {
+                        "string": '"01. 02. 2003 5:06"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 5,
+                        "minute": 6
                     },
-                    Sched: {
-                        string: '"01. 02. 2003 6:07"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 6,
-                        minute: 7
+                    "Sched": {
+                        "string": '"01. 02. 2003 6:07"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 6,
+                        "minute": 7
                     },
 
-                    Hours: 1.017,
-                    Rating: 0,
-                    Comment: { string: "\"Comment\n\"text", tags: [], notags: "\"Comment\n\"text" },
-                    Framerate: '10000',
-                    Snore: null,
-                    Noise: null,
-                    Cycles: null,
-                    DeepSleep: null,
-                    LenAdjust: 0,
-                    Geo: '',
-                    times: [],
-                    events: []
+                    "Hours": 1.017,
+                    "Rating": 0,
+                    "Comment": { "string": "\"Comment\n\"text", "tags": [], "notags": "\"Comment\n\"text" },
+                    "Framerate": '10000',
+                    "Snore": null,
+                    "Noise": null,
+                    "Cycles": null,
+                    "DeepSleep": null,
+                    "LenAdjust": 0,
+                    "Geo": '',
+                    "times": [],
+                    "events": []
 
                 }
             ],
@@ -302,16 +303,16 @@ describe("SleepAsAndroid format", () => {
         ,
         expected: [
             {
-                status: 'asleep',
-                start: 1044072300000,
-                  end: 1044075961200,
-                start_timezone: "Europe/London",
-                  end_timezone: "Europe/London",
-                comments: [ '"Comment\n"text' ],
-                duration: 3661200,
-                start_of_new_day: true,
-                day_number: 2,
-                is_primary_sleep: true
+                "status": 'asleep',
+                "start": 1044072300000,
+                  "end": 1044075961200,
+                "start_timezone": "Europe/London",
+                  "end_timezone": "Europe/London",
+                "comments": [ '"Comment\n"text' ],
+                "duration": 3661200,
+                "start_of_new_day": true,
+                "day_number": 2,
+                "is_primary_sleep": true
             }
         ],
     });
@@ -321,14 +322,14 @@ describe("SleepAsAndroid format", () => {
         format: "SleepAsAndroid",
         input: [
             {
-                status: 'asleep',
-                start: 1044072300000,
-                end: 1044075961200,
-                comments: [ '"Comment\n"text' ],
-                duration: 3661200,
-                start_of_new_day: true,
-                day_number: 1,
-                is_primary_sleep: true
+                "status": 'asleep',
+                "start": 1044072300000,
+                "end": 1044075961200,
+                "comments": [ '"Comment\n"text' ],
+                "duration": 3661200,
+                "start_of_new_day": true,
+                "day_number": 1,
+                "is_primary_sleep": true
             }
         ],
         expected:
@@ -342,9 +343,9 @@ describe("SleepAsAndroid format", () => {
         left: empty_diary,
         right: empty_diary,
         expected: {
-            prefs: {},
-            alarms: [],
-            records: [],
+            "prefs": {},
+            "alarms": [],
+            "records": [],
         },
     });
 
@@ -355,56 +356,56 @@ describe("SleepAsAndroid format", () => {
         '"1044072300000","Europe/London","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
         ,
         expected: {
-            prefs: {},
-            alarms: [],
-            records: [
+            "prefs": {},
+            "alarms": [],
+            "records": [
                 {
-                    Id: '1044072300000',
-                    Tz: 'Europe/London',
-                    From: {
-                        string: '"01. 02. 2003 4:05"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 4,
-                        minute: 5
+                    "Id": '1044072300000',
+                    "Tz": 'Europe/London',
+                    "From": {
+                        "string": '"01. 02. 2003 4:05"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 4,
+                        "minute": 5
                     },
-                    To: {
-                        string: '"01. 02. 2003 5:06"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 5,
-                        minute: 6
+                    "To": {
+                        "string": '"01. 02. 2003 5:06"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 5,
+                        "minute": 6
                     },
-                    Sched: {
-                        string: '"01. 02. 2003 6:07"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 6,
-                        minute: 7
+                    "Sched": {
+                        "string": '"01. 02. 2003 6:07"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 6,
+                        "minute": 7
                     },
-                    Hours: 1.017,
-                    Rating: 0,
-                    Comment: {
-                        string: 'Comment text',
-                        tags: [],
-                        notags: 'Comment text'
+                    "Hours": 1.017,
+                    "Rating": 0,
+                    "Comment": {
+                        "string": 'Comment text',
+                        "tags": [],
+                        "notags": 'Comment text'
                     },
-                    Framerate: '10000',
-                    Snore: null,
-                    Noise: null,
-                    Cycles: null,
-                    DeepSleep: null,
-                    LenAdjust: 0,
-                    Geo: '',
-                    times: [],
-                    events: [],
-                    start: 1044072300000,
-                    end: 1044075961200,
-                    duration: 3661200,
-                    alarm: 1044079620000
+                    "Framerate": '10000',
+                    "Snore": null,
+                    "Noise": null,
+                    "Cycles": null,
+                    "DeepSleep": null,
+                    "LenAdjust": 0,
+                    "Geo": '',
+                    "times": [],
+                    "events": [],
+                    "start": 1044072300000,
+                    "end": 1044075961200,
+                    "duration": 3661200,
+                    "alarm": 1044079620000
                 }
             ],
         },
@@ -417,56 +418,56 @@ describe("SleepAsAndroid format", () => {
         ,
         right: empty_diary,
         expected: {
-            prefs: {},
-            alarms: [],
-            records: [
+            "prefs": {},
+            "alarms": [],
+            "records": [
                 {
-                    Id: '1044072300000',
-                    Tz: 'Europe/London',
-                    From: {
-                        string: '"01. 02. 2003 4:05"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 4,
-                        minute: 5
+                    "Id": '1044072300000',
+                    "Tz": 'Europe/London',
+                    "From": {
+                        "string": '"01. 02. 2003 4:05"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 4,
+                        "minute": 5
                     },
-                    To: {
-                        string: '"01. 02. 2003 5:06"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 5,
-                        minute: 6
+                    "To": {
+                        "string": '"01. 02. 2003 5:06"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 5,
+                        "minute": 6
                     },
-                    Sched: {
-                        string: '"01. 02. 2003 6:07"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 6,
-                        minute: 7
+                    "Sched": {
+                        "string": '"01. 02. 2003 6:07"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 6,
+                        "minute": 7
                     },
-                    Hours: 1.017,
-                    Rating: 0,
-                    Comment: {
-                        string: 'Comment text',
-                        tags: [],
-                        notags: 'Comment text'
+                    "Hours": 1.017,
+                    "Rating": 0,
+                    "Comment": {
+                        "string": 'Comment text',
+                        "tags": [],
+                        "notags": 'Comment text'
                     },
-                    Framerate: '10000',
-                    Snore: null,
-                    Noise: null,
-                    Cycles: null,
-                    DeepSleep: null,
-                    LenAdjust: 0,
-                    Geo: '',
-                    times: [],
-                    events: [],
-                    start: 1044072300000,
-                    end: 1044075961200,
-                    duration: 3661200,
-                    alarm: 1044079620000
+                    "Framerate": '10000',
+                    "Snore": null,
+                    "Noise": null,
+                    "Cycles": null,
+                    "DeepSleep": null,
+                    "LenAdjust": 0,
+                    "Geo": '',
+                    "times": [],
+                    "events": [],
+                    "start": 1044072300000,
+                    "end": 1044075961200,
+                    "duration": 3661200,
+                    "alarm": 1044079620000
                 }
             ],
         },
@@ -482,56 +483,56 @@ describe("SleepAsAndroid format", () => {
         '"1044072300000","Europe/London","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
         ,
         expected: {
-            prefs: {},
-            alarms: [],
-            records: [
+            "prefs": {},
+            "alarms": [],
+            "records": [
                 {
-                    Id: '1044072300000',
-                    Tz: 'Europe/London',
-                    From: {
-                        string: '"01. 02. 2003 4:05"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 4,
-                        minute: 5
+                    "Id": '1044072300000',
+                    "Tz": 'Europe/London',
+                    "From": {
+                        "string": '"01. 02. 2003 4:05"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 4,
+                        "minute": 5
                     },
-                    To: {
-                        string: '"01. 02. 2003 5:06"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 5,
-                        minute: 6
+                    "To": {
+                        "string": '"01. 02. 2003 5:06"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 5,
+                        "minute": 6
                     },
-                    Sched: {
-                        string: '"01. 02. 2003 6:07"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 6,
-                        minute: 7
+                    "Sched": {
+                        "string": '"01. 02. 2003 6:07"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 6,
+                        "minute": 7
                     },
-                    Hours: 1.017,
-                    Rating: 0,
-                    Comment: {
-                        string: 'Comment text',
-                        tags: [],
-                        notags: 'Comment text'
+                    "Hours": 1.017,
+                    "Rating": 0,
+                    "Comment": {
+                        "string": 'Comment text',
+                        "tags": [],
+                        "notags": 'Comment text'
                     },
-                    Framerate: '10000',
-                    Snore: null,
-                    Noise: null,
-                    Cycles: null,
-                    DeepSleep: null,
-                    LenAdjust: 0,
-                    Geo: '',
-                    times: [],
-                    events: [],
-                    start: 1044072300000,
-                    end: 1044075961200,
-                    duration: 3661200,
-                    alarm: 1044079620000
+                    "Framerate": '10000',
+                    "Snore": null,
+                    "Noise": null,
+                    "Cycles": null,
+                    "DeepSleep": null,
+                    "LenAdjust": 0,
+                    "Geo": '',
+                    "times": [],
+                    "events": [],
+                    "start": 1044072300000,
+                    "end": 1044075961200,
+                    "duration": 3661200,
+                    "alarm": 1044079620000
                 }
             ],
         },
@@ -547,104 +548,104 @@ describe("SleepAsAndroid format", () => {
         '"1044072300000","Europe/London","01. 02. 2003 4:05","01. 02. 2003 5:06","01. 02. 2003 6:07","1.017","0.0","Comment text","10000","-1","-1.0","-1","-1.0","0",""\n'
         ,
         expected: {
-            prefs: {},
-            alarms: [],
-            records: [
+            "prefs": {},
+            "alarms": [],
+            "records": [
                 {
-                    Id: '123456788',
-                    Tz: 'Europe/London',
-                    From: {
-                        string: '"01. 02. 2003 4:05"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 4,
-                        minute: 5
+                    "Id": '123456788',
+                    "Tz": 'Europe/London',
+                    "From": {
+                        "string": '"01. 02. 2003 4:05"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 4,
+                        "minute": 5
                     },
-                    To: {
-                        string: '"01. 02. 2003 5:06"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 5,
-                        minute: 6
+                    "To": {
+                        "string": '"01. 02. 2003 5:06"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 5,
+                        "minute": 6
                     },
-                    Sched: {
-                        string: '"01. 02. 2003 6:07"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 6,
-                        minute: 7
+                    "Sched": {
+                        "string": '"01. 02. 2003 6:07"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 6,
+                        "minute": 7
                     },
-                    Hours: 1.017,
-                    Rating: 0,
-                    Comment: {
-                        string: 'Comment text',
-                        tags: [],
-                        notags: 'Comment text'
+                    "Hours": 1.017,
+                    "Rating": 0,
+                    "Comment": {
+                        "string": 'Comment text',
+                        "tags": [],
+                        "notags": 'Comment text'
                     },
-                    Framerate: '10000',
-                    Snore: null,
-                    Noise: null,
-                    Cycles: null,
-                    DeepSleep: null,
-                    LenAdjust: 0,
-                    Geo: '',
-                    times: [],
-                    events: [],
-                    start: 123456788,
-                    end: 127117988,
-                    duration: 3661200,
-                    alarm: 130800000
+                    "Framerate": '10000',
+                    "Snore": null,
+                    "Noise": null,
+                    "Cycles": null,
+                    "DeepSleep": null,
+                    "LenAdjust": 0,
+                    "Geo": '',
+                    "times": [],
+                    "events": [],
+                    "start": 123456788,
+                    "end": 127117988,
+                    "duration": 3661200,
+                    "alarm": 130800000
                 },
                 {
-                    Id: '1044072300000',
-                    Tz: 'Europe/London',
-                    From: {
-                        string: '"01. 02. 2003 4:05"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 4,
-                        minute: 5
+                    "Id": '1044072300000',
+                    "Tz": 'Europe/London',
+                    "From": {
+                        "string": '"01. 02. 2003 4:05"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 4,
+                        "minute": 5
                     },
-                    To: {
-                        string: '"01. 02. 2003 5:06"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 5,
-                        minute: 6
+                    "To": {
+                        "string": '"01. 02. 2003 5:06"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 5,
+                        "minute": 6
                     },
-                    Sched: {
-                        string: '"01. 02. 2003 6:07"',
-                        year: 2003,
-                        month: 2,
-                        day: 1,
-                        hour: 6,
-                        minute: 7
+                    "Sched": {
+                        "string": '"01. 02. 2003 6:07"',
+                        "year": 2003,
+                        "month": 2,
+                        "day": 1,
+                        "hour": 6,
+                        "minute": 7
                     },
-                    Hours: 1.017,
-                    Rating: 0,
-                    Comment: {
-                        string: 'Comment text',
-                        tags: [],
-                        notags: 'Comment text'
+                    "Hours": 1.017,
+                    "Rating": 0,
+                    "Comment": {
+                        "string": 'Comment text',
+                        "tags": [],
+                        "notags": 'Comment text'
                     },
-                    Framerate: '10000',
-                    Snore: null,
-                    Noise: null,
-                    Cycles: null,
-                    DeepSleep: null,
-                    LenAdjust: 0,
-                    Geo: '',
-                    times: [],
-                    events: [],
-                    start: 1044072300000,
-                    end: 1044075961200,
-                    duration: 3661200,
-                    alarm: 1044079620000
+                    "Framerate": '10000',
+                    "Snore": null,
+                    "Noise": null,
+                    "Cycles": null,
+                    "DeepSleep": null,
+                    "LenAdjust": 0,
+                    "Geo": '',
+                    "times": [],
+                    "events": [],
+                    "start": 1044072300000,
+                    "end": 1044075961200,
+                    "duration": 3661200,
+                    "alarm": 1044079620000
                 }
             ],
         },

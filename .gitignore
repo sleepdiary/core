@@ -3,13 +3,15 @@
 #
 
 # These files are sometimes useful during development, but should never be committed:
-/src/*/demo.html
 README.html
 
-# These files should only be committed to the gh-pages branch:
-#/doc/*.html
-#/doc/fonts
-#/doc/scripts
-#/doc/styles
-#/sleep-diary-formats.js
-#/test.js
+# These files should only be committed to the built branch:
+/doc/*.html
+/doc/fonts
+/doc/scripts
+/doc/styles
+/sleepdiary-library.js
+/sleepdiary-library.js.map
+/test.js
+/test.js.map
+/constants.js

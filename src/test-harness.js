@@ -1,27 +1,19 @@
-var sleep_diary_exports = (
-    ( typeof module !== "undefined" && module.exports )
-        ? require("./sleep-diary-formats.js")
-        : window
-);
-var sleep_diary_formats = sleep_diary_exports.sleep_diary_formats;
-var new_sleep_diary = sleep_diary_exports.new_sleep_diary;
-var Spreadsheet     = sleep_diary_exports.Spreadsheet;
-var serialiser      = ( sleep_diary_exports.DiaryLoader || {} ).serialiser;
+const serialiser = /** @type {Function} */(DiaryLoader["serialiser"]);
 
 var roundtrip_modifiers = {};
-function register_roundtrip_modifier(format,callback) {
-    if ( format == "Example" ) {
-        console.error("register_roundtrip_modifier() called with format == 'Example' - please set the format");
+function register_roundtrip_modifier(engine,callback) {
+    if ( engine == "Example" ) {
+        console.error("register_roundtrip_modifier() called with engine == 'Example' - please set the engine");
     } else {
-        roundtrip_modifiers[format] = callback;
+        roundtrip_modifiers[engine] = callback;
     }
 }
 
 function compare_diaries(observed,expected,debug) {
     var clone_observed = Object.assign({},observed);
     var clone_expected = Object.assign({},expected);
-    delete clone_observed.spreadsheet;
-    delete clone_expected.spreadsheet;
+    delete clone_observed["spreadsheet"];
+    delete clone_expected["spreadsheet"];
     Object.keys(clone_observed).forEach( function(key) {
         if ( clone_observed[key] == serialiser ) delete clone_observed[key];
     });
@@ -31,12 +23,17 @@ function compare_diaries(observed,expected,debug) {
     if ( debug ) {
         console.error("Observed and expected objects should be equal:\n",observed,expected);
     }
-    return expect(clone_observed).toEqual(clone_expected);
+    return expect(clone_observed)["toEqual"](clone_expected);
 }
 
+/**
+ * @param {Object} test
+ * @param {Function=} serialiser
+ */
 function test_constructor(test,serialiser) {
     var diary = null, error = false;
     var console_error = console.error;
+    system_timezone = "Etc/GMT";
     if ( test.quiet ) console.error = function() {};
     try {
         var input = test.input;
@@ -44,34 +41,43 @@ function test_constructor(test,serialiser) {
             input.contents = JSON.parse(JSON.stringify(input.contents));
         }
         if ( input && typeof(input) == "function" ) input = input();
-        if ( typeof(test.input) == "string" || test.input.file_format ) {
+        if ( typeof(test.input) == "string" || test.input["file_format"] ) {
             diary = new_sleep_diary(test.input,serialiser);
         } else {
             diary = new_sleep_diary({ "file_format": function() { return "archive" }, "contents": test.input },serialiser);
         }
     } catch (e) {
-        if ( !test.error ) console_error("Unexpected error constructing object:",e);
+        if ( !test.error ) console_error.call(console,"Unexpected error constructing object:",e);
         error = true;
     }
     if ( test.quiet ) console.error = console_error;
 
     it(`produces the correct error for "${test.name}"`, function() {
-        expect(error).toEqual(!!test.error);
+        expect(error)["toEqual"](!!test.error);
     });
 
     if ( !error ) {
         // if the following error occurs, you need to edit your ["extension"]() function:
         it(`produces an extension other than ".exm" for "${test.name}"`, function() {
-            expect(diary.format_info().extension).not.toEqual(".exm");
+            expect(diary["format_info"]().extension)["not"]["toEqual"](".exm");
         });
     }
     return error == !!test.error ? diary : null;
 }
 
+// disable all but the test(s) you care about:
+function test_is_runnable(test) {
+    //return test.name == 'my test';
+    //return test.debug;
+    return true;
+}
 
 function test_parse(test) {
 
-    if ( !test.name ) test.name = "format's 'parse' test";
+    if ( !test.name ) test.name = "engine's 'parse' test";
+
+    // disable all but the test you care about:
+    if ( !test_is_runnable(test) ) return;
 
     var debug = (
         test.debug
@@ -89,12 +95,12 @@ function test_parse(test) {
             compare_diaries(diary,test.expected,debug);
         });
 
-        it(`produces a file of the correct format for "${test.name||"format's 'parse' test"}"`, function() {
-            expect(diary.file_format()).toEqual(test.file_format);
+        it(`produces a file of the correct format for "${test.name||"engine's 'parse' test"}"`, function() {
+            expect(diary["file_format"]())["toEqual"](test.file_format);
         });
 
-        it(`URL-ifies "${test.name||"format's 'parse' test"}" correctly`, function() {
-            var url = diary.to("url");
+        it(`URL-ifies "${test.name||"engine's 'parse' test"}" correctly`, function() {
+            var url = diary["to"]("url");
             var observed = new_sleep_diary({
                 "file_format": "url",
                 "contents": url,
@@ -113,46 +119,47 @@ function test_parse(test) {
          * but formats shouldn't lose any more data than that.
          */
         var n = 0;
-        sleep_diary_formats.forEach( function(format) {
-            it(`converts "${test.name||"format's 'parse' test"}" to ${format.name} correctly`, function() {
+        sleepdiary_engines.forEach( function(engine) {
+            it(`converts "${test.name||"engine's 'parse' test"}" to ${engine.name} correctly in test_parse()`, function() {
                 return new Promise(function(resolve, reject) {
                     try {
-                        diary.to_async(format.name).then(
+                        diary["to_async"](engine.name).then(
                             function(formatted) {
                                 try {
-                                    formatted.to_async(diary.file_format()).then(
+                                    formatted["to_async"](diary["file_format"]()).then(
                                         function(roundtripped) {
-                                            var observed = Object.assign({},roundtripped.to("Standard"));
-                                            var expected = Object.assign({},diary       .to("Standard"));
+                                            var observed = Object.assign({},roundtripped["to"]("Standard"));
+                                            var expected = Object.assign({},diary       ["to"]("Standard"));
                                             if ( debug ) console.log({
+                                                "0. test and engine": [ test, engine ],
                                                 "1. original": diary,
-                                                "2. original to Standard": diary.to("Standard"),
+                                                "2. original to Standard": diary["to"]("Standard"),
                                                 "3. original to formatted": formatted,
-                                                "4. original to formatted to Standard": formatted.to("Standard"),
+                                                "4. original to formatted to Standard": formatted["to"]("Standard"),
                                                 "5. original to formatted and back again": roundtripped,
                                                 "6. observed": observed,
                                                 "7. expected": expected,
                                             });
                                             [observed,expected].forEach(
-                                                diary => diary.records = diary.records.map(
+                                                diary => diary["records"] = diary["records"].map(
                                                     record => Object.assign({},record)
                                                 )
                                             );
-                                            if ( roundtrip_modifiers[diary.file_format()] ) {
-                                                roundtrip_modifiers[diary.file_format()](expected,observed,format);
+                                            if ( roundtrip_modifiers[diary["file_format"]()] ) {
+                                                roundtrip_modifiers[diary["file_format"]()](expected,observed,engine);
                                             }
-                                            if ( formatted.format_info().statuses ) {
+                                            if ( formatted["format_info"]()["statuses"] ) {
                                                 var statuses = {};
-                                                formatted.format_info().statuses.forEach( s => statuses[s] = 1 );
-                                                var total_expected = expected.records.length;
-                                                expected.records = expected.records.filter(
+                                                formatted["format_info"]()["statuses"].forEach( s => statuses[s] = 1 );
+                                                var total_expected = expected["records"].length;
+                                                expected["records"] = expected["records"].filter(
                                                     r => statuses[r["status"]]
                                                 );
-                                                if ( total_expected != expected.records.length ) {
+                                                if ( total_expected != expected["records"].length ) {
                                                     [observed,expected].forEach(
-                                                        diary => diary.records = diary.records.map( r => {
+                                                        diary => diary["records"] = diary["records"].map( r => {
                                                             var ret = Object.assign( {}, r );
-                                                            delete ret.missing_record_after;
+                                                            delete ret["missing_record_after"];
                                                             return ret;
                                                         })
                                                     );
@@ -162,22 +169,22 @@ function test_parse(test) {
                                             resolve();
                                         },
                                         function(error) {
-                                            console.error("formatted.to_async() failed:",diary,formatted,error);
+                                            console.error(`formatted.to_async("${diary["file_format"]()}") failed:`,diary,formatted,error);
                                             reject(error);
                                         }
                                     );
                                 } catch (error) {
-                                    console.error("formatted.to_async() failed:",diary,formatted,error);
+                                    console.error(`formatted.to_async("${diary["file_format"]()}") failed:`,diary,formatted,error);
                                     reject(error);
                                 }
                             },
                             function(error) {
-                                console.error("diary.to_async() failed:",diary,error);
+                                console.error(`diary.to_async("${engine.name}") failed:`,diary,error);
                                 reject(error);
                             }
                         );
                     } catch (error) {
-                        console.error("diary.to_async() failed:",diary,error);
+                        console.error(`diary.to_async("${engine.name}") failed:`,diary,error);
                         reject(error);
                     }
                 });
@@ -187,14 +194,15 @@ function test_parse(test) {
         if ( typeof module === "undefined" || !module.exports ) {
 
             if ( output ) {
-                it(`outputs "${test.name||"format's 'parse' test"}" correctly`, function() {
+                it(`outputs "${test.name||"engine's 'parse' test"}" correctly`, function() {
                     return new Promise(function(resolve, reject) {
                         try {
-                            diary.to_async("output").then( function(output) {
+                            diary["to_async"]("output").then( function(output) {
                                 var diary_loader = new DiaryLoader(
                                     function(observed,source) {
                                         if ( debug ) {
                                             console.log({
+                                                "0. test": test,
                                                 "1. original": diary,
                                                 "2. observed": observed,
                                                 "3. source": source,
@@ -208,7 +216,7 @@ function test_parse(test) {
                                         reject(error);
                                     }
                                 );
-                                diary_loader.load( DiaryLoader.to_url(output) );
+                                diary_loader["load"]( DiaryLoader["to_url"](output) );
                             });
                         } catch (error) {
                             console.error("diary.to_async() failed:",diary,error);
@@ -219,7 +227,7 @@ function test_parse(test) {
             }
 
             if ( spreadsheetify ) {
-                it(`converts "${test.name||"format's 'parse' test"}" to spreadsheet correctly`, function() {
+                it(`spreadsheetifies "${test.name||"engine's 'parse' test"}" correctly`, function() {
                     var clone1 = Object.assign({},diary);
                     Object.keys(clone1)
                         .forEach( function(key) {
@@ -228,7 +236,7 @@ function test_parse(test) {
                     ;
                     return new Promise(function(resolve, reject) {
                         try {
-                            diary.to_async("spreadsheet")
+                            diary["to_async"]("spreadsheet")
                                 .then( function(raw) {
                                     return Spreadsheet.buffer_to_spreadsheet(raw).then(
                                         function(spreadsheet) {
@@ -248,7 +256,7 @@ function test_parse(test) {
                                                     reject(error);
                                                 }
                                             );
-                                            diary_loader.load( spreadsheet );
+                                            diary_loader["load"]( spreadsheet );
                                         })
                                 })
                         } catch (error) {
@@ -272,26 +280,28 @@ function test_from_standard(test) {
         // || true // enable debugging for all tests
     );
 
-    if ( !test.name ) test.name = "format's 'from standard' test";
+    if ( !test.name ) test.name = "engine's 'from standard' test";
+
+    if ( !test_is_runnable(test) ) return;
 
     var diary = test_constructor({
         name: test.name,
         input: {
             "file_format": function() { return "Standard" },
-            contents: {
-                file_format: "Standard",
-                records: test.input
+            "contents": {
+                "file_format": "Standard",
+                "records": test.input
             }
         }},serialiser);
     var expected_diary = test_constructor({ name: test.name, input: test.expected },serialiser);
 
     it(`initialises "${test.name}" from Standard format correctly`, function() {
 
-        expect( !!diary ).toEqual( true );
-        expect( !!expected_diary ).toEqual( true );
+        expect( !!diary )["toEqual"]( true );
+        expect( !!expected_diary )["toEqual"]( true );
 
         if ( diary && expected_diary ) {
-            compare_diaries(diary.to(test.format),expected_diary,debug);
+            compare_diaries(diary["to"](test.format),expected_diary,debug);
         }
 
     });
@@ -305,24 +315,26 @@ function test_to(test) {
         // || true // enable debugging for all tests
     );
 
-    if ( !test.name ) test.name = "format's 'to' test";
+    if ( !test.name ) test.name = "engine's 'to' test";
+
+    if ( !test_is_runnable(test) ) return;
 
     var diary = test_constructor(test);
 
     if ( diary ) {
-        it(`converts "${test.name}" to "${test.format}" correctly`, function() {
+        it(`converts "${test.name}" to "${test.format}" correctly in test_to`, function() {
             try {
-                return diary.to_async(test.format).then(
+                return diary["to_async"](test.format).then(
                     function(converted) {
                         var observed = (
                             ( test.format == "Standard" )
-                            ? converted.records
-                            : converted.contents
+                            ? converted["records"]
+                            : converted["contents"]
                         );
                         if ( debug ) {
                             console.error("Observed and expected objects should be equal:\n",observed,test.expected);
                         }
-                        return expect(observed).toEqual( test.expected )
+                        return expect(observed)["toEqual"]( test.expected )
                     });
             } catch (error) {
                 console.error("diary.to_async() failed:",diary,error);
@@ -335,16 +347,18 @@ function test_to(test) {
 
 function test_merge(test) {
 
-    if ( !test.name ) test.name = "format's 'merge' test";
+    if ( !test.name ) test.name = "engine's 'merge' test";
+
+    if ( !test_is_runnable(test) ) return;
 
     it(`merges "${test.name}" correctly`, function() {
         var clone = Object.assign(
             {},
             new_sleep_diary(test.left)
-                .merge(new_sleep_diary(test.right))
+                ["merge"](new_sleep_diary(test.right))
         );
-        delete clone.spreadsheet;
-        expect(clone).toEqual(test.expected);
+        delete clone["spreadsheet"];
+        expect(clone)["toEqual"](test.expected);
     });
 
 }

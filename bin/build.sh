@@ -2,7 +2,7 @@
 #
 # Build the documentation
 #
-# Called from .github/workflows/gh-pages
+# Called from .github/workflows
 
 set -v # verbose mode - print commands to stderr
 set -e # exit if any of the commands below return non-zero
@@ -13,9 +13,15 @@ set -e # exit if any of the commands below return non-zero
 
 if ! git rev-list HEAD..origin/main | grep -q .
 then
-    echo "'main' has already been merged into 'gh-pages' - stopping"
+    echo "'main' has already been merged - stopping"
     exit 0
 fi
+
+#
+# Merge changes from main
+#
+
+git merge --strategy-option=theirs --no-edit origin/main
 
 #
 # Initialise the build environment
@@ -30,26 +36,18 @@ ln -s . /tmp/libfaketime/lib
 ln -s src /tmp/libfaketime/faketime
 
 #
-# Merge changes from main
-#
-
-git merge --strategy-option=theirs --no-edit origin/main
-
-#
 # Run the build itself
 #
 
-make -B gh-pages
+make -B build
+
+#
+# Add/commit/push changes
+#
+
 git add .
-
-#
-# Commit/push changes
-#
-
 if git diff --quiet HEAD
-then
-    echo "No changes to commit"
-else
-    git commit -a -m "Update documentation"
+then echo "No changes to commit"
+else git commit -a -m "Build updates from main branch"
 fi
 git push

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Andrew Sayers <andrew-github.com@pileofstuff.org>
+ * Copyright 2020 Andrew Sayers <sleepdiary@pileofstuff.org>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -54,7 +54,7 @@ class DiarySpreadsheetGraph extends DiaryBase {
 
         super(file,serialiser);
 
-        const status_matches = DiaryBase["status_matches"]();
+        const status_matches = DiaryBase.status_matches();
 
         let records;
         let status_map = {};
@@ -85,7 +85,7 @@ class DiarySpreadsheetGraph extends DiaryBase {
                         },
                         {
                             "members": [ "comments" ],
-                            "export": (array_element,row,offset) => row[offset] = Spreadsheet["create_cell"]( array_element["comments"].join("; ") ),
+                            "export": (array_element,row,offset) => row[offset] = Spreadsheet.create_cell( array_element["comments"].join("; ") ),
                             "import": (array_element,row,offset) => array_element["comments"] = row[offset]["value"].split(/\s*;\s*/),
                         },
                     ],
@@ -109,10 +109,10 @@ class DiarySpreadsheetGraph extends DiaryBase {
             };
 
             const first_row = cells[0].map(
-                value => Spreadsheet["parse_timestamp"](value,file["spreadsheet"])
+                value => Spreadsheet.parse_timestamp(value,file["spreadsheet"])
             );
             const first_col = cells.map(
-                value => Spreadsheet["parse_timestamp"](value[0],file["spreadsheet"])
+                value => Spreadsheet.parse_timestamp(value[0],file["spreadsheet"])
             );
 
             let first_styled_col = Infinity,
@@ -501,7 +501,7 @@ class DiarySpreadsheetGraph extends DiaryBase {
             let max_day = 0;
             records.forEach( r => {
                 min_day = Math.min( min_day, r["start"] );
-                max_day = Math.max( max_day, r["start"] );
+                max_day = Math.max( max_day, r["end"  ]||(r["start"]+1) );
             });
 
             if ( min_day == Infinity ) min_day = max_day;
@@ -509,19 +509,22 @@ class DiarySpreadsheetGraph extends DiaryBase {
             min_day -= min_day % twenty_four_hours;
             max_day -= max_day % twenty_four_hours;
 
-            const cells = [ [Spreadsheet["create_cell"]()] ];
-            let number_formats = [ "YYYY-MM-DD" ];
-            let widths = [ 11.5 ];
+            const cells = [ [Spreadsheet.create_cell()] ];
+            let number_formats = [ "YYYY-MM-DD" ],
+                widths = [ 11 ],
+                styles = [ { "font": { "size": 10 } } ]
+            ;
 
             // Add headers
             for ( let n=0; n!=twenty_four_hours; n += cell_duration ) {
-                cells[0].push( Spreadsheet["create_cell"](new Date(n),"#FFEEEEEE,#FFEEEEEE") )
+                cells[0].push( Spreadsheet.create_cell(n/twenty_four_hours,"#FFEEEEEE,#FFEEEEEE") )
                 number_formats.push("H:MM");
-                widths.push(5.9);
+                widths.push(5);
+                styles.push( { "font": { "size": 10 } } );
 
             };
             for ( let n=min_day; n<=max_day; n += twenty_four_hours ) {
-                cells.push( [Spreadsheet["create_cell"](new Date(n),"#FFEEEEEE,#FFEEEEEE")] )
+                cells.push( [Spreadsheet.create_cell(new Date(n),"#FFEEEEEE,#FFEEEEEE")] )
             };
 
             // Add body:
@@ -536,13 +539,13 @@ class DiarySpreadsheetGraph extends DiaryBase {
                 const comments = (r["comments"]||[]).slice(0);
                 const comments_per_cell = Math.ceil( comments.length / cell_count );
 
-                for ( let n = start; n < end; n += cell_duration ) {
+                for ( let n = start; n < Math.max(end,start+1); n += cell_duration ) {
                     const time = n % twenty_four_hours;
                     const date = n - time;
                     cells
                         [ ( date - min_day ) / twenty_four_hours + 1 ]
                         [ Math.floor( time / cell_duration ) + 1 ]
-                        = Spreadsheet["create_cell"](
+                        = Spreadsheet.create_cell(
                             comments.splice( 0, comments_per_cell ).join("; "),
                             style
                         );
@@ -565,8 +568,8 @@ class DiarySpreadsheetGraph extends DiaryBase {
                 .sort( (a,b) => b[0] - a[0] )
                 .forEach( (item,n) => {
                     let row = cells[ n + 1 ] = cells[ n + 1 ] || [];
-                    row[ cells[0].length + 2 ] = Spreadsheet["create_cell"](undefined,item[1]);
-                    row[ cells[0].length + 3 ] = Spreadsheet["create_cell"](item[2]);
+                    row[ cells[0].length + 2 ] = Spreadsheet.create_cell(undefined,item[1]);
+                    row[ cells[0].length + 3 ] = Spreadsheet.create_cell(item[2]);
                 });
 
             this["spreadsheet"]["sheets"][0] = {
@@ -574,6 +577,16 @@ class DiarySpreadsheetGraph extends DiaryBase {
                 "number_formats": number_formats,
                 "cells": cells,
                 "widths": widths,
+                "styles": styles,
+                "options": {
+                    "properties" : {
+                        "defaultRowHeight": 12.5,
+                    },
+                    "pageSetup" : {
+                        "paperSize" : 9, // A4
+                        "orientation" : "landscape",
+                    },
+                }
             };
 
             return this["spreadsheet"]["serialise"]().then(
@@ -630,6 +643,7 @@ class DiarySpreadsheetGraph extends DiaryBase {
             "title": "Spreadsheet Graph",
             "url": "/src/SpreadsheetGraph",
             "extension": ".xlsx",
+            "icon": "mdi-file-excel-outline"
         }
     }
 

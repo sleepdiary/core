@@ -2,21 +2,50 @@ const puppeteer = require("puppeteer");
 
 (async () => {
 
-    process.stdout.write("Running tests in headless " + (process.env.PUPPETEER_PRODUCT||"chrome") + "... ");
+    process.stderr.write("Running tests in headless " + (process.env.PUPPETEER_PRODUCT||"chrome"));
 
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.setDefaultNavigationTimeout(60000);
-    await page.goto("file:///app/browser_test.html");
+    for ( let n=0; n!=3; ++n ) {
 
-    await page.waitForFunction("jsApiReporter.finished");
+        try {
 
-    var status = await page.evaluate( () => jsApiReporter.runDetails.overallStatus );
+            const browser = await puppeteer.launch();
+            process.stderr.write('.');
 
-    await browser.close();
+            const page = await browser.newPage();
+            process.stderr.write('.');
 
-    console.log( status );
+            await page.goto("file:///app/browser_test.html");
+            process.stderr.write('. ');
 
-    process.exit( ( status == "passed" ) ? 0 : 2 );
+            await page.waitForFunction("(jsApiReporter||{}).finished")
+                .then(
+                    async () => {
+
+                        var status = await page.evaluate( () => jsApiReporter.runDetails.overallStatus );
+
+                        await browser.close();
+
+                        console.log( status );
+
+                        process.exit( ( status == "passed" ) ? 0 : 2 );
+
+                    },
+
+                    () => {
+
+                        console.error( "Could not run - test suite failed to load"  );
+                        process.exit( 3 );
+
+                    }
+                );
+
+        } catch (e) {
+            process.stderr.write(e);
+        }
+
+    }
+
+    console.error( "Could not run - Chromium failed to load"  );
+    process.exit( 3 );
 
 })();

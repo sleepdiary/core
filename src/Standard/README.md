@@ -12,7 +12,6 @@ Data is stored in a JavaScript object.  It can be serialised to and from JSON.
 
 This record indicates the minimum expected day duration in milliseconds.  By default, day numbers are calculated by looking for "asleep" events at least this far apart.
 
-
 ## `maximum_day_duration`
 
 This record indicates the maximum expected day duration in milliseconds.  By default, missing records are detected by looking for "asleep" events at most this far apart.
@@ -27,7 +26,7 @@ Unix time in milliseconds when the record started.
 
 ### `start_timezone`
 
-User's timezone at the time referred to by the `start` record (or `undefined` if unknown).  Should be a string from the [tz database](https://en.wikipedia.org/wiki/Tz_database) - either a locale-related timezone like `Europe/London`, or a timezone of the form `Etc/GMT[+-]N`.
+User's timezone at the time referred to by the `start` record (or `undefined` if unknown).  Should be a string from the [tz database](https://en.wikipedia.org/wiki/Tz_database) - e.g. `Europe/London` or `Etc/GMT+1`.
 
 ### `end`
 
@@ -35,7 +34,7 @@ Unix time in milliseconds before which the record ended.
 
 ### `end_timezone`
 
-User's timezone at the time referred to by the `end` record (or `undefined` if unknown).  Should be a string from the [tz database](https://en.wikipedia.org/wiki/Tz_database) - either a locale-related timezone like `Europe/London`, or a timezone of the form `Etc/GMT[+-]N`.
+User's timezone at the time referred to by the `end` record (or `undefined` if unknown).  Should be a string from the [tz database](https://en.wikipedia.org/wiki/Tz_database) - e.g. `Europe/London` or `Etc/GMT+1`.
 
 ### `duration`
 
@@ -43,7 +42,7 @@ Duration of the record in milliseconds.  This is normally equal to `end - start`
 
 ### `status`
 
-Status associated with the record (usually `awake` or `asleep`).  See `DiaryStandardRecordStatus` in [format.js](format.js) for the complete list.
+Status associated with the record (usually `awake` or `asleep`).  See `DiaryStandardRecordStatus` in [engine.js](engine.js) for the complete list.
 
 ### `tags`
 
@@ -79,5 +78,5 @@ Most formats do not detect this automatically, so this value is usually inferred
 
 You may find the following useful:
 
-* [JavaScript example code](format.js)
+* [JavaScript example code](engine.js)
 * [Test cases](test.js)

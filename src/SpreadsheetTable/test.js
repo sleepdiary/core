@@ -1,14 +1,33 @@
+register_roundtrip_modifier("SpreadsheetTable",function(our_diary,roundtripped_diary,other_format) {
+    switch ( other_format.name ) {
+    case "ActivityLog":
+    case "SleepChart1":
+    case "PleesTracker":
+        [our_diary,roundtripped_diary].forEach(function(diary) {
+            diary["records"].forEach( function(record) {
+                /*
+                 * Sleep As Android requires exactly one string comment.
+                 * PleesTracker does not support comments.
+                 * Therefore, roundtripping necessarily breaks comments.
+                 */
+                ["comments"].forEach(function(key) {
+                    delete record[key];
+                });
+            });
+        });
+    }
+});
 describe("SpreadsheetTable format", () => {
 
     var empty_diary = "start,end\n";
-    var empty_member_map = { start: [ "start", 0 ], end: [ "end", 1 ] };
+    var empty_member_map = { "start": [ "start", 0 ], "end": [ "end", 1 ] };
 
     var non_empty_diary = "SleepStart,SleepEnd,sTaTe,comments,NOTES\n123456789,123456789,slept\n2020-01-01 01:01-0100,2020-02-02 02:02+0200,awoke,comment 1,comment 2\n";
     var non_empty_member_map = {
-        start: [ "SleepStart", 0 ],
-        end: [ "SleepEnd", 1 ],
-        status: [ "sTaTe", 2 ],
-        comments: [ "comments", 3, [ "comments", "NOTES" ] ]
+        "start": [ "SleepStart", 0 ],
+        "end": [ "SleepEnd", 1 ],
+        "status": [ "sTaTe", 2 ],
+        "comments": [ "comments", 3, [ "comments", "NOTES" ] ]
     };
 
     test_parse({
@@ -16,8 +35,8 @@ describe("SpreadsheetTable format", () => {
         name: "empty diary",
         input: empty_diary,
         expected: {
-            records: [],
-            member_map: empty_member_map,
+            "records": [],
+            "member_map": empty_member_map,
         }
     });
 
@@ -26,14 +45,14 @@ describe("SpreadsheetTable format", () => {
         name: "simple SpreadsheetTable with one row",
         input: "start,end\n123456789,123456789\n",
         expected: {
-            records: [
+            "records": [
                 {
-                    "start" : 123456789000,
-                    "end"   : 123456789000,
+                    "start" : 1234567890000,
+                    "end"   : 1234567890000,
                     "status": "asleep",
                 },
             ],
-            member_map: empty_member_map,
+            "member_map": empty_member_map,
         }
     });
 
@@ -42,10 +61,10 @@ describe("SpreadsheetTable format", () => {
         name: "Simple SpreadsheetTable with two rows",
         input: "Sleep,Wake\n123456789,123456789\n2020-01-01 01:01-0100,2020-02-02 02:02+0200\n",
         expected: {
-            records: [
+            "records": [
                 {
-                    "Sleep" : 123456789000,
-                    "Wake"  : 123456789000,
+                    "Sleep" : 1234567890000,
+                    "Wake"  : 1234567890000,
                     "status": "asleep",
                 },
                 {
@@ -54,7 +73,7 @@ describe("SpreadsheetTable format", () => {
                     "status": "asleep",
                 },
             ],
-            member_map: { start: [ "Sleep", 0 ], end: [ "Wake", 1 ] },
+            "member_map": { "start": [ "Sleep", 0 ], "end": [ "Wake", 1 ] },
         }
     });
 
@@ -63,10 +82,10 @@ describe("SpreadsheetTable format", () => {
         name: "Complex SpreadsheetTable",
         input: "SleepStart,SleepEnd,sTaTe,comments,NOTES\n123456789,123456789,slept\n2020-01-01 01:01-0100,2020-02-02 02:02+0200,awoke,comment 1,\"this is a single field containing one comma (,) one newline (\n) and one double quote (\"\")\",ignored comment\n",
         expected: {
-            records: [
+            "records": [
                 {
-                    "SleepStart" : 123456789000,
-                    "SleepEnd"  : 123456789000,
+                    "SleepStart" : 1234567890000,
+                    "SleepEnd"  : 1234567890000,
                     "sTaTe": "asleep",
                     "comments": [],
                 },
@@ -77,7 +96,7 @@ describe("SpreadsheetTable format", () => {
                     "comments": [ "comment 1", "this is a single field containing one comma (,) one newline (\n) and one double quote (\")" ],
                 },
             ],
-            member_map: non_empty_member_map,
+            "member_map": non_empty_member_map,
         }
     });
 
@@ -86,7 +105,7 @@ describe("SpreadsheetTable format", () => {
         name: "output test",
         format: "output",
         input: non_empty_diary,
-        expected: "SleepStart,SleepEnd,sTaTe,comments,NOTES\n123456789000,123456789000,asleep\n1577844060000,1580601720000,awake,comment 1,comment 2\n",
+        expected: "SleepStart,SleepEnd,sTaTe,comments,NOTES\n1234567890000,1234567890000,asleep\n1577844060000,1580601720000,awake,comment 1,comment 2\n",
     });
 
     test_to({
@@ -95,23 +114,23 @@ describe("SpreadsheetTable format", () => {
         input: non_empty_diary,
         expected: [
             {
-                status: "asleep",
-                start: 123456789000,
-                end: 123456789000,
-                duration: 0,
-                start_of_new_day: true,
-                day_number: 2,
-                missing_record_after: false,
-                is_primary_sleep: true,
+                "status": "asleep",
+                "start": 1234567890000,
+                "end": 1234567890000,
+                "duration": 0,
+                "start_of_new_day": true,
+                "day_number": 2,
+                "missing_record_after": false,
+                "is_primary_sleep": true,
             },
             {
-                status: "awake",
-                start: 1577844060000,
-                end: 1580601720000,
-                comments: [ 'comment 1', 'comment 2' ],
-                duration: 2757660000,
-                start_of_new_day: false,
-                day_number: 2,
+                "status": "awake",
+                "start": 1577844060000,
+                "end": 1580601720000,
+                "comments": [ 'comment 1', 'comment 2' ],
+                "duration": 2757660000,
+                "start_of_new_day": false,
+                "day_number": 2,
             },
         ],
     });
@@ -136,8 +155,8 @@ describe("SpreadsheetTable format", () => {
         left: empty_diary,
         right: empty_diary,
         expected: {
-            records: [],
-            member_map: empty_member_map,
+            "records": [],
+            "member_map": empty_member_map,
         },
     });
 
@@ -146,17 +165,17 @@ describe("SpreadsheetTable format", () => {
         left: empty_diary,
         right: non_empty_diary,
         expected: {
-            records: [
+            "records": [
                 {
-                    start: 123456789000,
-                    end: 123456789000,
+                    "start": 1234567890000,
+                    "end": 1234567890000,
                 },
                 {
-                    start: 1577844060000,
-                    end: 1580601720000,
+                    "start": 1577844060000,
+                    "end": 1580601720000,
                 },
             ],
-            member_map: empty_member_map,
+            "member_map": empty_member_map,
         },
     });
 
@@ -165,21 +184,21 @@ describe("SpreadsheetTable format", () => {
         left: non_empty_diary,
         right: empty_diary,
         expected: {
-            records: [
+            "records": [
                 {
-                    SleepStart: 123456789000,
-                    SleepEnd: 123456789000,
-                    sTaTe: "asleep",
-                    comments: [],
+                    "SleepStart": 1234567890000,
+                    "SleepEnd": 1234567890000,
+                    "sTaTe": "asleep",
+                    "comments": [],
                 },
                 {
-                    SleepStart: 1577844060000,
-                    SleepEnd: 1580601720000,
-                    sTaTe: "awake",
-                    comments: [ "comment 1", "comment 2" ],
+                    "SleepStart": 1577844060000,
+                    "SleepEnd": 1580601720000,
+                    "sTaTe": "awake",
+                    "comments": [ "comment 1", "comment 2" ],
                 },
             ],
-            member_map: non_empty_member_map,
+            "member_map": non_empty_member_map,
         },
     });
 
@@ -188,21 +207,21 @@ describe("SpreadsheetTable format", () => {
         left: non_empty_diary,
         right: non_empty_diary,
         expected: {
-            records: [
+            "records": [
                 {
-                    SleepStart: 123456789000,
-                    SleepEnd: 123456789000,
-                    sTaTe: "asleep",
-                    comments: [],
+                    "SleepStart": 1234567890000,
+                    "SleepEnd": 1234567890000,
+                    "sTaTe": "asleep",
+                    "comments": [],
                 },
                 {
-                    SleepStart: 1577844060000,
-                    SleepEnd: 1580601720000,
-                    sTaTe: "awake",
-                    comments: [ "comment 1", "comment 2" ],
+                    "SleepStart": 1577844060000,
+                    "SleepEnd": 1580601720000,
+                    "sTaTe": "awake",
+                    "comments": [ "comment 1", "comment 2" ],
                 },
             ],
-            member_map: non_empty_member_map,
+            "member_map": non_empty_member_map,
         },
     });
 
@@ -211,32 +230,32 @@ describe("SpreadsheetTable format", () => {
         left: non_empty_diary,
         right: "SleepStart,SleepEnd,sTaTe,comments,NOTES\n12346,12346,slept\n2020-01-01 01:02-0100,2020-02-02 02:03+0200,awoke,comment 1,comment 2\n",
         expected: {
-            records: [
+            "records": [
                 {
-                    SleepStart: 123456789000,
-                    SleepEnd: 123456789000,
-                    sTaTe: "asleep",
-                    comments: [],
+                    "SleepStart": 1234567890000,
+                    "SleepEnd": 1234567890000,
+                    "sTaTe": "asleep",
+                    "comments": [],
                 },
                 {
-                    SleepStart: 1577844060000,
-                    SleepEnd: 1580601720000,
-                    sTaTe: "awake",
-                    comments: [ "comment 1", "comment 2" ],
+                    "SleepStart": 1577844060000,
+                    "SleepEnd": 1580601720000,
+                    "sTaTe": "awake",
+                    "comments": [ "comment 1", "comment 2" ],
                 },
                 {
-                    SleepStart: 12346000,
-                    SleepEnd: 12346000,
-                    sTaTe: "asleep",
+                    "SleepStart": 1234600000000,
+                    "SleepEnd": 1234600000000,
+                    "sTaTe": "asleep",
                 },
                 {
-                    SleepStart: 1577844120000,
-                    SleepEnd: 1580601780000,
-                    sTaTe: "awake",
-                    comments: [ "comment 1", "comment 2" ],
+                    "SleepStart": 1577844120000,
+                    "SleepEnd": 1580601780000,
+                    "sTaTe": "awake",
+                    "comments": [ "comment 1", "comment 2" ],
                 },
             ],
-            member_map: non_empty_member_map,
+            "member_map": non_empty_member_map,
 
         },
     });

@@ -1,9 +1,11 @@
 describe("Spreadsheet", () => {
 
+    if ( !test_is_runnable({ name: "Spreadsheet" }) ) return;
+
     [
         [        null, NaN ],
         [          0 ,   0 ],
-        [          1 ,   1 ],
+        [          1 ,   1000000000000 ],
         [ new Date(0),   0 ],
         [ new Date(1),   1 ],
         [         "0",   0 ],
@@ -18,7 +20,7 @@ describe("Spreadsheet", () => {
     ].forEach(
         function(test) {
             it(`parses "${test[0]}" correctly`, function() {
-                expect(Spreadsheet.parse_timestamp(test[0])).toEqual(test[1]);
+                expect(Spreadsheet.parse_timestamp(test[0]))["toEqual"](test[1]);
             });
         }
     );
@@ -31,12 +33,12 @@ describe("Spreadsheet", () => {
             {
                 sheet: "records",
                 cells: [
-                    { member: "test_time", type: "time", },
-                    { member: "test_duration", type: "duration", },
-                    { member: "test_number", type: "number", },
-                    { member: "test_text", type: "text", },
+                    { "member": "test_time", "type": "time", },
+                    { "member": "test_duration", "type": "duration", },
+                    { "member": "test_number", "type": "number", },
+                    { "member": "test_text", "type": "text", },
                     {
-                        members: [ "test_low_level_1", "test_low_level_2" ],
+                        "members": [ "test_low_level_1", "test_low_level_2" ],
                         "export": (array_element,row,offset) => {
                             row[offset+0] = { "value": array_element["test_low_level_1"] * 2, "style": "" };
                             row[offset+1] = { "value": 'a' + array_element["test_low_level_2"], "style": "" };
@@ -82,6 +84,8 @@ describe("Spreadsheet", () => {
 
         };
 
+        input["sheets"].forEach( sheet => Spreadsheet.parse_all_timestamps(sheet["cells"]) );
+
         var expected = {
             "records": [
                 {
@@ -94,9 +98,9 @@ describe("Spreadsheet", () => {
                 }
             ]
         };
-        expect( spreadsheet.load(input) ).toBeTrue();
-        expect( spreadsheet.synchronise() ).toBeTrue();
-        expect( associated ).toEqual(expected);
+        expect( spreadsheet["load"](input) )["toBeTrue"]();
+        expect( spreadsheet["synchronise"]() )["toBeTrue"]();
+        expect( associated )["toEqual"](expected);
 
     });
 

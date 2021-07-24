@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Andrew Sayers <andrew-github.com@pileofstuff.org>
+ * Copyright 2020 Andrew Sayers <sleepdiary@pileofstuff.org>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -212,17 +212,6 @@ class DiarySleepChart1 extends DiaryBase {
 
         other = other["to"](this["file_format"]());
 
-        function create_id(record) {
-            return (
-                [ "start", "end" ]
-                .map( member => record[member] )
-                .join()
-            );
-        }
-
-        let existing_ids = {};
-        this["records"].forEach( r => existing_ids[create_id(r)] = 1 );
-
         let prev_end = 1.0;
         this["records"] = this["records"]
             .concat( other["records"] )
@@ -246,6 +235,7 @@ class DiarySleepChart1 extends DiaryBase {
             "url": "/src/SleepChart1",
             "statuses": [ "asleep" ],
             "extension": ".tim",
+            "logo": "https://www.supermemo.com/assets/images/frontpage2/intro/icon4.svg",
         }
     }
 

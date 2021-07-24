@@ -1,5 +1,8 @@
+#!/bin/sh
+
+cat > constants.js <<EOF
 /**
- * @preserve Copyright 2020 Andrew Sayers <andrew-github.com@pileofstuff.org>
+ * @preserve Copyright 2020 Andrew Sayers <sleepdiary@pileofstuff.org>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -22,7 +25,5 @@
  * SOFTWARE.
  */
 
-/** @define {boolean} debugging mode */
-var ENABLE_DEBUG = false;
-/** @define {boolean} compiled code */
-var COMPILED = false;
+const SOFTWARE_VERSION = "$( git rev-parse --short HEAD )";
+EOF

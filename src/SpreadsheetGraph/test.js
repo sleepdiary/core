@@ -1,14 +1,31 @@
 register_roundtrip_modifier("SpreadsheetGraph",function(our_diary,roundtripped_diary,other_format) {
-    switch ( other_format.name ) {
+    switch ( other_format["name"] ) {
     case "Sleepmeter":
         /*
          * This format supports the "in bed" status, but only when followed by "asleep".
          * This is a quick workaround - a better solution would remove more selectively.
          */
         [our_diary,roundtripped_diary].forEach(function(diary) {
-            diary.records = diary.records.filter( function(record) {
-                delete record.missing_record_after;
-                return record.status == 'asleep';
+            diary["records"] = diary["records"].filter( function(record) {
+                delete record["missing_record_after"];
+                return record["status"] == 'asleep';
+            });
+        });
+    }
+    switch ( other_format.name ) {
+    case "ActivityLog":
+    case "SleepChart1":
+    case "PleesTracker":
+        [our_diary,roundtripped_diary].forEach(function(diary) {
+            diary["records"].forEach( function(record) {
+                /*
+                 * Sleep As Android requires exactly one string comment.
+                 * PleesTracker does not support comments.
+                 * Therefore, roundtripping necessarily breaks comments.
+                 */
+                ["comments"].forEach(function(key) {
+                    delete record[key];
+                });
             });
         });
     }
@@ -44,16 +61,19 @@ describe("SpreadsheetGraph format", () => {
         "11-midnight",
     ];
 
+    /**
+     * @param {*=} cells
+     */
     function create_diary(cells) {
         return {
-            file_format: () => "spreadsheet",
-            spreadsheet: Spreadsheet.parse_csv("").spreadsheet,
-            sheets: [{
-                cells: cells || [
+            "file_format": () => "spreadsheet",
+            "spreadsheet": Spreadsheet.parse_csv("").spreadsheet,
+            "sheets": [{
+                "cells": cells || [
                     explicit_time_header.slice(0),
                     [
-                        { value: "2000-01-01" },
-                        { value: "", style: "#FFFFFFFF,#FFFFFFFF" },
+                        { "value": "2000-01-01" },
+                        { "value": "", "style": "#FFFFFFFF,#FFFFFFFF" },
                     ],
                 ]
             }],
@@ -70,26 +90,26 @@ describe("SpreadsheetGraph format", () => {
         name: "minimal diary",
         input: create_diary([
             explicit_time_header.slice(1),
-            [ { value: "", style: "#FFFFFFFF,#FFFFFFFF" } ],
+            [ { "value": "", "style": "#FFFFFFFF,#FFFFFFFF" } ],
         ]),
         spreadsheetify: "disable",
         expected: {
-            records: [
+            "records": [
                 {
-                    start: today,
-                    comments: [],
-                    end: today + 3599999,
-                    status: 'awake',
+                    "start": today,
+                    "comments": [],
+                    "end": today + 3599999,
+                    "status": 'awake',
                 },
                 {
-                    start: today + 3600000,
-                    comments: [],
-                    status: 'asleep',
+                    "start": today + 3600000,
+                    "comments": [],
+                    "status": 'asleep',
                 }
             ],
-            status_map: {
-                awake: '#FFFFFFFF,#FFFFFFFF',
-                asleep: '',
+            "status_map": {
+                "awake": '#FFFFFFFF,#FFFFFFFF',
+                "asleep": '',
             },
         }
     });
@@ -100,22 +120,22 @@ describe("SpreadsheetGraph format", () => {
         input: create_diary(),
         spreadsheetify: "disable",
         expected: {
-            records: [
+            "records": [
                 {
-                    start: 946684800000,
-                    comments: [],
-                    end: 946684800000 + 3599999,
-                    status: 'awake',
+                    "start": 946684800000,
+                    "comments": [],
+                    "end": 946684800000 + 3599999,
+                    "status": 'awake',
                 },
                 {
-                    start: 946684800000 + 3600000,
-                    comments: [],
-                    status: 'asleep',
+                    "start": 946684800000 + 3600000,
+                    "comments": [],
+                    "status": 'asleep',
                 }
             ],
-            status_map: {
-                awake: '#FFFFFFFF,#FFFFFFFF',
-                asleep: '',
+            "status_map": {
+                "awake": '#FFFFFFFF,#FFFFFFFF',
+                "asleep": '',
             },
         }
     });
@@ -126,28 +146,28 @@ describe("SpreadsheetGraph format", () => {
         input: create_diary([
             explicit_time_header.slice(0),
             [
-                { value: "2000-01-01" },
-                { value: "this is a single field containing one comma (,) one newline (\n) and one double quote (\")", style: "#FFFFFFFF,#FFFFFFFF" },
+                { "value": "2000-01-01" },
+                { "value": "this is a single field containing one comma (,) one newline (\n) and one double quote (\")", "style": "#FFFFFFFF,#FFFFFFFF" },
             ],
         ]),
         spreadsheetify: "disable",
         expected: {
-            records: [
+            "records": [
                 {
-                    start: 946684800000,
-                    comments: ["this is a single field containing one comma (,) one newline (\n) and one double quote (\")"],
-                    end: 946684800000 + 3599999,
-                    status: 'awake',
+                    "start": 946684800000,
+                    "comments": ["this is a single field containing one comma (,) one newline (\n) and one double quote (\")"],
+                    "end": 946684800000 + 3599999,
+                    "status": 'awake',
                 },
                 {
-                    start: 946684800000 + 3600000,
-                    comments: [],
-                    status: 'asleep',
+                    "start": 946684800000 + 3600000,
+                    "comments": [],
+                    "status": 'asleep',
                 }
             ],
-            status_map: {
-                awake: '#FFFFFFFF,#FFFFFFFF',
-                asleep: '',
+            "status_map": {
+                "awake": '#FFFFFFFF,#FFFFFFFF',
+                "asleep": '',
             },
         }
     });
@@ -160,8 +180,8 @@ describe("SpreadsheetGraph format", () => {
         });
 
         it(`converts "output test" to "output" correctly`, function() {
-            return test_diary.to_async("output").then(function(converted) {
-                expect( converted.contents.length ).toBeGreaterThan( 0 );
+            return test_diary["to_async"]("output").then(function(converted) {
+                expect( converted["contents"].length )["toBeGreaterThan"]( 0 );
             });
         });
     }
@@ -172,20 +192,20 @@ describe("SpreadsheetGraph format", () => {
         input: create_diary(),
         expected: [
             {
-                start: 946684800000,
-                end: 946684800000 + 3599999,
-                status: 'awake',
-                duration: 3599999,
-                start_of_new_day: false,
-                day_number: 0,
-                missing_record_after: false,
+                "start": 946684800000,
+                "end": 946684800000 + 3599999,
+                "status": 'awake',
+                "duration": 3599999,
+                "start_of_new_day": false,
+                "day_number": 0,
+                "missing_record_after": false,
 
             },
             {
-                start: 946684800000 + 3600000,
-                status: 'asleep',
-                start_of_new_day: true,
-                day_number: 2,
+                "start": 946684800000 + 3600000,
+                "status": 'asleep',
+                "start_of_new_day": true,
+                "day_number": 2,
             }
         ],
     });
@@ -195,31 +215,31 @@ describe("SpreadsheetGraph format", () => {
         format: "SpreadsheetGraph",
         input: [
             {
-                start: 946684800000,
-                comments: [ "Comment\ntext" ],
-                end: 946684800000 + 3599999,
-                status: 'asleep',
-                duration: 3599999,
-                start_of_new_day: false,
-                day_number: 0,
-                missing_record_after: false,
+                "start": 946684800000,
+                "comments": [ "Comment\ntext" ],
+                "end": 946684800000 + 3599999,
+                "status": 'asleep',
+                "duration": 3599999,
+                "start_of_new_day": false,
+                "day_number": 0,
+                "missing_record_after": false,
 
             },
             {
-                start: 946684800000 + 3600000,
-                status: 'awake',
-                start_of_new_day: true,
-                day_number: 2,
+                "start": 946684800000 + 3600000,
+                "status": 'awake',
+                "start_of_new_day": true,
+                "day_number": 2,
             },
         ],
         expected: create_diary([
             explicit_time_header.slice(0),
             [
-                { value: "2000-01-01" },
-                { value: "Comment\ntext", style: "#FFFFFF00,#FF0000FF" },
+                { "value": "2000-01-01" },
+                { "value": "Comment\ntext", "style": "#FFFFFF00,#FF0000FF,#FFFFFFFF" },
             ],
             [],
-            [{ value: "asleep", style: "#FFFFFF00,#FF0000FF" }],
+            [{ "value": "asleep", "style": "#FFFFFF00,#FF0000FF,#FFFFFFFF" }],
         ]),
     });
 
@@ -229,22 +249,22 @@ describe("SpreadsheetGraph format", () => {
         left: create_diary(),
         right: create_diary(),
         expected: {
-            records: [
+            "records": [
                 {
-                    start: 946684800000,
-                    comments: [],
-                    end: 946684800000 + 3599999,
-                    status: 'awake',
+                    "start": 946684800000,
+                    "comments": [],
+                    "end": 946684800000 + 3599999,
+                    "status": 'awake',
                 },
                 {
-                    start: 946684800000 + 3600000,
-                    comments: [],
-                    status: 'asleep',
+                    "start": 946684800000 + 3600000,
+                    "comments": [],
+                    "status": 'asleep',
                 }
             ],
-            status_map: {
-                awake: '#FFFFFFFF,#FFFFFFFF',
-                asleep: '',
+            "status_map": {
+                "awake": '#FFFFFFFF,#FFFFFFFF',
+                "asleep": '',
             },
         },
     });
@@ -256,40 +276,40 @@ describe("SpreadsheetGraph format", () => {
         right: create_diary([
             explicit_time_header.slice(0),
             [
-                { value: "2000-01-01" },
-                { value: "Comment\ntext", style: "#FFFFFF00,#FF0000FF" },
+                { "value": "2000-01-01" },
+                { "value": "Comment\ntext", "style": "#FFFFFF00,#FF0000FF" },
             ],
             [],
-            [{ value: "asleep", style: "#FFFFFF00,#FF0000FF" }],
+            [{ "value": "asleep", "style": "#FFFFFF00,#FF0000FF" }],
         ]),
         expected: {
-            records: [
+            "records": [
                 {
-                    start: 946684800000,
-                    comments: [],
-                    end: 946684800000 + 3599999,
-                    status: 'awake',
+                    "start": 946684800000,
+                    "comments": [],
+                    "end": 946684800000 + 3599999,
+                    "status": 'awake',
                 },
                 {
-                    start: 946684800000 + 3600000,
-                    comments: [],
-                    status: 'asleep',
+                    "start": 946684800000 + 3600000,
+                    "comments": [],
+                    "status": 'asleep',
                 },
                 {
-                    start: 946684800000,
-                    comments: [ "Comment\ntext" ],
-                    end: 946684800000 + 3599999,
-                    status: 'asleep',
+                    "start": 946684800000,
+                    "comments": [ "Comment\ntext" ],
+                    "end": 946684800000 + 3599999,
+                    "status": 'asleep',
                 },
                 {
-                    start: 946684800000 + 3600000,
-                    comments: [],
-                    status: 'awake',
+                    "start": 946684800000 + 3600000,
+                    "comments": [],
+                    "status": 'awake',
                 },
             ],
-            status_map: {
-                awake: '#FFFFFFFF,#FFFFFFFF',
-                asleep: '',
+            "status_map": {
+                "awake": '#FFFFFFFF,#FFFFFFFF',
+                "asleep": '',
             },
         },
     });
@@ -302,10 +322,10 @@ describe("SpreadsheetGraph format", () => {
 
         var cells = [
             explicit_time_header.slice(0),
-            [ { value: "2001-01-01" }, {}, { value: "", style: "#FFFFFFFF,#FFFFFFFF" } ],
-            [ { value: "2001-01-02" }, {}, {}, { value: "", style: "#FFFFFFFF,#FFFFFFFF" } ],
-            [ { value: "2001-01-03" }, {}, {}, {}, { value: "", style: "#FFFFFFFF,#FFFFFFFF" } ],
-            [ { value: "2001-01-04" }, {}, {}, {}, {}, { value: "", style: "#FFFFFFFF,#FFFFFFFF" } ],
+            [ { "value": "2001-01-01" }, {}, { "value": "", "style": "#FFFFFFFF,#FFFFFFFF" } ],
+            [ { "value": "2001-01-02" }, {}, {}, { "value": "", "style": "#FFFFFFFF,#FFFFFFFF" } ],
+            [ { "value": "2001-01-03" }, {}, {}, {}, { "value": "", "style": "#FFFFFFFF,#FFFFFFFF" } ],
+            [ { "value": "2001-01-04" }, {}, {}, {}, {}, { "value": "", "style": "#FFFFFFFF,#FFFFFFFF" } ],
         ];
 
         cells.forEach( r => {
@@ -323,20 +343,20 @@ describe("SpreadsheetGraph format", () => {
         );
 
         var header_expected = {
-            records: [
-                { start: 978307200000, comments: [], end: 978310799999, status: 'awake' },
-                { start: 978310800000, comments: [], end: 978314399999, status: 'asleep' },
-                { start: 978314400000, comments: [], end: 978400799999, status: 'awake' },
-                { start: 978400800000, comments: [], end: 978404399999, status: 'asleep' },
-                { start: 978404400000, comments: [], end: 978490799999, status: 'awake' },
-                { start: 978490800000, comments: [], end: 978494399999, status: 'asleep' },
-                { start: 978494400000, comments: [], end: 978580799999, status: 'awake' },
-                { start: 978580800000, comments: [], end: 978584399999, status: 'asleep' },
-                { start: 978584400000, comments: []                   , status: 'awake' },
+            "records": [
+                { "start": 978307200000, "comments": [], "end": 978310799999, "status": 'awake' },
+                { "start": 978310800000, "comments": [], "end": 978314399999, "status": 'asleep' },
+                { "start": 978314400000, "comments": [], "end": 978400799999, "status": 'awake' },
+                { "start": 978400800000, "comments": [], "end": 978404399999, "status": 'asleep' },
+                { "start": 978404400000, "comments": [], "end": 978490799999, "status": 'awake' },
+                { "start": 978490800000, "comments": [], "end": 978494399999, "status": 'asleep' },
+                { "start": 978494400000, "comments": [], "end": 978580799999, "status": 'awake' },
+                { "start": 978580800000, "comments": [], "end": 978584399999, "status": 'asleep' },
+                { "start": 978584400000, "comments": []                   , "status": 'awake' },
             ],
-            status_map: {
-                awake: '',
-                asleep: '#FFFFFFFF,#FFFFFFFF',
+            "status_map": {
+                "awake": '',
+                "asleep": '#FFFFFFFF,#FFFFFFFF',
             },
         };
 
@@ -379,35 +399,35 @@ describe("SpreadsheetGraph format", () => {
             input: create_diary([
                 time_headers,
                 [
-                    { value: "2000-01-01" },
+                    { "value": "2000-01-01" },
                     {},
-                    { value: "", style: "#FFFFFFFF,#FFFFFFFF" },
+                    { "value": "", "style": "#FFFFFFFF,#FFFFFFFF" },
                 ],
             ]),
             spreadsheetify: "disable",
             expected: {
-                records: [
+                "records": [
                     {
-                        start: 946684800000 + 0*duration,
-                        comments: [],
-                        end: 946684800000   + 1*duration*1000*60 - 1,
-                        status: 'awake',
+                        "start": 946684800000 + 0*duration,
+                        "comments": [],
+                        "end": 946684800000   + 1*duration*1000*60 - 1,
+                        "status": 'awake',
                     },
                     {
-                        start: 946684800000 + 1*duration*1000*60,
-                        comments: [],
-                        end: 946684800000   + 2*duration*1000*60 - 1,
-                        status: 'asleep',
+                        "start": 946684800000 + 1*duration*1000*60,
+                        "comments": [],
+                        "end": 946684800000   + 2*duration*1000*60 - 1,
+                        "status": 'asleep',
                     },
                     {
-                        start: 946684800000 + 2*duration*1000*60,
-                        comments: [],
-                        status: 'awake',
+                        "start": 946684800000 + 2*duration*1000*60,
+                        "comments": [],
+                        "status": 'awake',
                     }
                 ],
-                status_map: {
-                    asleep: '#FFFFFFFF,#FFFFFFFF',
-                    awake: '',
+                "status_map": {
+                    "asleep": '#FFFFFFFF,#FFFFFFFF',
+                    "awake": '',
                 },
             }
         });
@@ -423,33 +443,35 @@ describe("SpreadsheetGraph format", () => {
             name: "unused values outside the header/body",
             cells:
             [
-                [ {}, { value: "unused value" } ],
-                [ {}, { value: "unused value" } ],
-                [ {}, { value: "unused value" } ],
-                [ {}, { value: "unused value" } ],
+                [ {}, { "value": "unused value" } ],
+                [ {}, { "value": "unused value" } ],
+                [ {}, { "value": "unused value" } ],
+                [ {}, { "value": "unused value" } ],
             ],
             statuses: [
-                "toilet", "sleep aid", "caffeine", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "drink", "exercise", "noise", "alarm", "in bed", "out of bed", "toilet", "sleep aid", "caffeine", "awake", "asleep", "snack", "meal", "alcohol", "chocolate",
-                "sleep aid", "caffeine", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "drink", "exercise", "noise", "alarm", "in bed", "out of bed", "toilet", "sleep aid", "caffeine", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "drink",
-                "caffeine", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "drink", "exercise", "noise", "alarm", "in bed", "out of bed", "toilet", "sleep aid", "caffeine", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "drink", "exercise",
-                "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "drink", "exercise", "noise", "alarm", "in bed", "out of bed", "toilet", "sleep aid", "caffeine", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "drink", "exercise", "noise",
+                "caffeine","alcohol","snack","awake","asleep","lights off","lights on","meal","chocolate","drink","sleep aid","exercise","toilet","noise","alarm","in bed","out of bed","caffeine","alcohol","snack","awake","asleep","lights off","lights on",
+                "alcohol","snack","awake","asleep","lights off","lights on","meal","chocolate","drink","sleep aid","exercise","toilet","noise","alarm","in bed","out of bed","caffeine","alcohol","snack","awake","asleep","lights off","lights on","meal",
+                "snack","awake","asleep","lights off","lights on","meal","chocolate","drink","sleep aid","exercise","toilet","noise","alarm","in bed","out of bed","caffeine","alcohol","snack","awake","asleep","lights off","lights on","meal","chocolate",
+                "awake","asleep","lights off","lights on","meal","chocolate","drink","sleep aid","exercise","toilet","noise","alarm","in bed","out of bed","caffeine","alcohol","snack","awake","asleep","lights off","lights on","meal","chocolate","drink",
             ],
             status_map: {
                 "awake"     :"#FFFFFFFF,#FFFFF0003",
                 "asleep"    :"#FFFFFFFF,#FFFFF0004",
-                "snack"     :"#FFFFFFFF,#FFFFF0005",
-                "meal"      :"#FFFFFFFF,#FFFFF0006",
-                "alcohol"   :"#FFFFFFFF,#FFFFF0007",
+                "snack"     :"#FFFFFFFF,#FFFFF0002",
+                "meal"      :"#FFFFFFFF,#FFFFF0007",
+                "alcohol"   :"#FFFFFFFF,#FFFFF0001",
                 "chocolate" :"#FFFFFFFF,#FFFFF0008",
-                "caffeine"  :"#FFFFFFFF,#FFFFF0002",
+                "caffeine"  :"#FFFFFFFF,#FFFFF0000",
                 "drink"     :"#FFFFFFFF,#FFFFF0009",
-                "sleep aid" :"#FFFFFFFF,#FFFFF0001",
-                "exercise"  :"#FFFFFFFF,#FFFFF0010",
-                "toilet"    :"#FFFFFFFF,#FFFFF0000",
-                "noise"     :"#FFFFFFFF,#FFFFF0011",
-                "alarm"     :"#FFFFFFFF,#FFFFF0012",
-                "in bed"    :"#FFFFFFFF,#FFFFF0013",
-                "out of bed":"#FFFFFFFF,#FFFFF0014"
+                "sleep aid" :"#FFFFFFFF,#FFFFF0010",
+                "exercise"  :"#FFFFFFFF,#FFFFF0011",
+                "toilet"    :"#FFFFFFFF,#FFFFF0012",
+                "noise"     :"#FFFFFFFF,#FFFFF0013",
+                "alarm"     :"#FFFFFFFF,#FFFFF0014",
+                "in bed"    :"#FFFFFFFF,#FFFFF0015",
+                "out of bed":"#FFFFFFFF,#FFFFF0016",
+                "lights off":"#FFFFFFFF,#FFFFF0005",
+                "lights on" :"#FFFFFFFF,#FFFFF0006",
             }
 
         },
@@ -459,28 +481,30 @@ describe("SpreadsheetGraph format", () => {
             cells:
             [
                 [
-                    { style: "#FFFFFFFF,#FFFFF0000", value: "awake" },
-                    { style: "#FFFFFFFF,#FFFFF0001", value: "asleep" },
-                    { style: "#FFFFFFFF,#FFFFF0002", value: "snack" },
-                    { style: "#FFFFFFFF,#FFFFF0003", value: "meal" },
-                    { style: "#FFFFFFFF,#FFFFF0004", value: "alcohol" },
-                    { style: "#FFFFFFFF,#FFFFF0005", value: "chocolate" },
-                    { style: "#FFFFFFFF,#FFFFF0006", value: "caffeine" },
-                    { style: "#FFFFFFFF,#FFFFF0007", value: "drink" },
-                    { style: "#FFFFFFFF,#FFFFF0008", value: "sleep aid" },
-                    { style: "#FFFFFFFF,#FFFFF0009", value: "exercise" },
-                    { style: "#FFFFFFFF,#FFFFF0010", value: "toilet" },
-                    { style: "#FFFFFFFF,#FFFFF0011", value: "noise" },
-                    { style: "#FFFFFFFF,#FFFFF0012", value: "alarm" },
-                    { style: "#FFFFFFFF,#FFFFF0013", value: "in bed" },
-                    { style: "#FFFFFFFF,#FFFFF0014", value: "out of bed" },
+                    { "style": "#FFFFFFFF,#FFFFF0000", "value": "awake" },
+                    { "style": "#FFFFFFFF,#FFFFF0001", "value": "asleep" },
+                    { "style": "#FFFFFFFF,#FFFFF0002", "value": "snack" },
+                    { "style": "#FFFFFFFF,#FFFFF0003", "value": "meal" },
+                    { "style": "#FFFFFFFF,#FFFFF0004", "value": "alcohol" },
+                    { "style": "#FFFFFFFF,#FFFFF0005", "value": "chocolate" },
+                    { "style": "#FFFFFFFF,#FFFFF0006", "value": "caffeine" },
+                    { "style": "#FFFFFFFF,#FFFFF0007", "value": "drink" },
+                    { "style": "#FFFFFFFF,#FFFFF0008", "value": "sleep aid" },
+                    { "style": "#FFFFFFFF,#FFFFF0009", "value": "exercise" },
+                    { "style": "#FFFFFFFF,#FFFFF0010", "value": "toilet" },
+                    { "style": "#FFFFFFFF,#FFFFF0011", "value": "noise" },
+                    { "style": "#FFFFFFFF,#FFFFF0012", "value": "alarm" },
+                    { "style": "#FFFFFFFF,#FFFFF0013", "value": "in bed" },
+                    { "style": "#FFFFFFFF,#FFFFF0014", "value": "out of bed" },
+                    { "style": "#FFFFFFFF,#FFFFF0015", "value": "lights off" },
+                    { "style": "#FFFFFFFF,#FFFFF0016", "value": "lights on" },
                 ]
             ],
             statuses: [
-                "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid",
-                "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise",
-                "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet",
-                "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise",
+                "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine",
+                "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink",
+                "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid",
+                "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise",
             ],
             status_map: {
                 "awake"     :"#FFFFFFFF,#FFFFF0000",
@@ -497,7 +521,9 @@ describe("SpreadsheetGraph format", () => {
                 "noise"     :"#FFFFFFFF,#FFFFF0011",
                 "alarm"     :"#FFFFFFFF,#FFFFF0012",
                 "in bed"    :"#FFFFFFFF,#FFFFF0013",
-                "out of bed":"#FFFFFFFF,#FFFFF0014"
+                "out of bed":"#FFFFFFFF,#FFFFF0014",
+                "lights off":"#FFFFFFFF,#FFFFF0015",
+                "lights on" :"#FFFFFFFF,#FFFFF0016",
             }
 
         },
@@ -507,45 +533,49 @@ describe("SpreadsheetGraph format", () => {
             cells:
             [
                 [
-                    { style: "#FFFFFFFF,#FFFFF0000" },
-                    { style: "#FFFFFFFF,#FFFFF0001" },
-                    { style: "#FFFFFFFF,#FFFFF0002" },
-                    { style: "#FFFFFFFF,#FFFFF0003" },
-                    { style: "#FFFFFFFF,#FFFFF0004" },
-                    { style: "#FFFFFFFF,#FFFFF0005" },
-                    { style: "#FFFFFFFF,#FFFFF0006" },
-                    { style: "#FFFFFFFF,#FFFFF0007" },
-                    { style: "#FFFFFFFF,#FFFFF0008" },
-                    { style: "#FFFFFFFF,#FFFFF0009" },
-                    { style: "#FFFFFFFF,#FFFFF0010" },
-                    { style: "#FFFFFFFF,#FFFFF0011" },
-                    { style: "#FFFFFFFF,#FFFFF0012" },
-                    { style: "#FFFFFFFF,#FFFFF0013" },
-                    { style: "#FFFFFFFF,#FFFFF0014" },
+                    { "style": "#FFFFFFFF,#FFFFF0000" },
+                    { "style": "#FFFFFFFF,#FFFFF0001" },
+                    { "style": "#FFFFFFFF,#FFFFF0002" },
+                    { "style": "#FFFFFFFF,#FFFFF0003" },
+                    { "style": "#FFFFFFFF,#FFFFF0004" },
+                    { "style": "#FFFFFFFF,#FFFFF0005" },
+                    { "style": "#FFFFFFFF,#FFFFF0006" },
+                    { "style": "#FFFFFFFF,#FFFFF0007" },
+                    { "style": "#FFFFFFFF,#FFFFF0008" },
+                    { "style": "#FFFFFFFF,#FFFFF0009" },
+                    { "style": "#FFFFFFFF,#FFFFF0010" },
+                    { "style": "#FFFFFFFF,#FFFFF0011" },
+                    { "style": "#FFFFFFFF,#FFFFF0012" },
+                    { "style": "#FFFFFFFF,#FFFFF0013" },
+                    { "style": "#FFFFFFFF,#FFFFF0014" },
+                    { "style": "#FFFFFFFF,#FFFFF0015" },
+                    { "style": "#FFFFFFFF,#FFFFF0016" },
                 ],
                 [
-                    { value: "awake" },
-                    { value: "asleep" },
-                    { value: "snack" },
-                    { value: "meal" },
-                    { value: "alcohol" },
-                    { value: "chocolate" },
-                    { value: "caffeine" },
-                    { value: "drink" },
-                    { value: "sleep aid" },
-                    { value: "exercise" },
-                    { value: "toilet" },
-                    { value: "noise" },
-                    { value: "alarm" },
-                    { value: "in bed" },
-                    { value: "out of bed" },
+                    { "value": "awake" },
+                    { "value": "asleep" },
+                    { "value": "snack" },
+                    { "value": "meal" },
+                    { "value": "alcohol" },
+                    { "value": "chocolate" },
+                    { "value": "caffeine" },
+                    { "value": "drink" },
+                    { "value": "sleep aid" },
+                    { "value": "exercise" },
+                    { "value": "toilet" },
+                    { "value": "noise" },
+                    { "value": "alarm" },
+                    { "value": "in bed" },
+                    { "value": "out of bed" },
+                    { "value": "lights off" },
+                    { "value": "lights on" },
                 ]
             ],
             statuses: [
-                "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid",
-                "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise",
-                "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet",
-                "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise",
+                "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine",
+                "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink",
+                "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid",
+                "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise",
             ],
             status_map: {
                 "awake"     :"#FFFFFFFF,#FFFFF0000",
@@ -562,7 +592,9 @@ describe("SpreadsheetGraph format", () => {
                 "noise"     :"#FFFFFFFF,#FFFFF0011",
                 "alarm"     :"#FFFFFFFF,#FFFFF0012",
                 "in bed"    :"#FFFFFFFF,#FFFFF0013",
-                "out of bed":"#FFFFFFFF,#FFFFF0014"
+                "out of bed":"#FFFFFFFF,#FFFFF0014",
+                "lights off":"#FFFFFFFF,#FFFFF0015",
+                "lights on" :"#FFFFFFFF,#FFFFF0016",
             }
 
         },
@@ -572,28 +604,30 @@ describe("SpreadsheetGraph format", () => {
             cells:
             [
                 [
-                    { style: "#FFFFFFFF,#FFFFF0000", value: "awake" },
-                    { style: "#FFFFFFFF,#FFFFF0001", value: "asleep" },
-                    { style: "#FFFFFFFF,#FFFFF0002", value: "snack" },
-                    { style: "#FFFFFFFF,#FFFFF0003", value: "meal" },
-                    { style: "#FFFFFFFF,#FFFFF0004", value: "alcohol" },
-                    { style: "#FFFFFFFF,#FFFFF0005", value: "chocolate" },
-                    { style: "#FFFFFFFF,#FFFFF0006", value: "caffeine" },
-                    //{ style: "#FFFFFFFF,#FFFFF0007", value: "drink" },
-                    { style: "#FFFFFFFF,#FFFFF0008", value: "sleep aid" },
-                    { style: "#FFFFFFFF,#FFFFF0009", value: "exercise" },
-                    { style: "#FFFFFFFF,#FFFFF0010", value: "toilet" },
-                    { style: "#FFFFFFFF,#FFFFF0011", value: "noise" },
-                    { style: "#FFFFFFFF,#FFFFF0012", value: "alarm" },
-                    { style: "#FFFFFFFF,#FFFFF0013", value: "in bed" },
-                    { style: "#FFFFFFFF,#FFFFF0014", value: "out of bed" },
+                    { "style": "#FFFFFFFF,#FFFFF0000", "value": "awake" },
+                    { "style": "#FFFFFFFF,#FFFFF0001", "value": "asleep" },
+                    { "style": "#FFFFFFFF,#FFFFF0002", "value": "snack" },
+                    { "style": "#FFFFFFFF,#FFFFF0003", "value": "meal" },
+                    { "style": "#FFFFFFFF,#FFFFF0004", "value": "alcohol" },
+                    { "style": "#FFFFFFFF,#FFFFF0005", "value": "chocolate" },
+                    { "style": "#FFFFFFFF,#FFFFF0006", "value": "caffeine" },
+                    //{ "style": "#FFFFFFFF,#FFFFF0007", "value": "drink" },
+                    { "style": "#FFFFFFFF,#FFFFF0008", "value": "sleep aid" },
+                    { "style": "#FFFFFFFF,#FFFFF0009", "value": "exercise" },
+                    { "style": "#FFFFFFFF,#FFFFF0010", "value": "toilet" },
+                    { "style": "#FFFFFFFF,#FFFFF0011", "value": "noise" },
+                    { "style": "#FFFFFFFF,#FFFFF0012", "value": "alarm" },
+                    { "style": "#FFFFFFFF,#FFFFF0013", "value": "in bed" },
+                    { "style": "#FFFFFFFF,#FFFFF0014", "value": "out of bed" },
+                    { "style": "#FFFFFFFF,#FFFFF0015", "value": "lights off" },
+                    { "style": "#FFFFFFFF,#FFFFF0016", "value": "lights on" },
                 ]
             ],
             statuses: [
-                "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid",
-                "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise",
-                "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet",
-                "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise",
+                "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine",
+                "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink",
+                "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid",
+                "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "asleep", "snack", "meal", "alcohol", "chocolate", "caffeine", "drink", "sleep aid", "exercise",
             ],
             status_map: {
                 "awake"     :"#FFFFFFFF,#FFFFF0000",
@@ -610,7 +644,9 @@ describe("SpreadsheetGraph format", () => {
                 "noise"     :"#FFFFFFFF,#FFFFF0011",
                 "alarm"     :"#FFFFFFFF,#FFFFF0012",
                 "in bed"    :"#FFFFFFFF,#FFFFF0013",
-                "out of bed":"#FFFFFFFF,#FFFFF0014"
+                "out of bed":"#FFFFFFFF,#FFFFF0014",
+                "lights off":"#FFFFFFFF,#FFFFF0015",
+                "lights on" :"#FFFFFFFF,#FFFFF0016",
             }
 
         },
@@ -620,28 +656,30 @@ describe("SpreadsheetGraph format", () => {
             cells:
             [
                 [
-                    { style: "#FFFFFFFF,#FFFFF0000", value: "awake" },
-                    //{ style: "#FFFFFFFF,#FFFFF0001", value: "asleep" },
-                    { style: "#FFFFFFFF,#FFFFF0002", value: "snack" },
-                    //{ style: "#FFFFFFFF,#FFFFF0003", value: "meal" },
-                    { style: "#FFFFFFFF,#FFFFF0004", value: "alcohol" },
-                    //{ style: "#FFFFFFFF,#FFFFF0005", value: "chocolate" },
-                    { style: "#FFFFFFFF,#FFFFF0006", value: "caffeine" },
-                    //{ style: "#FFFFFFFF,#FFFFF0007", value: "drink" },
-                    { style: "#FFFFFFFF,#FFFFF0008", value: "sleep aid" },
-                    //{ style: "#FFFFFFFF,#FFFFF0009", value: "exercise" },
-                    { style: "#FFFFFFFF,#FFFFF0010", value: "toilet" },
-                    //{ style: "#FFFFFFFF,#FFFFF0011", value: "noise" },
-                    { style: "#FFFFFFFF,#FFFFF0012", value: "alarm" },
-                    //{ style: "#FFFFFFFF,#FFFFF0013", value: "in bed" },
-                    { style: "#FFFFFFFF,#FFFFF0014", value: "out of bed" },
+                    { "style": "#FFFFFFFF,#FFFFF0000", "value": "awake" },
+                    //{ "style": "#FFFFFFFF,#FFFFF0001", "value": "asleep" },
+                    { "style": "#FFFFFFFF,#FFFFF0002", "value": "snack" },
+                    //{ "style": "#FFFFFFFF,#FFFFF0003", "value": "meal" },
+                    { "style": "#FFFFFFFF,#FFFFF0004", "value": "alcohol" },
+                    //{ "style": "#FFFFFFFF,#FFFFF0005", "value": "chocolate" },
+                    { "style": "#FFFFFFFF,#FFFFF0006", "value": "caffeine" },
+                    //{ "style": "#FFFFFFFF,#FFFFF0007", "value": "drink" },
+                    { "style": "#FFFFFFFF,#FFFFF0008", "value": "sleep aid" },
+                    //{ "style": "#FFFFFFFF,#FFFFF0009", "value": "exercise" },
+                    { "style": "#FFFFFFFF,#FFFFF0010", "value": "toilet" },
+                    //{ "style": "#FFFFFFFF,#FFFFF0011", "value": "noise" },
+                    { "style": "#FFFFFFFF,#FFFFF0012", "value": "alarm" },
+                    //{ "style": "#FFFFFFFF,#FFFFF0013", "value": "in bed" },
+                    { "style": "#FFFFFFFF,#FFFFF0014", "value": "out of bed" },
+                    { "style": "#FFFFFFFF,#FFFFF0015", "value": "lights off" },
+                    { "style": "#FFFFFFFF,#FFFFF0016", "value": "lights on" },
                 ]
             ],
             statuses: [
-                "awake", "exercise", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "drink", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "exercise", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid",
-                "exercise", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "drink", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "exercise", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "drink",
-                "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "drink", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "exercise", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "drink", "toilet",
-                "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "drink", "toilet", "noise", "alarm", "in bed", "out of bed", "awake", "exercise", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "drink", "toilet", "noise",
+                "awake", "drink", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "drink", "snack", "asleep", "alcohol", "meal", "caffeine",
+                "drink", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "drink", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate",
+                "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "drink", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid",
+                "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "exercise", "toilet", "noise", "alarm", "in bed", "out of bed", "lights off", "lights on", "awake", "drink", "snack", "asleep", "alcohol", "meal", "caffeine", "chocolate", "sleep aid", "exercise",
             ],
             status_map: {
                 "awake"     :"#FFFFFFFF,#FFFFF0000",
@@ -651,14 +689,16 @@ describe("SpreadsheetGraph format", () => {
                 "alcohol"   :"#FFFFFFFF,#FFFFF0004",
                 "chocolate" :"#FFFFFFFF,#FFFFF0007",
                 "caffeine"  :"#FFFFFFFF,#FFFFF0006",
-                "drink"     :"#FFFFFFFF,#FFFFF0009",
+                "drink"     :"#FFFFFFFF,#FFFFF0001",
                 "sleep aid" :"#FFFFFFFF,#FFFFF0008",
-                "exercise"  :"#FFFFFFFF,#FFFFF0001",
+                "exercise"  :"#FFFFFFFF,#FFFFF0009",
                 "toilet"    :"#FFFFFFFF,#FFFFF0010",
                 "noise"     :"#FFFFFFFF,#FFFFF0011",
                 "alarm"     :"#FFFFFFFF,#FFFFF0012",
                 "in bed"    :"#FFFFFFFF,#FFFFF0013",
-                "out of bed":"#FFFFFFFF,#FFFFF0014"
+                "out of bed":"#FFFFFFFF,#FFFFF0014",
+                "lights off":"#FFFFFFFF,#FFFFF0015",
+                "lights on" :"#FFFFFFFF,#FFFFF0016",
             }
 
         },
@@ -666,17 +706,17 @@ describe("SpreadsheetGraph format", () => {
     ].forEach( test => {
 
         let cells = [
-            [ { value: "2000-01-01" } ],
-            [ { value: "2000-01-02" } ],
-            [ { value: "2000-01-03" } ],
-            [ { value: "2000-01-04" } ],
+            [ { "value": "2000-01-01" } ],
+            [ { "value": "2000-01-02" } ],
+            [ { "value": "2000-01-03" } ],
+            [ { "value": "2000-01-04" } ],
         ];
 
         for ( var n=0; n!=24; ++n ) {
             cells.forEach( (row,m) => {
-                var value = ( ( n + m ) % 15 /* current value of DiaryBase.status_matches().length */ ).toString();
+                var value = ( ( n + m ) % 17 /* current value of DiaryBase.status_matches().length */ ).toString();
                 while ( value.length < 4 ) value = '0' + value;
-                row[n+1] = { value: "", style: "#FFFFFFFF,#FFFFF" + value };
+                row[n+1] = { "value": "", "style": "#FFFFFFFF,#FFFFF" + value };
             });
         }
 
@@ -684,10 +724,10 @@ describe("SpreadsheetGraph format", () => {
 
         let records = test.statuses.map(
             (status,n) => ({
-                start: 946684800000 + n*3600000,
-                comments:[],
-                end: 946684800000 + (n+1)*3600000 - 1,
-                status: status
+                "start": 946684800000 + n*3600000,
+                "comments":[],
+                "end": 946684800000 + (n+1)*3600000 - 1,
+                "status": status
             })
         );
 
@@ -699,8 +739,8 @@ describe("SpreadsheetGraph format", () => {
             input: create_diary(cells),
             spreadsheetify: "disable",
             expected: {
-                records: records,
-                status_map: test.status_map,
+                "records": records,
+                "status_map": test.status_map,
             }
         });
 
