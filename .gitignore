@@ -4,15 +4,3 @@
 
 # These files are sometimes useful during development, but should never be committed:
 README.html
-
-# These files should only be committed to the built branch:
-/doc/*.html
-/doc/fonts
-/doc/scripts
-/doc/styles
-/sleepdiary-library.js
-/sleepdiary-library.min.js
-/sleepdiary-library.min.js.map
-/test.js
-/test.js.map
-/constants.js
