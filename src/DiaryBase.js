@@ -269,7 +269,7 @@ class DiaryBase {
         engine["constructor"] = constructor;
         sleepdiary_engines.push(engine);
         if ( engine["url"][0] == '/' ) {
-            engine["url"] = "https://sleepdiary.github.io/library/" + engine["url"];
+            engine["url"] = "https://sleepdiary.github.io/library" + engine["url"];
         }
         if ( engine.name != "Standard" ) {
             sleepdiary_converters[engine.name] = engine.constructor;
