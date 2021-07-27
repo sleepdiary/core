@@ -90,7 +90,7 @@ This library is actively tested in modern versions of Firefox and Chrome.  We tr
 
 ## Compiling the project
 
-Most users can us the pre-compiled [sleepdiary-library.min.js](../sleepdiary-library.min.js).  If you want to compile the project yourself, install [Docker](https://www.docker.com/) then do:
+Most people can use the pre-compiled [sleepdiary-library.min.js](../sleepdiary-library.min.js).  If you want to compile the project yourself, install [Docker](https://www.docker.com/) then do:
 
 ```bash
 # Go to the directory this file is in:
@@ -100,7 +100,7 @@ cd .../sleepdiary-library
 docker build -t sleepdiary-library .
 
 # Build the project:
-docker run --rm -v "$PWD":/sleepdiary-library sleepdiary-library
+docker run --rm -it -v "/path/to/sleepdiary/library":/sleepdiary-library sleepdiary-library
 ```
 
 This will create a build environment that runs the [Makefile](../Makefile) in a repeatable way.  The Makefile might run on your system without Docker, but is likely to produce different results.
