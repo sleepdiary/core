@@ -43,9 +43,7 @@ You will eventually need to write your code and unit tests in JavaScript, althou
 
 [engine.js](engine.js) and [test.js](test.js) in this directory show what your code should eventually look like.  Make sure to add unit tests for all the edge cases you found in previous stages.
 
-The easiest way to test your code during development is to rebuild it like this:
-
-    run --rm -v "$PWD":/app sleepdiary-library
+See [the main README file](../../README.md) for instructions on building the repository.
 
 ## Final checklist
 

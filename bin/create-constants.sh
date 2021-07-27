@@ -2,7 +2,7 @@
 
 cat > constants.js <<EOF
 /**
- * @preserve Copyright 2020 Andrew Sayers <sleepdiary@pileofstuff.org>
+ * @preserve Copyright 2020-2021 Sleepdiary Developers <sleepdiary@pileofstuff.org>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation

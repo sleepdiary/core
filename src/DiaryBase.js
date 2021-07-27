@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Andrew Sayers <sleepdiary@pileofstuff.org>
+ * Copyright 2020-2021 Sleepdiary Developers <sleepdiary@pileofstuff.org>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -269,7 +269,7 @@ class DiaryBase {
         engine["constructor"] = constructor;
         sleepdiary_engines.push(engine);
         if ( engine["url"][0] == '/' ) {
-            engine["url"] = "https://sleepdiary.github.io/library/" + engine["url"];
+            engine["url"] = "https://sleepdiary.github.io/library" + engine["url"];
         }
         if ( engine.name != "Standard" ) {
             sleepdiary_converters[engine.name] = engine.constructor;
