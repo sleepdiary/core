@@ -50,8 +50,12 @@ doc/index.html: doc/README.md $(DIARY_FILES) doc/tutorials/*.md
 	sed -i -e "s/Thu Jan 01 1970 ..:..:.. GMT+0000 (Coordinated Universal Time)/$(shell node -e "console.log(new Date('$(shell git log -1 --format="%ci" doc/README.md $(DIARY_FILES) doc/tutorials )').toString())" )/g" doc/*.html
 
 test: spec/support/jasmine.json sleepdiary-library.min.js test.js
-	jasmine $<
-	PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-no-sandbox node bin/puppeteer-test.js
+	TZ="Etc/GMT" jasmine $<
+	TZ="Europe/London" jasmine $< # UK time GMT half of the year, GMT+1 the rest of the time
+	TZ="Asia/Kathmandu" jasmine $< # Nepal Standard Time is UTC+05:45
+	TZ="Pacific/Pago_Pago" jasmine $< # Lowest value in the TZ database
+	TZ="Pacific/Kiritimati" jasmine $< # Highest value in the TZ database
+
 
 clean:
 	rm -rf README.html doc/*.html sleepdiary-library.min.js* test.js* doc/*/README.html doc/fonts doc/scripts doc/styles
