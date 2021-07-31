@@ -6,13 +6,3 @@
 README.html
 
 # These files should only be committed to the built branch:
-/doc/*.html
-/doc/fonts
-/doc/scripts
-/doc/styles
-/sleepdiary-core.js
-/sleepdiary-core.min.js
-/sleepdiary-core.min.js.map
-/test.js
-/test.js.map
-/constants.js
