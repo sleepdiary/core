@@ -72,13 +72,13 @@ class DiaryLoader {
 
         function generate_init_callback( source ) {
             return () => {
-                if ( !(history.state||{})["sleepdiary-library-processed"] ) {
+                if ( !(history.state||{})["sleepdiary-core-processed"] ) {
                     location.hash.replace(
                         /(?:^#|[?&])(sleep-?diary=[^&]*)/g,
                         (_,diary) => {
                             history.replaceState(
                                 Object.assign(
-                                    { "sleepdiary-library-processed": hash_parse_policy },
+                                    { "sleepdiary-core-processed": hash_parse_policy },
                                     /** @type {Object} */(history.state||{})
                                 ),
                                 '',
