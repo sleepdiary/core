@@ -1,9 +1,7 @@
 DEFAULT_GOAL: test
-FULL: DEFAULT_GOAL doc/index.html
+FULL: build test
 
-.PHONY: DEFAULT_GOAL clean build
-
-all-test: DEFAULT_GOAL test
+.PHONY: DEFAULT_GOAL clean build test
 
 # Add your engines to the following line:
 ENGINES = Standard Sleepmeter SleepAsAndroid PleesTracker SleepChart1 ActivityLog
