@@ -22,22 +22,16 @@ Each format includes example code for loading and saving documents in the releva
 
 To check if the project works in your browser, try the [browser-based unit tests](browser_test.html).  Then [download the library](sleepdiary-library.min.js) and check out [the library documentation](doc/).
 
-### Compiling the library
+## Developing the project
 
-Most people can use the pre-compiled [sleepdiary-library.min.js](sleepdiary-library.min.js).  If you want to compile the project yourself, install [Docker](https://www.docker.com/) then do:
+Most people can use the pre-compiled [sleepdiary-library.min.js](sleepdiary-library.min.js).  If you want to compile the project yourself, the recommended solution is to [install Docker](https://docs.docker.com/get-started/) and do:
 
-```bash
-# Go to the directory this file is in:
-cd .../sleepdiary-library
-
-# First time only: create the build envirnoment:
-docker build -t sleepdiary-library .
-
-# Build the project:
-docker run --rm -it -v "/path/to/sleepdiary/library":/sleepdiary-library sleepdiary-library
-```
-
-This will create a build environment that runs the [Makefile](../Makefile) in a repeatable way.  The Makefile might run on your system without Docker, but is likely to produce different results.
+    # build and test:
+    docker run --rm -it -v "/path/to/sleepdiary/library":/app sleepdiaryproject/builder
+    # build but don't test:
+    docker run --rm -it -v "/path/to/sleepdiary/library":/app sleepdiaryproject/builder build
+    # rebuild whenever files change:
+    docker run --rm -it -v "/path/to/sleepdiary/library":/app sleepdiaryproject/builder run
 
 # Reporting issues
 

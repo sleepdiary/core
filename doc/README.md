@@ -88,19 +88,10 @@ let diary = sleepdiary.new_sleep_diary( my_diary );
 
 This library is actively tested in modern versions of Firefox and Chrome.  We try to support all modern Chromium-based browsers, plus Internet Explorer 10 and 11.  Please report any bugs you find in supported browsers.
 
-## Compiling the project
+## Developing the project
 
-Most people can use the pre-compiled [sleepdiary-library.min.js](../sleepdiary-library.min.js).  If you want to compile the project yourself, install [Docker](https://www.docker.com/) then do:
+Most people can use the pre-compiled [sleepdiary-library.min.js](../sleepdiary-library.min.js).  If you want to compile the project yourself, the recommended solution is to [install Docker](https://docs.docker.com/get-started/) and do:
 
-```bash
-# Go to the directory this file is in:
-cd .../sleepdiary-library
-
-# First time only: create the build envirnoment:
-docker build -t sleepdiary-library .
-
-# Build the project:
-docker run --rm -it -v "/path/to/sleepdiary/library":/sleepdiary-library sleepdiary-library
-```
-
-This will create a build environment that runs the [Makefile](../Makefile) in a repeatable way.  The Makefile might run on your system without Docker, but is likely to produce different results.
+    docker run --rm -it -v "/path/to/sleepdiary/library":/app sleepdiaryproject/builder # build and test
+    docker run --rm -it -v "/path/to/sleepdiary/library":/app sleepdiaryproject/builder build # build but don't test
+    docker run --rm -it -v "/path/to/sleepdiary/library":/app sleepdiaryproject/builder run # rebuild whenever files change
