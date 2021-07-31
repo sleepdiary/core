@@ -25,7 +25,7 @@ CLOSURE_OPTIONS= \
 SLEEP_DIARY_ENGINES_EXTERNS=src/closure-externs.js
 TEST_INPUT=src/test-harness.js src/test-spreadsheet.js $(patsubst %,src/%/test.js,$(ENGINES))
 
-sleepdiary-library.min.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES)
+sleepdiary-core.min.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES)
 	./bin/create-constants.sh
 	google-closure-compiler \
 		$(CLOSURE_OPTIONS) \
@@ -33,7 +33,7 @@ sleepdiary-library.min.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES)
 		--js_output_file $@ \
 		--js constants.js $(DIARY_FILES)
 	rm constants.js
-	echo "//# sourceMappingURL="sleepdiary-library.min.js.map >> sleepdiary-library.min.js
+	echo "//# sourceMappingURL="sleepdiary-core.min.js.map >> sleepdiary-core.min.js
 
 test.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES) $(TEST_INPUT)
 	./bin/create-constants.sh
@@ -49,7 +49,7 @@ doc/index.html: doc/README.md $(DIARY_FILES) doc/tutorials/*.md
 	/tmp/libfaketime/src/faketime "1970-01-01 00:00:00 +0000" jsdoc -d doc --readme $< $(DIARY_FILES) -u doc/tutorials
 	sed -i -e "s/Thu Jan 01 1970 ..:..:.. GMT+0000 (Coordinated Universal Time)/$(shell node -e "console.log(new Date('$(shell git log -1 --format="%ci" doc/README.md $(DIARY_FILES) doc/tutorials )').toString())" )/g" doc/*.html
 
-test: spec/support/jasmine.json sleepdiary-library.min.js test.js
+test: spec/support/jasmine.json sleepdiary-core.min.js test.js
 	TZ="Etc/GMT" jasmine $<
 	TZ="Europe/London" jasmine $< # UK time GMT half of the year, GMT+1 the rest of the time
 	TZ="Asia/Kathmandu" jasmine $< # Nepal Standard Time is UTC+05:45
@@ -58,6 +58,6 @@ test: spec/support/jasmine.json sleepdiary-library.min.js test.js
 
 
 clean:
-	rm -rf README.html doc/*.html sleepdiary-library.min.js* test.js* doc/*/README.html doc/fonts doc/scripts doc/styles
+	rm -rf README.html doc/*.html sleepdiary-core.min.js* test.js* doc/*/README.html doc/fonts doc/scripts doc/styles
 
-build: sleepdiary-library.min.js doc/index.html test.js
+build: sleepdiary-core.min.js doc/index.html test.js

@@ -28,7 +28,7 @@ Now open a text editor and create a file called `index.html` in your `day-length
     </svg>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.3.1/d3.min.js"></script>
-    <script src="https://sleepdiary.github.io/library/sleepdiary-library.min.js"></script>
+    <script src="https://sleepdiary.github.io/core/sleepdiary-core.min.js"></script>
     <script src="index.js"></script>
 
   </body>

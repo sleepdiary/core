@@ -1,6 +1,6 @@
 #!/bin/sh
 
-SLEEPDIARY_NAME=library
+SLEEPDIARY_NAME=core
 
 cmd_build() {
 

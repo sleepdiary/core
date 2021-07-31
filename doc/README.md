@@ -1,4 +1,4 @@
-# Sleep Diary Library
+# Sleep Diary Core Library
 
 ## Browser Quick Start
 
@@ -9,7 +9,7 @@ In your HTML:
 
 ...
 
-<script src="https://sleepdiary.github.io/library/sleepdiary-library.min.js"></script>
+<script src="https://sleepdiary.github.io/core/sleepdiary-core.min.js"></script>
 ```
 
 In your JavaScript:
@@ -77,7 +77,7 @@ npm install timezonecomplete xmldom
 Use the package:
 
 ```javascript
-const sleepdiary = require(".../sleepdiary-library.min.js");
+const sleepdiary = require(".../sleepdiary-core.min.js");
 
 ...
 
@@ -90,8 +90,8 @@ This library is actively tested in modern versions of Firefox and Chrome.  We tr
 
 ## Developing the project
 
-Most people can use the pre-compiled [sleepdiary-library.min.js](../sleepdiary-library.min.js).  If you want to compile the project yourself, the recommended solution is to [install Docker](https://docs.docker.com/get-started/) and do:
+Most people can use the pre-compiled [sleepdiary-core.min.js](../sleepdiary-core.min.js).  If you want to compile the project yourself, the recommended solution is to [install Docker](https://docs.docker.com/get-started/) and do:
 
-    docker run --rm -it -v "/path/to/sleepdiary/library":/app sleepdiaryproject/builder # build and test
-    docker run --rm -it -v "/path/to/sleepdiary/library":/app sleepdiaryproject/builder build # build but don't test
-    docker run --rm -it -v "/path/to/sleepdiary/library":/app sleepdiaryproject/builder run # rebuild whenever files change
+    docker run --rm -it -v "/path/to/sleepdiary/core":/app sleepdiaryproject/builder # build and test
+    docker run --rm -it -v "/path/to/sleepdiary/core":/app sleepdiaryproject/builder build # build but don't test
+    docker run --rm -it -v "/path/to/sleepdiary/core":/app sleepdiaryproject/builder run # rebuild whenever files change
