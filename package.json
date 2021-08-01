@@ -12,9 +12,9 @@
     "sleepdiary-core.min.js.map"
   ],
   "dependencies": {
+    "exceljs": "^4.2.1",
     "timezonecomplete": "^5.12.4",
-    "xmldom": "^0.6.0",
-    "exceljs": "^4.2.1"
+    "xmldom": "^0.6.0"
   },
   "keywords": [
     "sleep",
@@ -32,4 +32,3 @@
     "sleepchart"
   ]
 }
-
