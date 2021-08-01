@@ -14,13 +14,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v2.3.0
-        with:
-          cache: 'npm'
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
           ref: built
+      - uses: actions/setup-node@v2.3.0
+        with:
+          cache: 'npm'
       - name: Build
         uses: docker://ghcr.io/sleepdiary/builder:latest
         with:
