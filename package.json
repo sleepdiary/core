@@ -1,0 +1,35 @@
+{
+  "name": "@sleepdiary/core",
+  "description": "Manage file formats that record circadian rhythms",
+  "version": "0.1.0",
+  "main": "sleepdiary-core.min.js",
+  "homepage": "https://github.com/sleepdiary/core",
+  "bugs": "https://github.com/sleepdiary/core/issues",
+  "repository": "github:sleepdiary/core",
+  "license": "MIT",
+  "files": [
+    "sleepdiary-core.min.js",
+    "sleepdiary-core.min.js.map"
+  ],
+  "dependencies": {
+    "timezonecomplete": "^5.12.4",
+    "xmldom": "^0.6.0",
+    "exceljs": "^4.2.1"
+  },
+  "keywords": [
+    "sleep",
+    "sleep-analysis",
+    "sleep-diary",
+    "sleep-format",
+    "circadian",
+    "circadian-rhythm",
+    "circadian-rhythm-disorder",
+    "sleep-disorders",
+    "sleep-tools",
+    "plees-tracker",
+    "sleep-as-android",
+    "sleepmeter",
+    "sleepchart"
+  ]
+}
+
