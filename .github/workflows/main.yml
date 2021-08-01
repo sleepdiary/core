@@ -18,9 +18,18 @@ jobs:
         with:
           fetch-depth: 0
           ref: built
-      - uses: actions/setup-node@v2.3.0
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
         with:
-          cache: 'npm'
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - uses: actions/setup-node@v2.3.0
       - name: Build
         uses: docker://ghcr.io/sleepdiary/builder:latest
         with:
