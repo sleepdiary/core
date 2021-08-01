@@ -4,7 +4,7 @@ SLEEPDIARY_NAME=core
 
 cmd_build() {
 
-    npm install xmldom timezonecomplete exceljs
+    npm install
 
     if [ -n "$FORCE" ]
     then make -B build
