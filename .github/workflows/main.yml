@@ -14,22 +14,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Cache node modules
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      - uses: actions/setup-node@v1
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
           ref: built
+      - uses: actions/setup-node@v2.3.0
+        with:
+          cache: 'npm'
       - name: Build
         uses: docker://ghcr.io/sleepdiary/builder:latest
         with:
