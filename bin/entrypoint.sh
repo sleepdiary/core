@@ -4,7 +4,7 @@ SLEEPDIARY_NAME=core
 
 cmd_build() {
 
-    npm install
+    npm install --silent
 
     if [ -n "$FORCE" ]
     then make -B build
