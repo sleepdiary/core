@@ -17,13 +17,20 @@ cmd_test() {
 
     make FULL || return "$?"
 
-    git log --oneline | grep -i 'fixup!\|squash\!' && warning "Please do: git rebase -i @{u}"
+    git diff @{u} -- . ':!src/Example' | grep -i '^\+.*todo' \
+        && warning \
+               "git diff found 'TODO' messages" \
+               "Please do these or remove the messages"
 
-    git diff @{u} -- . ':!src/Example' | grep -i '^\+.*todo' && warning "Please remove 'TODO' messages in your code"
+    git diff @{u} -- . ':!src/Example' | grep -i '^\+.*[^@\/]example[^s]' | grep -vF 'example code' \
+        && warning \
+               "git diff found example code" \
+               "Please remove these from your code"
 
-    git diff @{u} -- . ':!src/Example' | grep -i '^\+.*[^@\/]example[^s]' | grep -vF 'example code' && warning "Please fix 'example' messages in your code"
-
-    git diff @{u} -- . ':!src/Example' | grep -i '^\+[^\*]*\.\.\.' && warning "Please fix '...' messages in your code"
+    git diff @{u} -- . ':!src/Example' | grep -i '^\+[^\*]*\.\.\.' \
+        && warning \
+               "git diff found '...' messages" \
+               "Please fill these in or remove the messages"
 
     git ls-files src/\*/engine.js \
         | sed -e 's/^src\///' -e 's/\/engine.js$//' -e '/^Example$/ d' \
