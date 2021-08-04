@@ -25,28 +25,26 @@ CLOSURE_OPTIONS= \
 SLEEP_DIARY_ENGINES_EXTERNS=src/closure-externs.js
 TEST_INPUT=src/test-harness.js src/test-spreadsheet.js $(patsubst %,src/%/test.js,$(ENGINES))
 
-sleepdiary-core.min.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES)
+constants.js: bin/create-constants.sh
 	@echo Run create-constants.sh...
 	@./bin/create-constants.sh
+
+sleepdiary-core.min.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES) constants.js
 	@echo Run google-closure-compiler sleepdiary-core.min.js...
 	@google-closure-compiler \
 		$(CLOSURE_OPTIONS) \
 		--externs $(SLEEP_DIARY_ENGINES_EXTERNS) \
 		--js_output_file $@ \
 		--js constants.js $(DIARY_FILES)
-	@rm -f constants.js
 	@echo "//# sourceMappingURL="sleepdiary-core.min.js.map >> sleepdiary-core.min.js
 
-test.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES) $(TEST_INPUT)
-	@echo Run create-constants.sh...
-	@./bin/create-constants.sh
+test.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES) $(TEST_INPUT) constants.js
 	@echo Run google-closure-compiler test.js...
 	@google-closure-compiler \
 		$(CLOSURE_OPTIONS) \
 		--externs $(SLEEP_DIARY_ENGINES_EXTERNS) \
 		--js_output_file $@ \
 		--js constants.js $(DIARY_FILES) $(TEST_INPUT)
-	@rm constants.js
 	@echo "//# sourceMappingURL="test.js.map >> test.js
 
 doc/index.html: doc/README.md $(DIARY_FILES) doc/tutorials/*.md
@@ -82,3 +80,4 @@ clean:
 	rm -rf README.html doc/*.html sleepdiary-core.min.js* test.js* doc/*/README.html doc/fonts doc/scripts doc/styles
 
 build: sleepdiary-core.min.js doc/index.html test.js
+	@rm -f constants.js
