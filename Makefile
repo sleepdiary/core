@@ -1,7 +1,7 @@
 DEFAULT_GOAL: test
 FULL: build test
 
-.PHONY: DEFAULT_GOAL clean build test
+.PHONY: DEFAULT_GOAL clean build test test-1 test-2 test-3 test-4 test-5
 
 # Add your engines to the following line:
 ENGINES = Standard Sleepmeter SleepAsAndroid PleesTracker SleepChart1 ActivityLog
@@ -25,28 +25,26 @@ CLOSURE_OPTIONS= \
 SLEEP_DIARY_ENGINES_EXTERNS=src/closure-externs.js
 TEST_INPUT=src/test-harness.js src/test-spreadsheet.js $(patsubst %,src/%/test.js,$(ENGINES))
 
-sleepdiary-core.min.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES)
+constants.js: bin/create-constants.sh
 	@echo Run create-constants.sh...
 	@./bin/create-constants.sh
+
+sleepdiary-core.min.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES) constants.js
 	@echo Run google-closure-compiler sleepdiary-core.min.js...
 	@google-closure-compiler \
 		$(CLOSURE_OPTIONS) \
 		--externs $(SLEEP_DIARY_ENGINES_EXTERNS) \
 		--js_output_file $@ \
 		--js constants.js $(DIARY_FILES)
-	@rm -f constants.js
 	@echo "//# sourceMappingURL="sleepdiary-core.min.js.map >> sleepdiary-core.min.js
 
-test.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES) $(TEST_INPUT)
-	@echo Run create-constants.sh...
-	@./bin/create-constants.sh
+test.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES) $(TEST_INPUT) constants.js
 	@echo Run google-closure-compiler test.js...
 	@google-closure-compiler \
 		$(CLOSURE_OPTIONS) \
 		--externs $(SLEEP_DIARY_ENGINES_EXTERNS) \
 		--js_output_file $@ \
 		--js constants.js $(DIARY_FILES) $(TEST_INPUT)
-	@rm constants.js
 	@echo "//# sourceMappingURL="test.js.map >> test.js
 
 doc/index.html: doc/README.md $(DIARY_FILES) doc/tutorials/*.md
@@ -55,15 +53,31 @@ doc/index.html: doc/README.md $(DIARY_FILES) doc/tutorials/*.md
 	@echo Fix timestamps...
 	@sed -i -e "s/Thu Jan 01 1970 ..:..:.. GMT+0000 (Coordinated Universal Time)/$(shell node -e "console.log(new Date('$(shell git log -1 --format="%ci" doc/README.md $(DIARY_FILES) doc/tutorials )').toString())" )/g" doc/*.html
 
-test: spec/support/jasmine.json sleepdiary-core.min.js test.js
-	TZ="Etc/GMT" jasmine $<
-	TZ="Europe/London" jasmine $< # UK time GMT half of the year, GMT+1 the rest of the time
-	TZ="Asia/Kathmandu" jasmine $< # Nepal Standard Time is UTC+05:45
-	TZ="Pacific/Pago_Pago" jasmine $< # Lowest value in the TZ database
-	TZ="Pacific/Kiritimati" jasmine $< # Highest value in the TZ database
+test: test-1 test-2 test-3 test-4 test-5
 
+# timezone-specific bugs are generally absent here:
+test-1: spec/support/jasmine.json sleepdiary-core.min.js test.js
+	TZ="Etc/GMT" jasmine $<
+	@echo
+# UK time GMT half of the year, GMT+1 the rest of the time - catches DST-related bugs:
+test-2: spec/support/jasmine.json sleepdiary-core.min.js test.js
+	TZ="Europe/London" jasmine $<
+	@echo
+# Nepal Standard Time is UTC+05:45 - catches bugs that assume a whole-hour offset:
+test-3: spec/support/jasmine.json sleepdiary-core.min.js test.js
+	TZ="Asia/Kathmandu" jasmine $<
+	@echo
+# Lowest value in the TZ database:
+test-4: spec/support/jasmine.json sleepdiary-core.min.js test.js
+	TZ="Pacific/Pago_Pago" jasmine $<
+	@echo
+# Highest value in the TZ database:
+test-5: spec/support/jasmine.json sleepdiary-core.min.js test.js
+	TZ="Pacific/Kiritimati" jasmine $<
+	@echo
 
 clean:
 	rm -rf README.html doc/*.html sleepdiary-core.min.js* test.js* doc/*/README.html doc/fonts doc/scripts doc/styles
 
 build: sleepdiary-core.min.js doc/index.html test.js
+	@rm -f constants.js
