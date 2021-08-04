@@ -1,7 +1,7 @@
 DEFAULT_GOAL: test
 FULL: build test
 
-.PHONY: DEFAULT_GOAL clean build test
+.PHONY: DEFAULT_GOAL clean build test test-1 test-2 test-3 test-4 test-5
 
 # Add your engines to the following line:
 ENGINES = Standard Sleepmeter SleepAsAndroid PleesTracker SleepChart1 ActivityLog
@@ -55,13 +55,28 @@ doc/index.html: doc/README.md $(DIARY_FILES) doc/tutorials/*.md
 	@echo Fix timestamps...
 	@sed -i -e "s/Thu Jan 01 1970 ..:..:.. GMT+0000 (Coordinated Universal Time)/$(shell node -e "console.log(new Date('$(shell git log -1 --format="%ci" doc/README.md $(DIARY_FILES) doc/tutorials )').toString())" )/g" doc/*.html
 
-test: spec/support/jasmine.json sleepdiary-core.min.js test.js
-	TZ="Etc/GMT" jasmine $<
-	TZ="Europe/London" jasmine $< # UK time GMT half of the year, GMT+1 the rest of the time
-	TZ="Asia/Kathmandu" jasmine $< # Nepal Standard Time is UTC+05:45
-	TZ="Pacific/Pago_Pago" jasmine $< # Lowest value in the TZ database
-	TZ="Pacific/Kiritimati" jasmine $< # Highest value in the TZ database
+test: test-1 test-2 test-3 test-4 test-5
 
+# timezone-specific bugs are generally absent here:
+test-1: spec/support/jasmine.json sleepdiary-core.min.js test.js
+	TZ="Etc/GMT" jasmine $<
+	@echo
+# UK time GMT half of the year, GMT+1 the rest of the time - catches DST-related bugs:
+test-2: spec/support/jasmine.json sleepdiary-core.min.js test.js
+	TZ="Europe/London" jasmine $<
+	@echo
+# Nepal Standard Time is UTC+05:45 - catches bugs that assume a whole-hour offset:
+test-3: spec/support/jasmine.json sleepdiary-core.min.js test.js
+	TZ="Asia/Kathmandu" jasmine $<
+	@echo
+# Lowest value in the TZ database:
+test-4: spec/support/jasmine.json sleepdiary-core.min.js test.js
+	TZ="Pacific/Pago_Pago" jasmine $<
+	@echo
+# Highest value in the TZ database:
+test-5: spec/support/jasmine.json sleepdiary-core.min.js test.js
+	TZ="Pacific/Kiritimati" jasmine $<
+	@echo
 
 clean:
 	rm -rf README.html doc/*.html sleepdiary-core.min.js* test.js* doc/*/README.html doc/fonts doc/scripts doc/styles
