@@ -7,8 +7,8 @@ cmd_build() {
     npm install --silent
 
     if [ -n "$FORCE" ]
-    then make -B build
-    else make    build
+    then make -j -B build
+    else make -j    build
     fi
 
 }
