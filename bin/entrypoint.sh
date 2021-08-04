@@ -7,15 +7,18 @@ cmd_build() {
     npm install --silent
 
     if [ -n "$FORCE" ]
-    then make -B build
-    else make    build
+    then make -j -B build
+    else make -j    build
     fi
 
 }
 
 cmd_test() {
 
-    make FULL || return "$?"
+    if [ -t 1 ]
+    then make             FULL || return "$?"
+    else make -j -Otarget FULL || return "$?"
+    fi
 
     git diff @{u} -- . ':!src/Example' | grep -i '^\+.*todo' \
         && warning \
