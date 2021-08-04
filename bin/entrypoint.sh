@@ -15,7 +15,10 @@ cmd_build() {
 
 cmd_test() {
 
-    make FULL || return "$?"
+    if [ -t 1 ]
+    then make             FULL || return "$?"
+    else make -j -Otarget FULL || return "$?"
+    fi
 
     git diff @{u} -- . ':!src/Example' | grep -i '^\+.*todo' \
         && warning \
