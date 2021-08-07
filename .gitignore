@@ -1,7 +1,7 @@
 #
 # Ignored files
 #
-/node_modules
+node_modules
 
 # These files are sometimes useful during development, but should never be committed:
 README.html
