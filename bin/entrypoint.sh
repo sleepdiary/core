@@ -50,7 +50,7 @@ cmd_test() {
 
 }
 
-cmd_run() {
+cmd_serve() {
     find src/ -type f -print0 | \
         xargs -0 inotifywait -q -e CLOSE_WRITE -m | \
         while read REPLY
