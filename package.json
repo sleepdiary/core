@@ -11,6 +11,12 @@
     "sleepdiary-core.min.js",
     "sleepdiary-core.min.js.map"
   ],
+  "scripts": {
+    "build": "./bin/run.sh build",
+    "force-build": "./bin/run.sh build --force",
+    "test": "./bin/run.sh test",
+    "serve": "./bin/run.sh serve"
+  },
   "dependencies": {
     "exceljs": "^4.2.1",
     "timezonecomplete": "^5.12.4",
