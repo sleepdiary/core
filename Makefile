@@ -31,7 +31,7 @@ constants.js: bin/create-constants.sh
 
 sleepdiary-core.min.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES) constants.js
 	@echo Compiling $@
-	@google-closure-compiler \
+	@npx google-closure-compiler \
 		$(CLOSURE_OPTIONS) \
 		--externs $(SLEEP_DIARY_ENGINES_EXTERNS) \
 		--js_output_file $@ \
@@ -40,7 +40,7 @@ sleepdiary-core.min.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES) constants.
 
 test.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES) $(TEST_INPUT) constants.js
 	@echo Compiling $@
-	@google-closure-compiler \
+	@npx google-closure-compiler \
 		$(CLOSURE_OPTIONS) \
 		--externs $(SLEEP_DIARY_ENGINES_EXTERNS) \
 		--js_output_file $@ \
