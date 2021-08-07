@@ -26,11 +26,11 @@ SLEEP_DIARY_ENGINES_EXTERNS=src/closure-externs.js
 TEST_INPUT=src/test-harness.js src/test-spreadsheet.js $(patsubst %,src/%/test.js,$(ENGINES))
 
 constants.js: bin/create-constants.sh
-	@echo Run create-constants.sh...
+	@echo Running create-constants.sh
 	@./bin/create-constants.sh
 
 sleepdiary-core.min.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES) constants.js
-	@echo Run google-closure-compiler sleepdiary-core.min.js...
+	@echo Compiling $@
 	@google-closure-compiler \
 		$(CLOSURE_OPTIONS) \
 		--externs $(SLEEP_DIARY_ENGINES_EXTERNS) \
@@ -39,7 +39,7 @@ sleepdiary-core.min.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES) constants.
 	@echo "//# sourceMappingURL="sleepdiary-core.min.js.map >> sleepdiary-core.min.js
 
 test.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES) $(TEST_INPUT) constants.js
-	@echo Run google-closure-compiler test.js...
+	@echo Compiling $@
 	@google-closure-compiler \
 		$(CLOSURE_OPTIONS) \
 		--externs $(SLEEP_DIARY_ENGINES_EXTERNS) \
@@ -48,9 +48,9 @@ test.js: $(SLEEP_DIARY_ENGINES_EXTERNS) $(DIARY_FILES) $(TEST_INPUT) constants.j
 	@echo "//# sourceMappingURL="test.js.map >> test.js
 
 doc/index.html: doc/README.md $(DIARY_FILES) doc/tutorials/*.md
-	@echo Run jsdoc -d doc...
+	@echo Running jsdoc -d doc
 	@/tmp/libfaketime/src/faketime "1970-01-01 00:00:00 +0000" jsdoc -d doc --readme $< $(DIARY_FILES) -u doc/tutorials
-	@echo Fix timestamps...
+	@echo Fixing timestamps
 	@sed -i -e "s/Thu Jan 01 1970 ..:..:.. GMT+0000 (Coordinated Universal Time)/$(shell node -e "console.log(new Date('$(shell git log -1 --format="%ci" doc/README.md $(DIARY_FILES) doc/tutorials )').toString())" )/g" doc/*.html
 
 test: test-1 test-2 test-3 test-4 test-5
