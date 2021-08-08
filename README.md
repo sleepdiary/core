@@ -26,11 +26,11 @@ To check if the project works in your browser, try the [browser-based unit tests
 
 ### I found a bug, how should I tell you?
 
-[Create a new bug report](https://github.com/sleepdiary/info/issues/new?assignees=&labels=&template=bug_report.md&title=) and we'll get right on it.
+[Create a new bug report](https://github.com/sleepdiary/core/issues/new?assignees=&labels=&template=bug_report.md&title=) and we'll get right on it.
 
 ### I'd like to request a new feature, what should I say?
 
-Please [create a new feature request](https://github.com/sleepdiary/info/issues/new?assignees=&labels=&template=feature_request.md&title=).  We'll try to sort out your problem.
+Please [create a new feature request](https://github.com/sleepdiary/core/issues/new?assignees=&labels=&template=feature_request.md&title=).  We'll try to sort out your problem.
 
 ### I'd like to change the code, how do I get started?
 
