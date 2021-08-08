@@ -6,13 +6,13 @@ Documentation and code for file formats that record circadian rhythms.
 
 Third-party documentation for a variety of file formats.  These describe issues that implementors may face in practice, but which are not mentioned in the official documentation.
 
-* [Activity Log](src/ActivityLog/)
-* [Plees Tracker](src/PleesTracker/)
-* [Sleep as Android](src/SleepAsAndroid/)
-* [Sleepmeter](src/Sleepmeter/)
-* [Spreadsheet Graph](src/SpreadsheetGraph/)
-* [Spreadsheet Table](src/SpreadsheetTable/)
-* [SleepChart 1.0](src/SleepChart1/)
+- [Activity Log](src/ActivityLog/)
+- [Plees Tracker](src/PleesTracker/)
+- [Sleep as Android](src/SleepAsAndroid/)
+- [Sleepmeter](src/Sleepmeter/)
+- [Spreadsheet Graph](src/SpreadsheetGraph/)
+- [Spreadsheet Table](src/SpreadsheetTable/)
+- [SleepChart 1.0](src/SleepChart1/)
 
 The example code can translate these formats to and from [Standard format](src/Standard), which provides a standard interface for common functionality.
 
