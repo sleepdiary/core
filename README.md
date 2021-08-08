@@ -22,19 +22,16 @@ Each format includes example code for loading and saving documents in the releva
 
 To check if the project works in your browser, try the [browser-based unit tests](browser_test.html).  Then [download the library](sleepdiary-core.min.js) and check out [the library documentation](doc/).
 
-## Developing the project
+## Get Involved
 
-Most people can use the pre-compiled [sleepdiary-core.min.js](sleepdiary-core.min.js).  If you want to compile the project yourself, the recommended solution is to [install Docker](https://docs.docker.com/get-started/) and do:
+### I found a bug, how should I tell you?
 
-    # build and test:
-    docker run --rm -it -v "/path/to/sleepdiary/core":/app sleepdiaryproject/builder
-    # build but don't test:
-    docker run --rm -it -v "/path/to/sleepdiary/core":/app sleepdiaryproject/builder build
-    # rebuild whenever files change:
-    docker run --rm -it -v "/path/to/sleepdiary/core":/app sleepdiaryproject/builder run
+[Create a new bug report](https://github.com/sleepdiary/info/issues/new?assignees=&labels=&template=bug_report.md&title=) and we'll get right on it.
 
-# Reporting issues
+### I'd like to request a new feature, what should I say?
 
-Please [create a new GitHub issue](https://github.com/sleepdiary/core/issues/new/choose) or [mention it on Discord](https://discord.com/channels/725475399156629615/725477106103877772).  GitHub is generally a better place to discuss feature requests, but Discord is more private if you need to include data from your personal sleep diary.  When reporting a bug, make sure to include [unit test results](browser_test.html) for your browser - even if they don't find anything, it helps us to rule out things that _can't_ be the problem.
+Please [create a new feature request](https://github.com/sleepdiary/info/issues/new?assignees=&labels=&template=feature_request.md&title=).  We'll try to sort out your problem.
 
-Please get in touch if you would like to add support for a new format!
+### I'd like to change the code, how do I get started?
+
+Take a look at our [getting started guide](https://github.com/sleepdiary/docs/blob/main/development/getting-started.md).  Or if you'd like to talk to someone first, [open a discussion](https://github.com/sleepdiary/sleepdiary.github.io/discussions) and describe what you're planning.
