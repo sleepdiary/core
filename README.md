@@ -35,3 +35,9 @@ Please [create a new feature request](https://github.com/sleepdiary/core/issues/
 ### I'd like to change the code, how do I get started?
 
 Take a look at our [getting started guide](https://github.com/sleepdiary/docs/blob/main/development/getting-started.md).  Or if you'd like to talk to someone first, [open a discussion](https://github.com/sleepdiary/sleepdiary.github.io/discussions) and describe what you're planning.
+
+## License
+
+Sleep Diary Core Library, Copyright © 2021 [Sleepdiary Developers](mailto:sleepdiary@pileofstuff.org)
+
+Sleep Diary Core Library comes with ABSOLUTELY NO WARRANTY.  This is free software, and you are welcome to redistribute it under certain conditions.  For details, see [the license statement](LICENSE).
