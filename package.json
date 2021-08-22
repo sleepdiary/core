@@ -20,7 +20,7 @@
   "dependencies": {
     "exceljs": "^4.2.1",
     "timezonecomplete": "^5.12.4",
-    "xmldom": "^0.6.0"
+    "@xmldom/xmldom": "^0.7.0"
   },
   "devDependencies": {
     "google-closure-compiler": ">=20210601.0.0"
