@@ -71,7 +71,7 @@ See individual classes for the capabilities of each format.
 Install dependencies:
 
 ```bash
-npm install timezonecomplete xmldom
+npm install timezonecomplete @xmldom/xmldom
 ```
 
 Use the package:

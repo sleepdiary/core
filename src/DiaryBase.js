@@ -372,7 +372,7 @@ class DiaryBase {
             dom_parser = self.DOMParser;
             if ( !dom_parser ) throw "";
         } catch (e) {
-            dom_parser = require("xmldom").DOMParser;
+            dom_parser = require("@xmldom/xmldom").DOMParser;
         }
 
         return new dom_parser().parseFromString(string, "application/xml");
