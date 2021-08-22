@@ -54,6 +54,10 @@ case "$1" in
         exit "$WARNED"
         ;;
 
+    upgrade)
+        npm upgrade
+        ;;
+
     serve)
         DIRECTORIES=src
         do_build
