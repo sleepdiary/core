@@ -18,9 +18,9 @@
     "serve": "./bin/run.sh serve"
   },
   "dependencies": {
+    "@xmldom/xmldom": "^0.7.0",
     "exceljs": "^4.2.1",
-    "timezonecomplete": "^5.12.4",
-    "@xmldom/xmldom": "^0.7.0"
+    "timezonecomplete": "^5.12.4"
   },
   "devDependencies": {
     "google-closure-compiler": ">=20210601.0.0"
