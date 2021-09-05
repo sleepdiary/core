@@ -498,7 +498,7 @@ class Spreadsheet {
      */
     static parse_csv(contents) {
 
-        const value = "([^\",\\r\\n]*|\"\([^\"]|\"\")*\")";
+        const value = "([^\",\\r\\n]*|\"([^\"]|\"\")*\")";
 
         // Excel requires a byte order mark, which we ignore:
         if ( contents[0] == "\u{FEFF}" ) contents = contents.substr(1);
