@@ -763,7 +763,7 @@ class DiarySleepmeter extends DiaryBase {
                     },
                     {
                         "members": [ "holes" ],
-                        "regexp" : /^([0-9]*-[0-9]*)*$/,
+                        "regexp" : /^([0-9]*-[0-9]*(\|[0-9]*-[0-9]*)*)?$/,
                         "export": (array_element,row,offset) => {
                             row[offset] = Spreadsheet.create_cell( array_element["holes"].map( hole => hole["wake"]+'-'+hole["sleep"] ).join('|') );
                             return true;
