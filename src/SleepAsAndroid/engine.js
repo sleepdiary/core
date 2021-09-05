@@ -128,10 +128,10 @@ class DiarySleepAsAndroid extends DiaryBase {
 
         const              integer_type = "\"-?[0-9]*\"";
         const non_negative_integer_type =   "\"[0-9]*\"";
-        const              number_type  = "\"-?[0-9]*(\.[0-9]*\)?\"";
-        const non_negative_number_type  =   "\"[0-9]*(\.[0-9]*\)?\"";
+        const              number_type  = "\"-?[0-9]*(\\.[0-9]*)?\"";
+        const non_negative_number_type  =   "\"[0-9]*(\\.[0-9]*)?\"";
 
-        const deep_sleep_type = "\"(-[12]\.0|0\.[0-9]*|1\.0)\"";
+        const deep_sleep_type = "\"(-[12]\\.0|0\\.[0-9]*|1\\.0)\"";
 
         const geo_type = "\"[0-9a-f]*\"";
 
@@ -140,7 +140,7 @@ class DiarySleepAsAndroid extends DiaryBase {
         const event_type = "\"([A-Z_]*)-([0-9]*)(-([-0-9E.]*))?\"";
 
         // e.g. "31. 01. 2010 01:23" (with quotes):
-        const datetime_type = "\"([0-9]*)\. ([0-9]*). ([0-9]*) ([0-9]*):([0-9]*)\"";
+        const datetime_type = "\"([0-9]*)\\. ([0-9]*). ([0-9]*) ([0-9]*):([0-9]*)\"";
 
         const time_type = "\"([0-9]*):([0-9]*)\"";
 
