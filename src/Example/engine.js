@@ -32,7 +32,8 @@
  * 2. Fill in all the other "TODO" blocks in this file
  * 3. Add unit tests in test.js
  * 4. Add documentation in README.md
- * 5. Add this directory to "FORMATS" in ../../Makefile
+ * 5. Add this directory to "ENGINES" in ../../Makefile
+ * 6. `git grep` for other places to mention this format
  *
  *
  * A note about code style:
@@ -432,6 +433,7 @@ class DiaryExample extends DiaryBase {
             "url": "/src/Example", // shown to users who want to know about this format
             //"statuses": [ "awake", "asleep" ], // if this format only supports a limited set of statuses
             "extension": ".exm", // TODO: replace this with the standard file extension for this file
+            //"logo": "http://www.example.com/logo.png", // image people will recoginise as associated with the format
         }
     }
 

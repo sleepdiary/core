@@ -1,6 +1,10 @@
 register_roundtrip_modifier("Example",function(our_diary,roundtripped_diary,other_format) {
     /*
-     * TODO: add workarounds for expected information loss when roundtripping between formats
+     * TODO: add workarounds for expected information loss when tests in this file
+     * roundtrip to other formats and back again.
+     *
+     * TODO: add similar workarounds in the "test.js" files for every other format,
+     * to fix those files' tests that roundtrip to this format and back again.
      *
      * test_parse() checks that roundtrips work between your format and others by comparing:
      *
@@ -21,7 +25,7 @@ register_roundtrip_modifier("Example",function(our_diary,roundtripped_diary,othe
     switch ( other_format.name ) {
     case "SomeFormat":
         [our_diary,roundtripped_diary].forEach(function(diary) {
-            diary.records.forEach( function(record) {
+            diary["records"].forEach( function(record) {
                 /*
                  * TODO: explain why key1 and key2 cannot be usefully compared
                  */
@@ -50,7 +54,7 @@ describe("Example format", () => {
         //output: 'disable', // uncomment if this format contains information that can't be output
         //debug: true, // uncomment to get console.log() messages about this test
         expected: {
-            records: [],
+            "records": [],
             ...
         }
     });
