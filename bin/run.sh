@@ -79,7 +79,10 @@ case "$1" in
         checked_build
         inotifywait -r -q -e CLOSE_WRITE -m $DIRECTORIES | \
             while read REPLY
-            do checked_build
+            do
+                echo
+                echo "[$(date)] Recompiling..."
+                checked_build
             done
         ;;
 
