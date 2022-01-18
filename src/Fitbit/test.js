@@ -32,6 +32,10 @@ describe("Fitbit format", () => {
         "\n"
     );
 
+    var simple_end_time = new Date(2010, 10, 12, 14, 34, 0, 0).getTime();
+    var  other_end_time = new Date(2012, 10, 10, 16, 32, 0, 0).getTime();
+    var duration = ( 700 + 91 ) * 60*1000;
+
     var simple_records = [
         {
             "Minutes Asleep": 700,
@@ -41,10 +45,10 @@ describe("Fitbit format", () => {
             "Minutes REM Sleep": 123,
             "Minutes Light Sleep": 1234,
             "Minutes Deep Sleep": 12345,
-            "End Time": 1289572440000,
-            "end"     : 1289572440000,
-            "Start Time": 1289572440000 - ( 700 + 91 ) * 60*1000,
-            "start"     : 1289572440000 - ( 700 + 91 ) * 60*1000,
+            "End Time": simple_end_time,
+            "end"     : simple_end_time,
+            "Start Time": simple_end_time - duration,
+            "start"     : simple_end_time - duration,
         }
     ];
 
@@ -80,9 +84,9 @@ describe("Fitbit format", () => {
         expected: [
             {
                 "status"  : 'asleep',
-                "start"   : 1289524980000,
-                "end"     : 1289572440000,
-                "duration": ( 700 + 91 ) * 60*1000,
+                "start"   : simple_end_time - duration,
+                "end"     : simple_end_time,
+                "duration": duration,
                 "start_of_new_day": true,
                 "day_number"      : 2,
                 "is_primary_sleep": true,
@@ -136,10 +140,10 @@ describe("Fitbit format", () => {
         expected: {
             "records": [
                 {
-                    "Start Time": 1352517660000,
-                    "End Time"  : 1352565120000,
-                    "start"     : 1352517660000,
-                    "end"       : 1352565120000,
+                    "Start Time": other_end_time - duration,
+                    "End Time"  : other_end_time,
+                    "start"     : other_end_time - duration,
+                    "end"       : other_end_time,
                     "Minutes Asleep": 91,
                     "Minutes Awake" : 700,
                     "Number of Awakenings": 12345,
