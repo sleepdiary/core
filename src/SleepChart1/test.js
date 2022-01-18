@@ -4,6 +4,7 @@ register_roundtrip_modifier("SleepChart1",function(our_diary,roundtripped_diary,
     case "PleesTracker":
     case "SpreadsheetGraph":
     case "SpreadsheetTable":
+    case "Fitbit":
         [our_diary,roundtripped_diary].forEach(function(diary) {
             diary["records"].forEach( function(record) {
                 ["tags"].forEach(function(key) {

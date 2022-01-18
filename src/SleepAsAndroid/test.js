@@ -3,6 +3,7 @@ register_roundtrip_modifier("SleepAsAndroid",function(our_diary,roundtripped_dia
     case "ActivityLog":
     case "SleepChart1":
     case "PleesTracker":
+    case "Fitbit":
         [our_diary,roundtripped_diary].forEach(function(diary) {
             diary["records"].forEach( function(record) {
                 /*
@@ -15,6 +16,7 @@ register_roundtrip_modifier("SleepAsAndroid",function(our_diary,roundtripped_dia
                 });
             });
         });
+        // FALL THROUGH
     case "SpreadsheetGraph":
     case "SpreadsheetTable":
     case "Sleepmeter":

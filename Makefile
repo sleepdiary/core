@@ -4,7 +4,7 @@ FULL: build test
 .PHONY: DEFAULT_GOAL clean build test test-1 test-2 test-3 test-4 test-5
 
 # Add your engines to the following line:
-ENGINES = Standard Sleepmeter SleepAsAndroid PleesTracker SleepChart1 ActivityLog
+ENGINES = Standard Sleepmeter SleepAsAndroid PleesTracker SleepChart1 ActivityLog Fitbit
 # Low priority engines:
 ENGINES += SpreadsheetTable SpreadsheetGraph
 
