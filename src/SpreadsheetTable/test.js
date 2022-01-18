@@ -3,6 +3,7 @@ register_roundtrip_modifier("SpreadsheetTable",function(our_diary,roundtripped_d
     case "ActivityLog":
     case "SleepChart1":
     case "PleesTracker":
+    case "Fitbit":
         [our_diary,roundtripped_diary].forEach(function(diary) {
             diary["records"].forEach( function(record) {
                 /*
