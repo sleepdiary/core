@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Sleepdiary Developers <sleepdiary@pileofstuff.org>
+ * Copyright 2020-2022 Sleepdiary Developers <sleepdiary@pileofstuff.org>
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
