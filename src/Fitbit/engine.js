@@ -274,18 +274,18 @@ class DiaryFitbit extends DiaryBase {
                         ].map(
                             date => {
                                 date = new Date(r[date]);
-                                const hours = date["getUTCHours"]();
+                                const hours = date["getHours"]();
                                 return (
                                     '"' +
-                                    date["getUTCFullYear"]() +
+                                    date["getFullYear"]() +
                                     '-' +
-                                    DiaryBase.zero_pad( date["getUTCMonth"]()+1 ) +
+                                    DiaryBase.zero_pad( date["getMonth"]()+1 ) +
                                     '-' +
-                                    DiaryBase.zero_pad( date["getUTCDate" ] () ) +
+                                    DiaryBase.zero_pad( date["getDate" ] () ) +
                                     ' ' +
                                     ( ( hours % 12 ) || 12 ) +
                                     ':' +
-                                    DiaryBase.zero_pad( date["getUTCMinutes"]() ) +
+                                    DiaryBase.zero_pad( date["getMinutes"]() ) +
                                     ( ( hours >= 12 ) ? 'PM' : 'AM' ) +
                                     '"'
                                 );
