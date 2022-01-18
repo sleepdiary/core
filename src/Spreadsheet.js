@@ -586,6 +586,8 @@ class Spreadsheet {
      */
     ["load"](spreadsheet) {
 
+        const debug = false;
+
         const sheets = spreadsheet["sheets"];
 
         if ( !sheets ) return false;
@@ -604,10 +606,17 @@ class Spreadsheet {
                 const cells = sheet["cells"];
                 const is_dictionary = sheet_rule["type"] == "dictionary";
 
+                if ( debug ) {
+                    console.info( "Checking whether sheet_rule describes sheet...", sheet_rule, sheet );
+                }
+
                 if (
                     !cells.length ||
                     ( is_dictionary && cells.length != 2 )
                 ) {
+                    if ( debug ) {
+                        console.info( "sheet_rule describes a sheet with a different shape" );
+                    }
                     return false;
                 }
 
@@ -618,6 +627,9 @@ class Spreadsheet {
                         cell => cell["members"].every( member => member == (header_row.shift()||{"value":NaN})["value"] )
                     )
                 ) {
+                    if ( debug ) {
+                        console.info( "sheet_rule describes a sheet with different headers" );
+                    }
                     return false;
                 }
 
@@ -627,16 +639,37 @@ class Spreadsheet {
                     if ( !row.length ) return true;
                     let offset = 0;
                     let array_element = {};
+                    const parse_sheet =
+                          cell => cell["import"](
+                              array_element,
+                              row,
+                              ( offset += cell["members"].length ) - cell["members"].length
+                          );
                     array.push(array_element);
                     return sheet_rule["cells"].every(
-                        cell => cell["import"](
-                            array_element,
-                            row,
-                            ( offset += cell["members"].length ) - cell["members"].length
-                        )
+                        debug
+                        ? function(cell,n) {
+                            if ( parse_sheet(cell) ) {
+                                return true;
+                            } else {
+                                console.info(
+                                    "sheet_rule describes a sheet with a different body",
+                                    n,
+                                    cell,
+                                    array_element,
+                                    row
+                                );
+                                return false;
+                            }
+                        }
+                        : parse_sheet
                     );
                 }) ) {
                     return false;
+                }
+
+                if ( debug ) {
+                    console.info( "sheet_rule matches sheet - loading" );
                 }
 
                 const member = sheet_rule["member"];
@@ -652,6 +685,10 @@ class Spreadsheet {
                 let number_formats = [];
                 sheet_rule["cells"].forEach( cell => number_formats = number_formats.concat( cell["formats"] ) );
                 sheet["number_formats"] = number_formats;
+
+                if ( debug ) {
+                    console.info( "sheet_rule matches sheet - done" );
+                }
 
                 return true;
 
