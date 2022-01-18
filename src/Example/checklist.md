@@ -52,9 +52,7 @@ Before creating a pull request for your format, make sure to:
 * write `./README.md`
 * write `./engine.js`
 * write `./tests.js`
-* write `./demo.html`
 * mention the file in `/Makefile`
-* mention the file in `/index.js`
 * mention the file in `/README.md`
 * mention the file in `/doc/README.md`
 * fix any issues when rebuilding the code
