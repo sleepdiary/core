@@ -16,12 +16,14 @@ The sleep diary export feature produces an ASCII CSV file without a byte order m
 ```csv
 Sleep
 Start Time,End Time,Minutes Asleep,Minutes Awake,Number of Awakenings,Time in Bed,Minutes REM Sleep,Minutes Light Sleep,Minutes Deep Sleep
-"2010-10-13 11:12PM","2010-10-11 10:11AM","500","50","30","500","100","300","100"
-"2010-10-12 10:11PM","2010-10-11 9:10AM","500","50","30","500","100","300","100"
-"2010-10-11 9:10PM","2010-10-11 8:09AM","500","50","30","500","100","300","100"
-"2010-10-10 8:09PM","2010-10-11 7:08AM","500","50","30","500","100","300","100"
+"2010-10-13 11:12PM","2010-10-11 10:11AM","5,000","500","300","N/A","1,000","3,000","1,000"
+"2010-10-12 10:11PM","2010-10-11 9:10AM","5,000","500","300","5,000","N/A","3,000","1,000"
+"2010-10-11 9:10PM","2010-10-11 8:09AM","5,000","500","300","5,000","1,000","N/A","1,000"
+"2010-10-10 8:09PM","2010-10-11 7:08AM","5,000","500","300","5,000","1,000","3,000","N/A"
 
 ```
+
+Note: the numbers in the above example are illustrative, and do not add up.
 
 The file is split into the following sections:
 
@@ -35,12 +37,12 @@ The second line of the CSV file is always `Start Time,End Time,Minutes Asleep,Mi
 
 ### Body
 
-Further lines indicate sleeps.  Lines are separated by newline characters (`0x0a`), columns are separated by `,` characters, and columns always begin and end with quotation marks.  Columns have the following meaning:
+Further lines indicate sleeps.  Lines are separated by newline characters (`0x0a`), columns are separated by `,` characters, and columns always begin and end with quotation marks.  Large numbers have commas in them (e.g. `1,000`).  Columns have the following meaning:
 
 - `Start Time` and `End Time` - time in the user's local timezone when sleep started and ended
 - `Minutes Asleep`, `Minutes Awake` - integer number of minutes spent in each state during the sleep
   - not necessarily accurate, but the sum is guaranteed to be equal to the difference between `Start Time` and `End Time`
-- `Time in Bed`, `Minutes REM Sleep`, `Minutes Light Sleep` and `Minutes Deep Sleep` - integer number of minutes spent in each state during the sleep
+- `Time in Bed`, `Minutes REM Sleep`, `Minutes Light Sleep` and `Minutes Deep Sleep` - integer number of minutes spent in each state during the sleep, or `N/A` if unknown
   - tend not to be reliable in practice
 - `Number of Awakenings` - number of times the user awoke during the sleep
   - tends not to be reliable in practice
