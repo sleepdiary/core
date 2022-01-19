@@ -28,7 +28,7 @@ describe("Fitbit format", () => {
     var simple_diary = (
         "Sleep\n" +
         "Start Time,End Time,Minutes Asleep,Minutes Awake,Number of Awakenings,Time in Bed,Minutes REM Sleep,Minutes Light Sleep,Minutes Deep Sleep\n" +
-        '"2010-11-12 1:23AM","2010-11-12 2:34PM","700","91","1","12","123","1234","12345"\n' +
+        '"2010-11-12 1:23AM","2010-11-12 2:34PM","700","91","1","12","123","1,234","12,345"\n' +
         "\n"
     );
 
@@ -67,6 +67,80 @@ describe("Fitbit format", () => {
         input: simple_diary,
         expected: {
             "records": simple_records,
+        }
+    });
+
+    test_parse({
+        file_format: "Fitbit",
+        name: "Hard-to-parse diary",
+        input:
+            'Sleep\n' +
+            'Start Time,End Time,Minutes Asleep,Minutes Awake,Number of Awakenings,Time in Bed,Minutes REM Sleep,Minutes Light Sleep,Minutes Deep Sleep\n' +
+            '"2010-11-12 1:23AM","2010-11-12 2:34PM","5,000","500","300","N/A","1,000","3,000","1,000"\n' +
+            '"2010-11-12 1:23AM","2010-11-12 2:34PM","500","5,000","300","5,000","N/A","3,000","1,000"\n' +
+            '"2010-11-12 1:23AM","2010-11-12 2:34PM","5,000","500","300","5,000","1,000","N/A","1,000"\n' +
+            '"2010-11-12 1:23AM","2010-11-12 2:34PM","5,000","500","300","5,000","1,000","3,000","N/A"\n' +
+'\n'
+
+        ,
+        //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
+        //output: 'disable', // uncomment if this format contains information that can't be output
+        //debug: true, // uncomment to get console.log() messages about this test
+        expected: {
+            "records": [
+                {
+                    "End Time": simple_end_time,
+                    "end"     : simple_end_time,
+                    "Start Time": simple_end_time - 5500*60*1000,
+                    "start"     : simple_end_time - 5500*60*1000,
+                    "Minutes Asleep": 5000,
+                    "Minutes Awake": 500,
+                    "Number of Awakenings": 300,
+                    "Time in Bed": null,
+                    "Minutes REM Sleep": 1000,
+                    "Minutes Light Sleep": 3000,
+                    "Minutes Deep Sleep": 1000,
+                },
+                {
+                    "End Time": simple_end_time,
+                    "end"     : simple_end_time,
+                    "Start Time": simple_end_time - 5500*60*1000,
+                    "start"     : simple_end_time - 5500*60*1000,
+                    "Minutes Asleep": 500,
+                    "Minutes Awake": 5000,
+                    "Number of Awakenings": 300,
+                    "Time in Bed": 5000,
+                    "Minutes REM Sleep": null,
+                    "Minutes Light Sleep": 3000,
+                    "Minutes Deep Sleep": 1000,
+                },
+                {
+                    "End Time": simple_end_time,
+                    "end"     : simple_end_time,
+                    "Start Time": simple_end_time - 5500*60*1000,
+                    "start"     : simple_end_time - 5500*60*1000,
+                    "Minutes Asleep": 5000,
+                    "Minutes Awake": 500,
+                    "Number of Awakenings": 300,
+                    "Time in Bed": 5000,
+                    "Minutes REM Sleep": 1000,
+                    "Minutes Light Sleep": null,
+                    "Minutes Deep Sleep": 1000,
+                },
+                {
+                    "End Time": simple_end_time,
+                    "end"     : simple_end_time,
+                    "Start Time": simple_end_time - 5500*60*1000,
+                    "start"     : simple_end_time - 5500*60*1000,
+                    "Minutes Asleep": 5000,
+                    "Minutes Awake": 500,
+                    "Number of Awakenings": 300,
+                    "Time in Bed": 5000,
+                    "Minutes REM Sleep": 1000,
+                    "Minutes Light Sleep": 3000,
+                    "Minutes Deep Sleep": null,
+                },
+            ],
         }
     });
 
@@ -135,7 +209,7 @@ describe("Fitbit format", () => {
         left: simple_diary,
         right: "Sleep\n" +
         "Start Time,End Time,Minutes Asleep,Minutes Awake,Number of Awakenings,Time in Bed,Minutes REM Sleep,Minutes Light Sleep,Minutes Deep Sleep\n" +
-        '"2012-11-10 3:21AM","2012-11-10 4:32PM","91","700","12345","1234","123","12","1"\n' +
+        '"2012-11-10 3:21AM","2012-11-10 4:32PM","91","700","12,345","1,234","123","12","1"\n' +
         "\n",
         expected: {
             "records": [

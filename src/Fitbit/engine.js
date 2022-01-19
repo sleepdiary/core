@@ -99,22 +99,27 @@ class DiaryFitbit extends DiaryBase {
                         {
                             "member": "Number of Awakenings",
                             "type": "number",
+                            "optional": true,
                         },
                         {
                             "member": "Time in Bed",
                             "type": "number",
+                            "optional": true,
                         },
                         {
                             "member": "Minutes REM Sleep",
                             "type": "number",
+                            "optional": true,
                         },
                         {
                             "member": "Minutes Light Sleep",
                             "type": "number",
+                            "optional": true,
                         },
                         {
                             "member": "Minutes Deep Sleep",
                             "type": "number",
+                            "optional": true,
                         },
                         {
                             "members": [],
@@ -146,18 +151,19 @@ class DiaryFitbit extends DiaryBase {
 
         const fitbit_timestamp = '"(([0-9][0-9]*)-([0-9][0-9]*)-([0-9][0-9]*) ([0-9][0-9]*):([0-9][0-9]*)([AP])M)"';
 
-        const fitbit_number = '"([0-9][0-9]*)"';
+        const fitbit_number       = '"([0-9][0-9,]*)"';
+        const fitbit_maybe_number = '"([0-9][0-9,]*|N/A)"';
 
         const fitbit_line
               = fitbit_timestamp
               + ',' + fitbit_timestamp
               + ',' + fitbit_number // Minutes Asleep
               + ',' + fitbit_number // Minutes Awake
-              + ',' + fitbit_number // Number of Awakenings
-              + ',' + fitbit_number // Time in Bed
-              + ',' + fitbit_number // Minutes REM Sleep
-              + ',' + fitbit_number // Minutes Light Sleep
-              + ',' + fitbit_number // Minutes Deep Sleep
+              + ',' + fitbit_maybe_number // Number of Awakenings
+              + ',' + fitbit_maybe_number // Time in Bed
+              + ',' + fitbit_maybe_number // Minutes REM Sleep
+              + ',' + fitbit_maybe_number // Minutes Light Sleep
+              + ',' + fitbit_maybe_number // Minutes Deep Sleep
               + "\n"
         ;
 
@@ -181,6 +187,14 @@ class DiaryFitbit extends DiaryBase {
             return new Date(year, month-1, day, hour, minute).getTime();
         }
 
+        function parse_number(str) {
+            return parseInt(str.replace(/,/g,''),10);
+        }
+
+        function parse_maybe_number(str) {
+            return ( str == "N/A" ) ? null : parse_number(str);
+        }
+
         switch ( file["file_format"]() ) {
 
         case "string":
@@ -199,21 +213,19 @@ class DiaryFitbit extends DiaryBase {
                      end_time, end_year,end_month,end_day,end_hour,end_minute,end_ap,
                      minutes_asleep,minutes_awake,number_of_awakenings,time_in_bed,minutes_rem_sleep,minutes_light_sleep,minutes_deep_sleep
                     ) => {
-                        let start = parse_timestamp(start_year, start_month, start_day, start_hour, start_minute, start_ap),
-                            end   = parse_timestamp(  end_year,   end_month,   end_day,   end_hour,   end_minute,   end_ap),
-                        record = {
-                            "Start Time"          : start,
-                            "End Time"            : end,
-                            "Minutes Asleep"      : parseInt(minutes_asleep,10),
-                            "Minutes Awake"       : parseInt(minutes_awake,10),
-                            "Number of Awakenings": parseInt(number_of_awakenings,10),
-                            "Time in Bed"         : parseInt(time_in_bed,10),
-                            "Minutes REM Sleep"   : parseInt(minutes_rem_sleep,10),
-                            "Minutes Light Sleep" : parseInt(minutes_light_sleep,10),
-                            "Minutes Deep Sleep"  : parseInt(minutes_deep_sleep,10),
-                            "end"                 : end,
-                        };
-                        record["start"] = end - ( record["Minutes Asleep"] + record["Minutes Awake"] ) * 60*1000;
+                        let end = parse_timestamp( end_year, end_month, end_day, end_hour, end_minute, end_ap),
+                            record = {
+                                "End Time"            : end,
+                                "Minutes Asleep"      : parse_number(minutes_asleep),
+                                "Minutes Awake"       : parse_number(minutes_awake),
+                                "Number of Awakenings": parse_maybe_number(number_of_awakenings),
+                                "Time in Bed"         : parse_maybe_number(time_in_bed),
+                                "Minutes REM Sleep"   : parse_maybe_number(minutes_rem_sleep),
+                                "Minutes Light Sleep" : parse_maybe_number(minutes_light_sleep),
+                                "Minutes Deep Sleep"  : parse_maybe_number(minutes_deep_sleep),
+                                "end"                 : end,
+                            };
+                        record["Start Time"] = record["start"] = end - ( record["Minutes Asleep"] + record["Minutes Awake"] ) * 60*1000;
                         records.push(record);
                     }
                 );
@@ -225,7 +237,18 @@ class DiaryFitbit extends DiaryBase {
 
         default:
 
-            if ( this.initialise_from_common_formats(file) ) return;
+            if ( this.initialise_from_common_formats(file) ) {
+                this["records"].forEach(
+                    record => [
+                        "Number of Awakenings",
+                        "Time in Bed",
+                        "Minutes REM Sleep",
+                        "Minutes Light Sleep",
+                        "Minutes Deep Sleep"
+                    ].forEach( key => Object.prototype.hasOwnProperty.call(record,key) || ( record[key] = null ) )
+                );
+                return;
+            }
 
             /**
              * Individual records from the sleep diary
@@ -241,11 +264,11 @@ class DiaryFitbit extends DiaryBase {
                         "End Time"            : r["end"],
                         "Minutes Asleep"      : Math.round( ( r["end"] - r["start"] ) / (60*1000) ),
                         "Minutes Awake"       : 0,
-                        "Number of Awakenings": 0,
-                        "Time in Bed"         : 0,
-                        "Minutes REM Sleep"   : 0,
-                        "Minutes Light Sleep" : 0,
-                        "Minutes Deep Sleep"  : 0,
+                        "Number of Awakenings": null,
+                        "Time in Bed"         : null,
+                        "Minutes REM Sleep"   : null,
+                        "Minutes Light Sleep" : null,
+                        "Minutes Deep Sleep"  : null,
                     }))
             );
 
@@ -299,7 +322,12 @@ class DiaryFitbit extends DiaryBase {
                             "Minutes Light Sleep",
                             "Minutes Deep Sleep"
                         ].map(
-                            key => '"' + r[key] + '"'
+                            key => (
+                                ( r[key] === null )
+                                ? '"N/A"'
+                                // based on https://stackoverflow.com/a/2901298
+                                : '"' + r[key].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '"'
+                            )
                         )).join(',')
                     ),
                     "\n" // Fitbit format includes a trailing newline
