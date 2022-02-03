@@ -149,7 +149,7 @@ class DiaryFitbit extends DiaryBase {
 
         const fitbit_footer = "\n";
 
-        const fitbit_timestamp = '"(([0-9][0-9]*)-([0-9][0-9]*)-([0-9][0-9]*) ([0-9][0-9]*):([0-9][0-9]*)([AP])M)"';
+        const fitbit_timestamp = '"(([0-9][0-9]*)-([0-9][0-9]*)-([0-9][0-9]*) ([0-9][0-9]*):([0-9][0-9]*) *([AP])M)"';
 
         const fitbit_number       = '"([0-9][0-9,]*)"';
         const fitbit_maybe_number = '"([0-9][0-9,]*|N/A)"';
@@ -170,7 +170,8 @@ class DiaryFitbit extends DiaryBase {
         const fitbit_file_re = new RegExp(
               '^'   + fitbit_header
             + '(?:' + fitbit_line   + ')*'
-            +         fitbit_footer + '$'
+            +         fitbit_footer + '$',
+            'i'
         );
 
         function parse_timestamp( year, month, day, hour, minute, ap ) {
@@ -184,7 +185,11 @@ class DiaryFitbit extends DiaryBase {
                 hour += 12;
             }
             minute = parseInt(minute,10);
-            return new Date(year, month-1, day, hour, minute).getTime();
+            if ( day > 31 ) { // DD-MM-YYYY instead of YYYY-MM-DD
+                return new Date(day, month-1, year, hour, minute).getTime();
+            } else {
+                return new Date(year, month-1, day, hour, minute).getTime();
+            }
         }
 
         function parse_number(str) {
@@ -207,13 +212,13 @@ class DiaryFitbit extends DiaryBase {
             } else {
 
                 contents.replace(
-                    new RegExp(fitbit_line,'g'),
+                    new RegExp(fitbit_line,'gi'),
                     (_,
                      start_time, start_year,start_month,start_day,start_hour,start_minute,start_ap,
                      end_time, end_year,end_month,end_day,end_hour,end_minute,end_ap,
                      minutes_asleep,minutes_awake,number_of_awakenings,time_in_bed,minutes_rem_sleep,minutes_light_sleep,minutes_deep_sleep
                     ) => {
-                        let end = parse_timestamp( end_year, end_month, end_day, end_hour, end_minute, end_ap),
+                        let end = parse_timestamp( end_year, end_month, end_day, end_hour, end_minute, end_ap.toUpperCase() ),
                             record = {
                                 "End Time"            : end,
                                 "Minutes Asleep"      : parse_number(minutes_asleep),
