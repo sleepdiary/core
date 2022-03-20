@@ -54,7 +54,7 @@ Further lines indicate sleeps.  Lines are separated by newline characters (`0x0a
   - `AM`/`PM` are uppercase, with no leading space
 - `DD-MM-YYYY H:MM am` and `DD-MM-YYYY H:MM pm`
   - day, month, year, unpadded hour, zero-padded minute
-  - ` am`/`pm` are lowercase, with one leading space
+  - ` am`/` pm` are lowercase, with one leading space
 - other formats may be observed in future
 
 Fitbit devices seem to automatically accomodate daylight savings time, but we have not yet been able to determine how `Start Time` and `End Time` are affected.  The example code ignores the `Start Time` field altogether, and instead uses the equation `start = End Time - Minutes Awake - Minutes Asleep`.  This ensures all times are calculated with the most recent timezone, whatever that timezone may be.
