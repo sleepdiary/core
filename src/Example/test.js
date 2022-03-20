@@ -86,23 +86,13 @@ describe("Example format", () => {
     // TODO: test a hard-to-parse comment:
     test_parse({
         file_format: "Example",
-        name: "Object diary",
-        input: {
-            records: [
-                {
-                    comment: "this is a single field containing one comma (,) one newline (\n) and one double quote (\")",
-                },
-            ],
-        },
+        name: "Hard-to-parse diary",
+        input: "... string containing hard-to-parse records ...",
         //spreadsheetify: "disable", // uncomment if this format is not compatible with spreadsheets
         //output: 'disable', // uncomment if this format contains information that can't be output
         //debug: true, // uncomment to get console.log() messages about this test
         expected: {
-            records: [
-                {
-                    comment: "this is a single field containing one comma (,) one newline (\n) and one double quote (\")",
-                },
-            ],
+            ...
         }
     });
 
