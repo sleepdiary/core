@@ -18,7 +18,7 @@ CLOSURE_OPTIONS= \
 		--export_local_property_definitions \
 		--isolation_mode=IIFE \
 		--compilation_level ADVANCED_OPTIMIZATIONS \
-		--language_in ECMASCRIPT_NEXT_IN \
+		--language_in ECMASCRIPT_NEXT \
 		--language_out ECMASCRIPT5 \
 		--create_source_map "%outname%.map" \
 
