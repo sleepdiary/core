@@ -835,7 +835,7 @@ class DiaryStandard extends DiaryBase {
             .forEach( r => {
                 const day_number = r["day_number"];
                 if (
-                    (starts[day_number]||0) < r["start"]
+                    (starts[day_number]||Infinity) > r["start"]
                     // duration cannot be calculated for an incomplete day:
                     && day_number > 0 && day_number < cutoff
                 )
