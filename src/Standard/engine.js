@@ -824,22 +824,18 @@ class DiaryStandard extends DiaryBase {
      */
     ["summarise_days"](filter) {
 
-        let starts = [],
-            cutoff = (
-                this["records"].length
-                ? this["records"][this["records"].length-1]["day_number"]
-                : 0
-            );
+        let starts = [];
         // get the earliest start time for each day:
         ( filter ? this["records"].filter(filter) : this["records"] )
             .forEach( r => {
                 const day_number = r["day_number"];
                 if (
-                    (starts[day_number]||Infinity) > r["start"]
-                    // duration cannot be calculated for an incomplete day:
-                    && day_number > 0 && day_number < cutoff
-                )
+                    r["start_of_new_day"]
+                    // "start" of new day is unreliable for the first day:
+                    && day_number
+                ) {
                     starts[day_number] = r["start"];
+                }
             });
 
         // remove leading undefined start times:
