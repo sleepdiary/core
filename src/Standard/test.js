@@ -3512,7 +3512,19 @@ describe("Standard format", () => {
                     },
                 ],
                 "args": [],
-                "expected": null,
+                "expected": {
+                    "average": 86400000,
+                    "mean": 86400000,
+                    "interquartile_mean": 86400000,
+                    "median": 86400000,
+                    "interquartile_range": 0,
+                    "durations": [ 86400000 ],
+                    "timestamps": [ 1262304000000+86400000*1 ],
+                    "interquartile_durations": [ 86400000 ],
+                    "rolling_average": [ undefined ],
+                    "standard_deviation": 0,
+                    "interquartile_standard_deviation": 0
+                },
             },
 
             {
@@ -3549,12 +3561,12 @@ describe("Standard format", () => {
                     "interquartile_mean": 86400000,
                     "median": 86400000,
                     "interquartile_range": 0,
-                    "durations": [ 86400000 ],
+                    "durations": [ 86400000, 86400000 ],
                     "interquartile_durations": [ 86400000 ],
                     "standard_deviation": 0,
                     "interquartile_standard_deviation": 0,
-                    "timestamps": [ 1262304000000+86400000*1 ],
-                    "rolling_average": [ undefined ],
+                    "timestamps": [ 1262304000000+86400000*1, 1262304000000+86400000*2 ],
+                    "rolling_average": [ undefined, undefined ],
                 },
             },
 
