@@ -493,7 +493,7 @@ class DiarySleepAsAndroid extends DiaryBase {
 
                 // loop through times:
                 line2_data[40].replace( number_type_re, function(str) {
-                    times[current_time++].actigraphy = parse_number(str);
+                    times[current_time++]["actigraphy"] = parse_number(str);
                 });
                 // loop through events:
                 line2_data[43].replace( event_type_re, function(str,label,timestamp,_,value) {
