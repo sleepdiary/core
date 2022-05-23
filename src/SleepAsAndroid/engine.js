@@ -507,12 +507,18 @@ class DiarySleepAsAndroid extends DiaryBase {
                  * Read the third line
                  */
 
-                let line3_data = lines[n+2] ? lines[n+2].match(line_3_re) : 0;
+                let line3_data = lines[n+2] ? lines[n+2].match(line_3_re) : 0, noises = [];
                 if ( line3_data ) {
-                    current_time = 0;
-                    line3_data[1].replace( number_type_re, function(str) {
-                        times[current_time++].noise = parse_number(str);
-                    });
+                    line3_data[1].replace( number_type_re, str => noises.push(parse_number(str)) );
+                    // has been observed to be false in the wild:
+                    if ( times.length == noises.length ) {
+                        times.forEach( (t,n) => t["noise"] = noises[n] );
+                    } else {
+                        console.warn(
+                            "Ignoring third line data with unexpected length:",
+                            line3_data
+                        );
+                    }
                     ++n;
                 }
 
