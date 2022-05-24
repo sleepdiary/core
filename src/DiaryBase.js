@@ -409,17 +409,15 @@ class DiaryBase {
         if ( value.match ) {
 
             const match = value.match(
-                /^((19|20)[0-9]{2})[-.]?([0-9]{2})[-.]?([0-9]{2})[T ]?([0-9]{2})[.:]?([0-9]{2})(?:[.:]?([0-9]{2}))?Z?$/
+                /^((?:19|20)[0-9]{2})[-.]?([0-9]{2})[-.]?([0-9]{2})[T ]?([0-9]{2})[.:]?([0-9]{2})(?:[.:]?([0-9]{2}))?Z?$/
             );
             if ( match ) {
-                // YYYY-MM-DDThh:mm:ss
+                // YYYY-MM-DDThh:mm:ss.mmmmZ
                 return new Date(
-                    parseInt(match[1],10),
-                    parseInt(match[3],10)-1,
-                    parseInt(match[4],10),
-                    parseInt(match[5],10),
-                    parseInt(match[6],10),
-                    parseInt(match[7]||0,10)
+                    // new Date(match[1],match[2],...) // NO!  Would parse dates in local time
+                       match[1]       +'-'+ match[2]       +'-'+ match[3]+'T'
+                    + (match[4]||'00')+':'+(match[5]||'00')+':'+(match[6]||'00')
+                    +'.'+(match[7]||0)+'Z'
                 ).getTime();
             }
 
