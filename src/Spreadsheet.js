@@ -502,8 +502,8 @@ class Spreadsheet {
 
         // Excel requires a byte order mark, which we ignore:
         if ( contents[0] == "\u{FEFF}" ) contents = contents.substr(1);
-        // reduce the complexity of the regexps by guaranteeing a trailing newline:
-        if ( contents.search(/[\r\n]$/) == -1 ) contents += "\n";
+        // reduce the complexity of the regexps by guaranteeing exactly one trailing newline:
+        contents = contents.replace(/[\r\n]*$/,'\n');
 
         // does this look like a valid CSV file?
         if ( contents.search(new RegExp(`^(?:${value}(?:,${value})*(?:\r\n|\r|\n))*$`) ) ) return;
