@@ -624,6 +624,7 @@ class DiaryStandard extends DiaryBase {
             "title": "Standardised diary format",
             "url": "/src/Standard",
             "extension": ".json",
+            "timezone": "yes",
         }
     }
 
