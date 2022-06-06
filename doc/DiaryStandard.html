@@ -1378,7 +1378,7 @@ carefully to avoid incorrect behaviour in some cases.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line1242">line 1242</a>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line1243">line 1243</a>
     </li></ul></dd>
     
 
@@ -1612,6 +1612,119 @@ carefully to avoid incorrect behaviour in some cases.</p>
     
 
     
+    <h4 class="name" id="latest_daytime_midpoint"><span class="type-signature"></span>latest_daytime_midpoint<span class="signature">()</span><span class="type-signature"> &rarr; {number|undefined}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Midpoint between primary wake and sleep events on the most recent day
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line1500">line 1500</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Unix time
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">number</span>
+|
+
+<span class="param-type">undefined</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="latest_sleep_status"><span class="type-signature"></span>latest_sleep_status<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
     
 
@@ -1664,7 +1777,7 @@ carefully to avoid incorrect behaviour in some cases.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line1482">line 1482</a>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line1483">line 1483</a>
     </li></ul></dd>
     
 
@@ -1860,6 +1973,168 @@ carefully to avoid incorrect behaviour in some cases.</p>
     <h5>Example</h5>
     
     <pre class="prettyprint"><code>diary.merge(my_data);</code></pre>
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="reset_to_timezone"><span class="type-signature"></span>reset_to_timezone<span class="signature">(timezone<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Reinterpret all records as having actually been in the specified timezone
+
+Consider a spreadsheet with an event starting at "2020-01-01 00:00".
+With no further information, we would have to assume that time was UTC,
+even if a user actually intended it to be in some other timezone.
+This function reinterprets times to correct that mistake.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>timezone</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    system_timezone
+                
+                </td>
+            
+
+            <td class="description last">originally intended timezone</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line1544">line 1544</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2189,7 +2464,7 @@ groups records by day_number.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line825">line 825</a>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line826">line 826</a>
     </li></ul></dd>
     
 
@@ -2404,7 +2679,7 @@ summaries for the data:</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line787">line 787</a>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line788">line 788</a>
     </li></ul></dd>
     
 
@@ -2683,7 +2958,7 @@ environment's default timezone</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line988">line 988</a>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line989">line 989</a>
     </li></ul></dd>
     
 
@@ -3407,7 +3682,7 @@ allow you to exclude days and records separately.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line899">line 899</a>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line900">line 900</a>
     </li></ul></dd>
     
 
@@ -3477,6 +3752,163 @@ allow you to exclude days and records separately.</p>
 
 
         
+            
+
+    
+
+    
+    <h4 class="name" id="update_timezone"><span class="type-signature"></span>update_timezone<span class="signature">(timezone<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Assign a new timezone to all records, leaving times unchanged
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>timezone</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    system_timezone
+                
+                </td>
+            
+
+            <td class="description last">new timezone</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Standard_engine.js.html">Standard/engine.js</a>, <a href="Standard_engine.js.html#line1525">line 1525</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
     
 
     
@@ -3498,7 +3930,7 @@ allow you to exclude days and records separately.</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Tue May 24 2022 16:45:41 GMT+0000 (Coordinated Universal Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Mon Jun 06 2022 09:08:00 GMT+0000 (Coordinated Universal Time)
 </footer>
 
 <script> prettyPrint(); </script>
