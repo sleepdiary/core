@@ -137,7 +137,7 @@ class DiarySleepAsAndroid extends DiaryBase {
 
         const free_text_type = "\"([^\"]|\"\")*\"";
 
-        const event_type = "\"([A-Z_]*)-([0-9]*)(-([-0-9E.]*))?\"";
+        const event_type = "\"[-0-9E.]*|([A-Z_]*)-([0-9]*)(-([-0-9E.]*))?\"";
 
         // e.g. "31. 01. 2010 01:23" (with quotes):
         const datetime_type = "\"([0-9]*)\\. ([0-9]*). ([0-9]*) ([0-9]*):([0-9]*)\"";
@@ -497,10 +497,12 @@ class DiarySleepAsAndroid extends DiaryBase {
                 });
                 // loop through events:
                 line2_data[43].replace( event_type_re, function(str,label,timestamp,_,value) {
-                    events[current_event]["label"]     = label;
-                    events[current_event]["timestamp"] = parseInt(timestamp,10);
-                    if ( value ) events[current_event]["value"] = parseFloat(value);
-                    ++current_event;
+                    if ( events[current_event] ) {
+                        events[current_event]["label"]     = label;
+                        events[current_event]["timestamp"] = parseInt(timestamp,10);
+                        if ( value ) events[current_event]["value"] = parseFloat(value);
+                        ++current_event;
+                    }
                 });
 
                 /*
