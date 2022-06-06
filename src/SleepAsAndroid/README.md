@@ -191,6 +191,8 @@ The value in the second line is a floating point number indicating the accelerom
 
 The value in the third column is a non-negative floating point number indicating the measured noise value for the given period.
 
+Real-world diaries have been observed to have a different number of columns in the first and second lines.  This can cause an `event` field to be placed in a `time` column, or vice versa.  Robust implementations should check for such lines.
+
 ### `Event` fields
 
 Each record contains zero or more `Event` fields after the time fields.  These contain two or three dash-separated values.
@@ -200,6 +202,8 @@ The first value is the event label.  Most event labels are documented in [the Sl
 The second value is the Unix timestamp in milliseconds when the event occurred.
 
 Some labels have a third field containing an associated value.  [The Sleepcloud API documentation](https://docs.sleep.urbandroid.org/devs/sleepcloud_api.html#event-labels) seems to append `(true)` to event labels that have an associated value.
+
+Real-world diaries have been observed to have a different number of columns in the first and second lines.  This can cause an `event` field to be placed in a `time` column, or vice versa.  Robust implementations should check for such lines.
 
 Here is some information about undocumented fields that have been seen in the wild:
 
