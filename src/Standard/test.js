@@ -3695,4 +3695,196 @@ describe("Standard format", () => {
 
     });
 
+    it(`calculates the correct latest midpoint`, function() {
+
+        var tests = [
+            {
+                "records": [],
+                "expected": undefined,
+            },
+            {
+                "records": [
+                    { "is_primary_sleep": true, "start": 1, "day_number": 1 },
+                ],
+                "expected": undefined,
+            },
+            // end undefined
+            {
+                "records": [
+                    { "is_primary_sleep": true, "start": 1, "day_number": 1 },
+                    { "is_primary_sleep": true, "start": 2, "day_number": 2 },
+                ],
+                "expected": undefined,
+            },
+            // wrong day number:
+            {
+                "records": [
+                    { "is_primary_sleep": true, "end"  : 1, "day_number": 1 },
+                    { "is_primary_sleep": true, "start": 2, "day_number": 3 },
+                ],
+                "expected": undefined,
+            },
+            // not primary sleeps:
+            {
+                "records": [
+                    {                           "end"  : 1, "day_number": 1 },
+                    { "is_primary_sleep": true, "start": 2, "day_number": 2 },
+                ],
+                "expected": undefined,
+            },
+            {
+                "records": [
+                    { "is_primary_sleep": true, "end"  : 1, "day_number": 1 },
+                    {                           "start": 2, "day_number": 2 },
+                ],
+                "expected": undefined,
+            },
+            // good:
+            {
+                "records": [
+                    { "is_primary_sleep": true, "end"  : 1, "day_number": 1 },
+                    { "is_primary_sleep": true, "start": 2, "day_number": 2 },
+                ],
+                "expected": 1.5,
+            },
+        ];
+
+        tests.forEach(function(test) {
+            try {
+                let diary = new_sleep_diary(wrap_input({
+                    "file_format": "Standard",
+                    "records": test["records"],
+                }));
+                expect(
+                    diary["latest_daytime_midpoint"]()
+                )["toEqual"](test["expected"]);
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
+        });
+
+    });
+
+    it(`updates and resets the timezone correctly`, function() {
+
+        var tests = [
+            {
+                "records": [],
+                "timezone": "Etc/GMT",
+                "expected": [],
+            },
+            {
+                "records": [],
+                "timezone": "Asia/Kathmandu",
+                "expected": [],
+            },
+            {
+                "records": [
+                    { "start": 123456789 },
+                ],
+                "timezone": "Etc/GMT",
+                "expected": [
+                    {
+                        "start": 123456789,
+                        "start_timezone": "Etc/GMT",
+                    },
+                ],
+            },
+            {
+                "records": [
+                    { "start": 1577836800000 }, // date -d '2020-01-01T00:00:00Z' +%s
+                    { "start": 1590969600000 }, // date -d '2020-06-01T00:00:00Z' +%s
+                    { "end"  : 1577836800000 }, // date -d '2020-01-01T00:00:00Z' +%s
+                    { "end"  : 1590969600000 }, // date -d '2020-06-01T00:00:00Z' +%s
+                ],
+                "timezone": "Asia/Kathmandu",
+                "update_expected": [
+                    {
+                        "start": 1577836800000,
+                        "start_timezone": "Asia/Kathmandu",
+                    },
+                    {
+                        "start": 1590969600000,
+                        "start_timezone": "Asia/Kathmandu",
+                    },
+                    {
+                        "end": 1577836800000,
+                        "end_timezone": "Asia/Kathmandu",
+                    },
+                    {
+                        "end": 1590969600000,
+                        "end_timezone": "Asia/Kathmandu",
+                    },
+                ],
+                "reset_expected": [
+                    {
+                        "start": 1577816100000, // TZ="Asia/Kathmandu" date -d '2020-01-01T00:00:00' +%s
+                        "start_timezone": "Asia/Kathmandu",
+                    },
+                    {
+                        "start": 1590948900000, // TZ="Asia/Kathmandu" date -d '2020-06-01T00:00:00' +%s
+                        "start_timezone": "Asia/Kathmandu",
+                    },
+                    {
+                        "end": 1577816100000, // TZ="Asia/Kathmandu" date -d '2020-01-01T00:00:00' +%s
+                        "end_timezone": "Asia/Kathmandu",
+                    },
+                    {
+                        "end": 1590948900000, // TZ="Asia/Kathmandu" date -d '2020-06-01T00:00:00' +%s
+                        "end_timezone": "Asia/Kathmandu",
+                    },
+                ],
+            },
+        ];
+
+        tests.forEach(function(test) {
+            try {
+                let diary = new_sleep_diary(wrap_input({
+                    "file_format": "Standard",
+                    "records": test["records"],
+                }));
+                diary["update_timezone"](test["timezone"]);
+                expect(
+                    diary["records"].map( r => {
+                        const ret = {};
+                        [ "start", "end" ].forEach(
+                            v => {
+                                if ( r[v] ) ret[v] = r[v];
+                                if ( r[v+"_timezone"] ) ret[v+"_timezone"] = r[v+"_timezone"];
+                            }
+                        );
+                        return ret;
+                    })
+                )["toEqual"](test["expected"]||test["update_expected"]);
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
+            try {
+                let diary = new_sleep_diary(wrap_input({
+                    "file_format": "Standard",
+                    "records": test["records"],
+                }));
+                diary["reset_to_timezone"](test["timezone"]);
+                expect(
+                    diary["records"].map( r => {
+                        const ret = {};
+                        [ "start", "end" ].forEach(
+                            v => {
+                                if ( r[v] ) ret[v] = r[v];
+                                if ( r[v+"_timezone"] ) ret[v+"_timezone"] = r[v+"_timezone"];
+                            }
+                        );
+                        return ret;
+                    })
+                )["toEqual"](test["expected"]||test["reset_expected"]);
+            } catch (e) {
+                console.error(e);
+                throw e;
+            }
+        });
+
+    });
+
 });

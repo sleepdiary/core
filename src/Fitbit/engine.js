@@ -388,6 +388,7 @@ class DiaryFitbit extends DiaryBase {
             "statuses": [ "asleep" ],
             "extension": ".csv",
             "logo": "https://community.fitbit.com/html/assets/fitbit_logo_1200.png",
+            "timezone": "tzdata",
         }
     }
 

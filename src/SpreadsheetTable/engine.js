@@ -472,7 +472,8 @@ class DiarySpreadsheetTable extends DiaryBase {
             "title": "Spreadsheet Table",
             "url": "/src/SpreadsheetTable",
             "extension": ".xlsx",
-            "icon": "mdi-file-excel"
+            "icon": "mdi-file-excel",
+            "timezone": "no",
         }
     }
 
