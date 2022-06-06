@@ -498,7 +498,8 @@ class Spreadsheet {
      */
     static parse_csv(contents) {
 
-        const value = "(?:[^\",\\r\\n]*|\"(?:[^\"]|\"\")*\")";
+        const value = "(?:[^\",\\r\\n]*|\"(?:[^\"]|\"\")*\")",
+              csv_re = new RegExp(`^${value}(?:,${value})*(?:\r\n|\r|\n)`);
 
         // Excel requires a byte order mark, which we ignore:
         if ( contents[0] == "\u{FEFF}" ) contents = contents.substr(1);
@@ -506,7 +507,11 @@ class Spreadsheet {
         contents = contents.replace(/[\r\n]*$/,'\n');
 
         // does this look like a valid CSV file?
-        if ( contents.search(new RegExp(`^(?:${value}(?:,${value})*(?:\r\n|\r|\n))*$`) ) ) return;
+        for ( let offset=0; offset!=contents.length; ) {
+            const m = contents.substr(offset).match(csv_re);
+            if ( !m ) return;
+            offset += m[0].length;
+        }
 
         let spreadsheet;
         try {
