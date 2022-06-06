@@ -236,6 +236,7 @@ class DiarySleepChart1 extends DiaryBase {
             "statuses": [ "asleep" ],
             "extension": ".tim",
             "logo": "https://www.supermemo.com/assets/images/frontpage2/intro/icon4.svg",
+            "timezone": "no",
         }
     }
 

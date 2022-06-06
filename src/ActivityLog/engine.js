@@ -252,6 +252,7 @@ class DiaryActivityLog extends DiaryBase {
             "url": "/src/ActivityLog",
             "statuses": [ "awake", "asleep" ],
             "extension": ".csv",
+            "timezone": "UTC",
         }
     }
 

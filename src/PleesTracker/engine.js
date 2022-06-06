@@ -174,6 +174,7 @@ class DiaryPleesTracker extends DiaryBase {
             "statuses": [ "asleep" ],
             "extension": ".csv",
             "logo": "https://raw.githubusercontent.com/vmiklos/plees-tracker/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png",
+            "timezone": "UTC",
         }
     }
 

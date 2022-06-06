@@ -1137,6 +1137,7 @@ class DiarySleepAsAndroid extends DiaryBase {
             "statuses": [ "asleep" ],
             "extension": ".zip",
             "logo": "https://docs.sleep.urbandroid.org/assets/images/logo.png",
+            "timezone": "tzdata",
         }
     }
 

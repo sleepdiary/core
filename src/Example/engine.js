@@ -434,6 +434,14 @@ class DiaryExample extends DiaryBase {
             //"statuses": [ "awake", "asleep" ], // if this format only supports a limited set of statuses
             "extension": ".exm", // TODO: replace this with the standard file extension for this file
             //"logo": "http://www.example.com/logo.png", // image people will recoginise as associated with the format
+
+            // Formats handle timezones differently.  Uncomment the one that applies to your format:
+            //"timezone": "tzdata", // specifies timezones as strings (e.g. Asia/Kathmandu)
+            //"timezone": "offset", // specifies timezones as UTC offsets (e.g. +0100)
+            //"timezone": "UTC", // doesn't specify timezones, but all dates are in UTC
+            //"timezone": "yes", // some combination of the above, depending on the record
+            //"timezone": "no", // doesn't specify timezones, dates are in whatever time the user says
+
         }
     }
 
