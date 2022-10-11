@@ -18,7 +18,7 @@
     "serve": "./bin/run.sh serve"
   },
   "dependencies": {
-    "@xmldom/xmldom": "^0.7.0",
+    "@xmldom/xmldom": "^0.8.3",
     "exceljs": "^4.2.1",
     "timezonecomplete": "^5.12.4"
   },
